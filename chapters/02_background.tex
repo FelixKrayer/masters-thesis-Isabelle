@@ -4,5 +4,21 @@
 \chapter{Background}
 \label{chapter:background}
 
-  \section{MRBNFs}
-    % TODO: What are MRBNFs?
+  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
+  As described in \autoref{chapter:introduction}, datatypes in Isabelle are implemented using \acp{BNF}, meaning that the type constructors of polymorphic types (types with type variables) can be described through the properties of a \ac{BNF}.
+
+  Examples of one such types are \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} (infix notation \textsf{$\alpha \times \beta$}). These are unary and binary type constructors, meaning that they can be applied to other types to form a new type. Thus, type constructors are \textit{functors}. Furthermore, they have a well-defined set and map function. The exact properties are listed below in \autoref{prop:set_map}.
+  Thus they behave \textit{natural}. Lastly, they are \textit{bounded}, since the set of elements that the type can describe is bounded by a (possibly transfinite) cardinal.
+  Furthermore they perserve weak pullbacks (WP) %todo what is that
+
+  \begin{itemize}
+    \item map id x = x
+    \item map g (map f x) = map (g o f) x
+  \end{itemize}
+  \label{prop:set_map}
+
+  \begin{itemize}
+    \item Explain all the BNF theorems
+    \item cite \cite{blanchette2019bindings}
+  \end{itemize}
+

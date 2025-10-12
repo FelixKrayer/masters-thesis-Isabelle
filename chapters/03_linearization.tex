@@ -1,12 +1,41 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
-\chapter{Methodology (?)}
+\chapter{Linearizing MRBNFs}
 \label{chapter:methodology}
 
-  \section{Linearization of MRBNFs}
-    % TODO: How to linearize MRBNFs?
+  \section{Linearization of MRBNFs (In theory)}
+
+  In this section we define the linearization of an MRBNF on a subset of it's \textit{live} variables. The result of the linearization is a new MRBNF with the same variable types (\textit{live}, \textit{dead}, \textit{bound}, \textit{free}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the map function is now restricted to only allow bijective and small-support functions on these variables. Apart from this change, it is ensured that the MRBNF is \textit{nonrepetitive} with respect to the linearized variables. We give a definition nonrepetitiveness in the following \autoref{subsec:nonrep}. Intuitively it means that the atoms of that type cannot occur multiple times in an element of the type.
+
+    \subsection{Nonrepetitiveness}
+    \label{subsec:nonrep}
+    At the core of linearization lies the notion of \textit{nonrepetitiveness}. We think of an element $x$ of a type $\alpha\; F$ as being nonrepetitive if all its $\alpha$ atoms are distinct from another. We give an exact definition \textsf{nonrep} of nonrepetitiveness in relation to all other elements of $\alpha\; F$ with the \textit{same shape}:
+
+    \begin{align}
+      \text{\textsf{same shape}}\; x\; y &= \text{\textsf{rel}}_F\; top\; x\; y\\
+      \text{\textsf{nonrep}}\; x &= \forall y.\; \text{\textsf{same shape}}\; x\; y \longrightarrow (\exists f.\; y = \text{\textsf{map}}_F\; f\; x)
+    \end{align}
+
+    We consider two $\alpha\; F$ elements $x$ and $y$ to have the \textit{same shape}, if they are related with the \textit{top} relation, i.e., the relation that relates all $\alpha$ atoms to all others. This is true, if the relator \textsf{rel}$_F$ can relate the elements. In the case of \textsf{list}, this is the case when two lists have the same length but possibly different content. 
+
+    Based on this, $x$ is a nonrepetitive element, if for all other elements $y$ with the same shape, a function exists through which $x$ can be mapped to $y$. In our example of \textsf{list}, this holds for all lists with distinct elements (given a second list, one can easily define a function mapping the distinct elements of $x$ to that list). It does not hold for lists with repeating elements, because no $f$ exists that could map two same elements at different positions in this list to distinct elements in an arbitrary second list.
+
+    For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{nonrepetitiveness} and having the \textit{same shape} on a subset of the live variables. In that case, we consider $x$ and $y$ of type $(\alpha, \beta)\; G$ to have the same shape with respect to $\alpha$, iff they are \textit{equal} in their $\beta$ atoms and are related with \textit{top} in $\alpha$ as before. Consequently for the map in the \textsf{nonrep} definition, the \textit{id} function is applied to the $\beta$ atoms, since they are already required to be equal. 
+    \begin{align}
+      \text{\textsf{same shape}}\; x\; y &= \text{\textsf{rel}}_G\; top\; (=)\; x\; y\\
+      \text{\textsf{nonrep}}\; x &= \forall y.\; \text{\textsf{same shape}}\; x\; y \longrightarrow (\exists f.\; y = \text{\textsf{map}}_G\; f\; id\; x)
+    \end{align}
+    
+    % TODO: Explain how it is for the linearization of multiple lives?
+    
+  \section{Required properties}
+    A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a nonrepetitive element (with respect to the linearized variables): $\exists x.\; \text{\textsf{nonrep}}\; x$
+
+    Furthermore, even though \acp{MRBNF} are already required to perserve weak pullbacks (WP) as stated in \autoref{chapter:background}, for the linearization it is required that they perserve all pullbacks. % state theorem
 
     
-  \section{Examples}
-    % TODO: Examples where linearizing a MRBNF is useful
+  \section{Linearization of MRBNFs (In Isabelle)}
+    % TODO: Implementation in Isabelle
+
+  
