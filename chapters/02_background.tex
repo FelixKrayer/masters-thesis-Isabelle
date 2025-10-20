@@ -7,16 +7,33 @@
   This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
   As described in \autoref{chapter:introduction}, datatypes in Isabelle are implemented using \acp{BNF}, meaning that the type constructors of polymorphic types (types with type variables) can be described through the properties of a \ac{BNF}.
 
-  Examples of one such types are \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} (infix notation \textsf{$\alpha \times \beta$}). These are unary and binary type constructors, meaning that they can be applied to other types to form a new type. Thus, type constructors are \textit{functors}. Furthermore, they have a well-defined set and map function. The exact properties are listed below in \autoref{prop:set_map}.
+  Examples of one such types are \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} (infix notation \textsf{$\alpha \times \beta$}). These are unary and binary type constructors, meaning that they can be applied to other types to form a new type. Thus, type constructors are \textit{functors}. 
+  
+  Furthermore, they have a well-defined set and map function. The exact properties are listed below.
   Thus they behave \textit{natural}. Lastly, they are \textit{bounded}, since the set of elements that the type can describe is bounded by a (possibly transfinite) cardinal.
-  Furthermore they perserve weak pullbacks (WP) %todo what is that
 
-  \begin{itemize}
-    \item map id x = x
-    \item map g (map f x) = map (g o f) x
-  \end{itemize}
-  \label{prop:set_map}
+  \begin{align}
+    \text{\textit{map\_id}: }& \text{\textsf{map}}_F\; id\; x = x\\
+    \text{\textit{map\_comp}: }& \text{\textsf{map}}_F\; g\; (\text{\textsf{map}}_F\; f\; x) = \text{\textsf{map}}_F\; (g \circ f)\; x\\
+    \text{\textit{map\_cong}: }& (\forall z \in \text{\textsf{set}}_F\; z.\; f\; z = g\; z) \Longrightarrow 
+      \text{\textsf{map}}_F\; f\; x = \text{\textsf{map}}_F\; g\; x\\
+    \text{\textit{set\_map}: }& \text{\textsf{set}}_F (\text{\textsf{map}}_F\; f\; x) = f\; \grave{}\; \text{\textsf{set}}_F\; x\\
+    \text{\textit{infinite\_regular\_card\_order}: }& \text{\textsf{infinite}}\; \text{\textsf{bound}}_F \land 
+      \text{\textsf{regular}}\; \text{\textsf{bound}}_F \land 
+      \text{\textsf{cardinal\_order}}\; \text{\textsf{bound}}_F\\
+    \text{\textit{set\_bd}: }& | \text{\textsf{set}}_F x | <_o \text{\textsf{bound}}_F\\
+    \text{\textit{rel\_compp\_leq}: }& \text{\textsf{rel}}_F\; R\; \text{\textsf{OO}}\; \text{\textsf{rel}}_F\; Q\; = 
+      \text{\textsf{rel}}_F\; (R\; \text{\textsf{OO}}\; Q)\\
+    \text{\textit{in\_rel}: }& \text{Weak Pullback Preservation WP}
+  \end{align}
+  Where $\grave{}$ is the image function on sets and \textsf{OO} is the composition of relations. % <_o ?
 
+  While most of these properties are straightforward, we want to explain the preservation of weak pullbacks in more detail.
+  \begin{equation}
+    \text{\textsf{rel}}_F\; R\; x\; y = \exists z.\; \text{\textsf{set}}_F\; z \subseteq \{(a, b).\; R\; a\; b \} \land 
+      \text{\textsf{map}}_F\; fst\; z = x \land \text{\textsf{map}}_F\; snd\; z = y \label{eq:WP}
+  \end{equation}
+  The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are the atoms of $x$ and $y$, that are organized in pairs of $R$-related with the $x$ as the first and $y$ as the second position in the pair.
   \begin{itemize}
     \item Explain all the BNF theorems
     \item cite \cite{blanchette2019bindings}
