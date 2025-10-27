@@ -37,7 +37,10 @@
     The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are the atoms of $x$ and $y$, that are organized in pairs of $R$-related with the $x$ as the first and $y$ as the second position in the pair.
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
-    \acp{MRBNF} are a generalization of \acp{BNF}. By restricting the \textsf{map} function of a functor to \textit{small support} functions or \textit{small support bijections} for certain type variables, it is possible to reason about certain polymorphic types in ways that are not possible with just \acp{BNF}. 
+    \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the \textsf{map} function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables  and those restricted to small-support bijections \textit{bound} variables. This allows us to define \acp{MRBNF} with four types of variables (live, free, bound and dead) as opposed to \acp{BNF} which only distinguish between lives and deads. 
+    Consequently, for type constructors with variables that are considered dead in \ac{BNF} terms, we can declare some of them as free or bound variables, depending on the type.
+
+    
   \begin{itemize}
     \item Explain all the BNF theorems
     \item cite \cite{blanchette2019bindings}
