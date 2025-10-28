@@ -6,32 +6,41 @@
 
   This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
   \section{Bounded Natural Functors (BNFs)}
-    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially defining a recursive datatype like 
+    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a recursive datatype like 
     \begin{equation*}
       \textbf{datatype}\; 'a\; \textsf{ex} = \text{A}\; "('a\; \times\; 'a\; \textsf{ex})\; \textsf{list}"
     \end{equation*}
-
     it is required that the type constructor \textsf{$'a$ list} is registered as a \ac{BNF}, i.e., the \ac{BNF}-axioms have been shown for it. Non-\ac{BNF} types like \textsf{$'a$ set} may be used in a \textbf{datatype} command, but they cannot be used to recurse. Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (in the example \textsf{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
 
-    Another example of a \ac{BNF} is the product type \textsf{($'a$, $'b$) prod} with infix notation \textsf{$'a\; \times\; 'b$}. This is a binary type constructors.
+    Another example of a \ac{BNF} is the product type \textsf{($'a$, $'b$) prod} with infix notation \textsf{$'a\; \times\; 'b$}. This is a binary type constructor.
     
-    Furthermore, \textsf{$'a$ list} and \textsf{($'a$, $'b$) prod} have a well-defined set and map function. The exact properties are listed below. Thus they behave \textit{natural}. Lastly, they are \textit{bounded}, since the set of elements that the type can describe is bounded by a (possibly transfinite) cardinal.
+    We consider the type constructor \textsf{($'a$, $'b$) plist} = \textsf{($'a\; \times\; 'b)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; S$. The exact definitions are given as such:
+    \begin{align*}
+      \textsf{map}_\textsf{plist}\; f\; g\; &= \textsf{map}_\textsf{list}\; (\textsf{map}_\textsf{prod}\; f\; g)\\
+      \textsf{set1}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; fst\; xs)\\
+      \textsf{set2}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; snd\; xs)\\
+      \textsf{rel}_\textsf{plist}\; R\; S &= \textsf{rel}_\textsf{list} (\textsf{rel}_\textsf{prod}\; R\; S)
+    \end{align*}
+    \noindent where we use the standard map, set and relator functions of the list and product type.
 
+    To show that \textsf{($'a$, $'b$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$. % TODO: EXPLAIN bd and natLeq
+    The \acp{BNF}-axioms are as follows:
     \begin{align}
-      \text{\textit{map\_id}: }& \text{\textsf{map}}_F\; id\; x = x\\
-      \text{\textit{map\_comp}: }& \text{\textsf{map}}_F\; g\; (\text{\textsf{map}}_F\; f\; x) = \text{\textsf{map}}_F\; (g \circ f)\; x\\
-      \text{\textit{map\_cong}: }& (\forall z \in \text{\textsf{set}}_F\; z.\; f\; z = g\; z) \Longrightarrow 
-        \text{\textsf{map}}_F\; f\; x = \text{\textsf{map}}_F\; g\; x\\
-      \text{\textit{set\_map}: }& \text{\textsf{set}}_F (\text{\textsf{map}}_F\; f\; x) = f\; \grave{}\; \text{\textsf{set}}_F\; x\\
-      \text{\textit{infinite\_regular\_card\_order}: }& \text{\textsf{infinite}}\; \text{\textsf{bound}}_F \land 
-        \text{\textsf{regular}}\; \text{\textsf{bound}}_F \land 
-        \text{\textsf{cardinal\_order}}\; \text{\textsf{bound}}_F\\
-      \text{\textit{set\_bd}: }& | \text{\textsf{set}}_F x | <_o \text{\textsf{bound}}_F\\
-      \text{\textit{rel\_compp\_leq}: }& \text{\textsf{rel}}_F\; R\; \bullet\; \text{\textsf{rel}}_F\; Q\; = 
-        \text{\textsf{rel}}_F\; (R\; \bullet\; Q)\\
-      \text{\textit{in\_rel}: }& \text{Weak Pullback Preservation WP}
+      \textsc{map\_id: }& \textsf{map}_F\; id\; x = x\\
+      \textsc{map\_comp: }& \textsf{map}_F\; g\; (\textsf{map}_F\; f\; x) = \textsf{map}_F\; (g \circ f)\; x\\
+      \textsc{map\_cong: }& (\forall z \in \textsf{set}_F\; z.\; f\; z = g\; z) \Longrightarrow 
+        \textsf{map}_F\; f\; x = \textsf{map}_F\; g\; x\\
+      \textsc{set\_map: }& \textsf{set}_F (\textsf{map}_F\; f\; x) = f\; \grave{\phantom{\_}}\; \textsf{set}_F\; x\\
+      \textsc{bd: }& \textsf{infinite}\; \textsf{bd}_F \land 
+        \textsf{regular}\; \textsf{bd}_F \land 
+        \textsf{cardinal\_order}\; \textsf{bd}_F\\
+      \textsc{set\_bd: }& | \textsf{set}_F x | <_o \textsf{bd}_F\\
+      \textsc{rel\_compp\_leq: }& \textsf{rel}_F\; R\; \bullet\; \textsf{rel}_F\; Q\; = 
+        \textsf{rel}_F\; (R\; \bullet\; Q)\\
+      \textsc{in\_rel: }& \text{Weak Pullback Preservation WP}
     \end{align}
-    Where $\grave{}$ is the image function on sets and $\bullet$ is the composition of relations. Furthermore $<_o$ is the less than relation on the level of cardinals
+    \noindent where $\grave{\phantom{\_}}$ is the image function on sets and $\bullet$ is the composition of relations. Furthermore $<_o$ is the less than relation on the level of cardinals
+    % Explain the other axioms
 
     While most of these properties are straightforward, we want to explain the preservation of weak pullbacks in more detail.
     \begin{equation}
@@ -40,13 +49,20 @@
     \end{equation}
     The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are the atoms of $x$ and $y$, that are organized in pairs of $R$-related with the $x$ as the first and $y$ as the second position in the pair.
 
+  \section{Subtype}
+    We can carve out a subtype from a type constructor using the \textbf{typedef} command. 
+    % The idea was to have this here to show that there exist BNFs that have a dead variable, that are not dead in an MRBNF (but bound). Maybe this idea has to go to the 3 chapter 
+
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
     \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the \textsf{map} function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables  and those restricted to small-support bijections \textit{bound} variables. This allows us to define \acp{MRBNF} with four types of variables (live, free, bound and dead) as opposed to \acp{BNF} which only distinguish between lives and deads. 
+
+    \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
+    % binder_datatype command
+    
     Consequently, for type constructors with variables that are considered dead in \ac{BNF} terms, we can declare some of them as free or bound variables, depending on the type.
 
     
   \begin{itemize}
-    \item Explain all the BNF theorems
     \item cite \cite{blanchette2019bindings}
   \end{itemize}
 

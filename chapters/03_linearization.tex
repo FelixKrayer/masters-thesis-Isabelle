@@ -29,10 +29,11 @@
     
     % TODO: Explain how it is for the linearization of multiple lives?
     
-  \subsection{Required properties}
+  \subsection{Conditions for linearization}
+  \label{subsec:conditions}
     A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a nonrepetitive element (with respect to the linearized variables): $\exists x.\; \text{\textsf{nonrep}}\; x$
 
-    Furthermore, even though \acp{MRBNF} are already required to perserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they perserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} functors but not by \textsf{$\alpha$ set}. 
+    Furthermore, even though \acp{MRBNF} are already required to perserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they perserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} functors but not by \textsf{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
 
     We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \textit{relation exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
 
@@ -44,7 +45,7 @@
       \begin{equation*}
         [\![\text{\textsf{rel}}_F\; R\; x\; y;\; \text{\textsf{rel}}_F\; Q\; x\; y]\!] \Longrightarrow \text{\textsf{rel}}_F\; (inf\; R\; Q)\; x\; y
       \end{equation*} 
-      where the infimum $inf$ of two relations $R$ and $Q$ relates all elements that are related by both $R$ and $Q$.
+      where the infimum $inf$ of two relations $R$ and $Q$ relates exactly those elements that are related by both $R$ and $Q$.
 
     \paragraph{Relation exchange}
     \label{par:rel_exchange}
@@ -58,12 +59,15 @@
 
       As a consequence of this, the previous lemma \textit{F strong} is not needed to prove this lemma. Furthermore, this lemma is the sole reason why \textit{F strong} and strong pullback preservation are needed for the linearization. Thus the requirement of pullback preservation can be lifted, in the case that the linearization is applied to all live variables at the same time.
 
-    \paragraph{map peresrving nonrepetitiveness}
+    \paragraph{map peresrving nonrepetitivenes}
       \begin{equation*}
         [\![\text{\textsf{nonrep}}_G^1\; x;\; \text{\textsf{bijective}} f]\!] \Longrightarrow \text{\textsf{nonrep}}_G^1\; (\text{\textsf{map}}_G\; f\; g\; x)
       \end{equation*} 
       
   \subsection{Proving the MRBNF axioms}
+
+  \subsection{Nonemptines Witnesses}
+  \label{subsec:wits}
 
   \section{Linearization of MRBNFs (In Isabelle)}
     We implement a command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. The syntax of the command is given in the following:
@@ -75,10 +79,16 @@
       \text{\textbf{linearize\_mrbnf}}\; (\text{keys:}\; 'k :: \text{var},\; \text{vals:}\; 'v)\; \text{alist} = ('k :: \text{var}\; \times\; 'v)\; \text{list}\; \text{\textbf{on}}\; 'a
     \end{equation*}
     Since for $('k\; \times\; 'v)\; \text{list}$ both type variables are live and we only linearize on $'k$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+
+    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be shown, i.e., nonemptines and strong pullback perservation. 
+    
+    These conditions are given dynamically to the user. For example, strong pullback perservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the nonemptines of the nonrepetitive type is easily proven when the user specified a nonemptines witness, or a perservable witness of the original type exists. Thus, the user is not asked to show the existance of a nonrepetitive element in these cases.
+
+    
     
 
     
-    % TODO: Implementation in Isabelle
+    % TODO: Implementation in Isabelle (theorem names, definitions)
     % resulting MRBNF is also "strong" (preserves all pullbacks)
 
   
