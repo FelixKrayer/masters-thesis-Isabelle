@@ -4,5 +4,13 @@
 \chapter{Examples}
 \label{chapter:examples}
 
-  \section{\texttt{prepat}}
-    % TODO: Examples where linearizing a MRBNF is useful
+  \section{POPLmark challenge: Pattern}
+    The POPLmark challenge~\cite{aydemir2005mechanized} presents a selection of problems to benchmark the progress in formalizing programming language metatheory. The challenges are built around formalizing aspects of $\textit{System F}_\textit{<:}$ calculus, a polymorphic typed lambda calculus with subtyping. We are interested in part 2B of this challenge, which has the goal to formalize and proof \textit{type soundness} for terms with pattern matching over records. Type soundness is considered in terms of \textit{preservation} (evaluating a term preserves its type) and \textit{progress} (a term is either a value or can be evaluated).
+
+    A formalization of part 2B of the POPLmark challenge in Isabelle/HOL is presented by Blanchette et al.~\cite{blanchette2019bindings}. They use \textit{binder\_datatypes} to abstract types, variables and terms.
+
+    We focus on the \texttt{record} terms \texttt{pattern-let}. 
+    A record is a term defined as a set of pairs, where the first element is a label (implemented as a string) and the second element a term: $\{(l_j, t_j)\}$. The labels $l$ within a record must be pairwise distinct.
+    A pattern is defined as 
+
+    % TODO: blanchette2019bindings (section 8) modulo arity?

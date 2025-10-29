@@ -33,7 +33,7 @@
   \label{subsec:conditions}
     A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a nonrepetitive element (with respect to the linearized variables): $\exists x.\; \text{\textsf{nonrep}}\; x$
 
-    Furthermore, even though \acp{MRBNF} are already required to perserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they perserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} functors but not by \textsf{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
+    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} functors but not by \textsf{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
 
     We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \textit{relation exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
 
@@ -80,9 +80,9 @@
     \end{equation*}
     Since for $('k\; \times\; 'v)\; \text{list}$ both type variables are live and we only linearize on $'k$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
-    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be shown, i.e., nonemptines and strong pullback perservation. 
+    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be shown, i.e., nonemptines and strong pullback preservation. 
     
-    These conditions are given dynamically to the user. For example, strong pullback perservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the nonemptines of the nonrepetitive type is easily proven when the user specified a nonemptines witness, or a perservable witness of the original type exists. Thus, the user is not asked to show the existance of a nonrepetitive element in these cases.
+    These conditions are given dynamically to the user. For example, strong pullback preservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the nonemptines of the nonrepetitive type is easily proven when the user specified a nonemptines witness, or a preservable witness of the original type exists. Thus, the user is not asked to show the existance of a nonrepetitive element in these cases.
 
     
     

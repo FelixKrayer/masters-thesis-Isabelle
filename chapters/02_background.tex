@@ -12,42 +12,49 @@
     \end{equation*}
     it is required that the type constructor \textsf{$'a$ list} is registered as a \ac{BNF}, i.e., the \ac{BNF}-axioms have been shown for it. Non-\ac{BNF} types like \textsf{$'a$ set} may be used in a \textbf{datatype} command, but they cannot be used to recurse. Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (in the example \textsf{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
 
-    Another example of a \ac{BNF} is the product type \textsf{($'a$, $'b$) prod} with infix notation \textsf{$'a\; \times\; 'b$}. This is a binary type constructor.
-    
-    We consider the type constructor \textsf{($'a$, $'b$) plist} = \textsf{($'a\; \times\; 'b)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; S$. The exact definitions are given as such:
-    \begin{align*}
-      \textsf{map}_\textsf{plist}\; f\; g\; &= \textsf{map}_\textsf{list}\; (\textsf{map}_\textsf{prod}\; f\; g)\\
-      \textsf{set1}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; fst\; xs)\\
-      \textsf{set2}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; snd\; xs)\\
-      \textsf{rel}_\textsf{plist}\; R\; S &= \textsf{rel}_\textsf{list} (\textsf{rel}_\textsf{prod}\; R\; S)
-    \end{align*}
-    \noindent where we use the standard map, set and relator functions of the list and product type.
+    \subsection{BNF-axioms}
+      A \ac{BNF} is characterized by map and set functions, a relator and a bound. We consider a $n$-ary \ac{BNF} $F$ and use the notation $\overline{f} = f_1 \dots f_n$. $\dot{G}$. Furthermore, when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq n$.
+      We give the \ac{BNF}-axioms as follows:
+      \begin{align}
+        \textsc{map\_id: }& \textsf{map}_F\; \overline{id}\; x = x\\
+        \textsc{map\_comp: }& \textsf{map}_F\; \overline{g}\; (\textsf{map}_F\; \overline{f}\; x) = \textsf{map}_F\; \overline{(g \circ f)}\; x\\
+        \textsc{map\_cong: }& (\forall i.\; \forall z \in \textsf{set}_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
+          \textsf{map}_F\; \overline{f}\; x = \textsf{map}_F\; \overline{g}\; x\\
+        \textsc{set\_map: }& \forall i.\; \textsf{set}_{F,i} (\textsf{map}_F\; \overline{f}\; x) = f_i\; \grave{\phantom{\_}}\; \textsf{set}_{F,i}\; x\\
+        \textsc{bd: }& \textsf{infinite}\; \textsf{bd}_F \land 
+          \textsf{regular}\; \textsf{bd}_F \land 
+          \textsf{cardinal\_order}\; \textsf{bd}_F\\
+        \textsc{set\_bd: }& \forall i.\; | \textsf{set}_{F,i}\; x | <_o \textsf{bd}_F\\
+        \textsc{rel\_compp\_leq: }& \textsf{rel}_F\; \overline{R}\; \bullet\; \textsf{rel}_F\; \overline{Q}\; = 
+          \textsf{rel}_F\; \overline{(R\; \bullet\; Q)}\\
+        \textsc{in\_rel: }& \text{Weak Pullback Preservation WP}
+      \end{align}
+      \noindent where $\grave{\phantom{\_}}$ is the image function on sets and $\bullet$ is the composition of relations. Furthermore $<_o$ is the less than relation on the level of cardinals
+      % Explain the other axioms
 
-    To show that \textsf{($'a$, $'b$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$. % TODO: EXPLAIN bd and natLeq
-    The \acp{BNF}-axioms are as follows:
-    \begin{align}
-      \textsc{map\_id: }& \textsf{map}_F\; id\; x = x\\
-      \textsc{map\_comp: }& \textsf{map}_F\; g\; (\textsf{map}_F\; f\; x) = \textsf{map}_F\; (g \circ f)\; x\\
-      \textsc{map\_cong: }& (\forall z \in \textsf{set}_F\; z.\; f\; z = g\; z) \Longrightarrow 
-        \textsf{map}_F\; f\; x = \textsf{map}_F\; g\; x\\
-      \textsc{set\_map: }& \textsf{set}_F (\textsf{map}_F\; f\; x) = f\; \grave{\phantom{\_}}\; \textsf{set}_F\; x\\
-      \textsc{bd: }& \textsf{infinite}\; \textsf{bd}_F \land 
-        \textsf{regular}\; \textsf{bd}_F \land 
-        \textsf{cardinal\_order}\; \textsf{bd}_F\\
-      \textsc{set\_bd: }& | \textsf{set}_F x | <_o \textsf{bd}_F\\
-      \textsc{rel\_compp\_leq: }& \textsf{rel}_F\; R\; \bullet\; \textsf{rel}_F\; Q\; = 
-        \textsf{rel}_F\; (R\; \bullet\; Q)\\
-      \textsc{in\_rel: }& \text{Weak Pullback Preservation WP}
-    \end{align}
-    \noindent where $\grave{\phantom{\_}}$ is the image function on sets and $\bullet$ is the composition of relations. Furthermore $<_o$ is the less than relation on the level of cardinals
-    % Explain the other axioms
+      While most of these properties are straightforward, we want to explain the preservation of weak pullbacks in more detail.
+      \begin{equation}
+        \textsf{rel}_F\; \overline{R}\; x\; y = 
+          \exists z.\; (\forall i.\; \textsf{set}_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
+          \textsf{map}_F\; \overline{fst}\; z = x \land \textsf{map}_F\; \overline{snd}\; z = y \label{eq:WP}
+      \end{equation}
+      The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are the atoms of $x$ and $y$, that are organized in pairs of $R$-related with the $x$ as the first and $y$ as the second position in the pair.
 
-    While most of these properties are straightforward, we want to explain the preservation of weak pullbacks in more detail.
-    \begin{equation}
-      \text{\textsf{rel}}_F\; R\; x\; y = \exists z.\; \text{\textsf{set}}_F\; z \subseteq \{(a, b).\; R\; a\; b \} \land 
-        \text{\textsf{map}}_F\; fst\; z = x \land \text{\textsf{map}}_F\; snd\; z = y \label{eq:WP}
-    \end{equation}
-    The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are the atoms of $x$ and $y$, that are organized in pairs of $R$-related with the $x$ as the first and $y$ as the second position in the pair.
+    \subsection{BNF examples}
+      Further examples of \acp{BNF} are is the product type \textsf{($'a$, $'b$) prod}, a binary type constructor with infix notation \textsf{$'a\; \times\; 'b$}, and the type of finite sets \textsf{$'a$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \textsc{set\_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \textsf{$'a$ fset} can be shown to be a \ac{BNF}.
+      
+      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \textsf{($'a$, $'b$) plist} = \textsf{($'a\; \times\; 'b)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; S$. The exact definitions are given as such:
+      \begin{align*}
+        \textsf{map}_\textsf{plist}\; f\; g\; &= \textsf{map}_\textsf{list}\; (\textsf{map}_\textsf{prod}\; f\; g)\\
+        \textsf{set1}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; fst\; xs)\\
+        \textsf{set2}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; snd\; xs)\\
+        \textsf{rel}_\textsf{plist}\; R\; S &= \textsf{rel}_\textsf{list} (\textsf{rel}_\textsf{prod}\; R\; S)
+      \end{align*}
+      \noindent where we use the standard map, set and relator functions of the list and product type.
+
+      To show that \textsf{($'a$, $'b$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$. 
+      
+      % TODO: EXPLAIN bd and natLeq
 
   \section{Subtype}
     We can carve out a subtype from a type constructor using the \textbf{typedef} command. 
