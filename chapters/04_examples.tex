@@ -7,10 +7,20 @@
   \section{POPLmark challenge: Pattern}
     The POPLmark challenge~\cite{aydemir2005mechanized} presents a selection of problems to benchmark the progress in formalizing programming language metatheory. The challenges are built around formalizing aspects of $\textit{System F}_\textit{<:}$ calculus, a polymorphic typed lambda calculus with subtyping. We are interested in part 2B of this challenge, which has the goal to formalize and proof \textit{type soundness} for terms with pattern matching over records. Type soundness is considered in terms of \textit{preservation} (evaluating a term preserves its type) and \textit{progress} (a term is either a value or can be evaluated).
 
-    A formalization of part 2B of the POPLmark challenge in Isabelle/HOL is presented by Blanchette et al.~\cite{blanchette2019bindings}. They use \textit{binder\_datatypes} to abstract types, variables and terms.
+    We focus on the \texttt{record} terms \texttt{pattern-let}. % TODO: Flesh out, integrate other definitions
+    A record is a term defined as a set of pairs, where the first element is a label and the second element a term: $\{(\texttt{l}_j, \texttt{t}_j)\}$. The labels $l$ within a record must be pairwise distinct.
+    A pattern is defined as either a typed variable or a set of (label, patten) pairs with pairwise distinct labels:
+    $\texttt{p}\; ::=\; \texttt{x}:\texttt{T}\; |\; \{(\texttt{l}_j, \texttt{p}_j)\}$
 
-    We focus on the \texttt{record} terms \texttt{pattern-let}. 
-    A record is a term defined as a set of pairs, where the first element is a label (implemented as a string) and the second element a term: $\{(l_j, t_j)\}$. The labels $l$ within a record must be pairwise distinct.
-    A pattern is defined as 
+    A formalization of part 2B of the POPLmark challenge in Isabelle/HOL is presented by Blanchette et al.~\cite{blanchette2019bindings}. They use \textit{binder\_datatypes} to abstract types, variables and terms. A central notion in this formalization is the \textit{labeled finite set} \textsf{($'a$, $'b$) lfset} that is used in the representation of records and patterns. This type constructor is a subtype of \textsf{$('a\; \times\; 'b)$ fset} that only includes elements that are non-repetitive on $'a$. This restriction is necessary, because for both records and patterns the label $'a$ must be mutually distinct, i.e., the set representing them has to be non-repetitive.
+
+    While by construction \textsf{$('a\; \times\; 'b)$ fset} is a \ac{BNF} (and an \ac{MRBNF} since all \acp{BNF} are also \acp{MRBNF}) with both variables being live, \textsf{($'a$, $'b$) lfset} is a \acp{MRBNF} with $'a$ as a bound variable, since it is non-repetitive on $'a$.
+    While this is a linearization, the finite set on pairs does not fulfill strong pullback preservation. Thus the approach and command we presented in~\autoref{chapter:methodology} cannot be used here. Because of an alternate, equivalent description on non-repetitiveness specific to this type, it is still possible to manually linearize this \ac{MRBNF}.
+
+    For the pattern a different type is used. It is constructed by linearizing an intermediate type \textsf{prepat} that is defined using the \textbf{datatype} command:
+    
+    \begin{equation*}
+      \textbf{datatype}\; ('v,\; 'tv)\; \textsf{prepat} = \text{PPVar}\; \text{"}'v\text{"}\; \text{"}'tv\; \textsf{typ}\text{"}\; |\; \text{PPRec}\; \text{"}(\textsf{string},\; ('v,\; 'tv)\; \textsf{prepat})\; \textsf{lfset}\text{"}
+    \end{equation*}
 
     % TODO: blanchette2019bindings (section 8) modulo arity?
