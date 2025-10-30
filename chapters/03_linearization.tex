@@ -5,33 +5,34 @@
 \label{chapter:methodology}
 
 \section{Linearization of MRBNFs (In theory)}
-
-  In this section we define the linearization of an MRBNF on a subset of it's \textit{live} variables. The result of the linearization is a new MRBNF with the same variable types (\textit{live}, \textit{dead}, \textit{bound}, \textit{free}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the map function is now restricted to only allow bijective and small-support functions on these variables. Apart from this change, it is ensured that the MRBNF is \textit{non-repetitive} with respect to the linearized variables. We give a definition non-repetitiveness in the following \autoref{subsec:nonrep}. Intuitively it means that the atoms of that type cannot occur multiple times in an element of the type.
+  In this section we define the linearization of a \ac{MRBNF} on a subset of it's \textit{live} variables. The result of the linearization is a new \ac{MRBNF} with the same variable types (\textit{live}, \textit{dead}, \textit{bound}, \textit{free}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the map function is now restricted to only allow bijective and small-support functions on these variables. Apart from this change, it is ensured that the \ac{MRBNF} is \textit{non-repetitive} with respect to the linearized variables. We give a definition non-repetitiveness in the following \autoref{subsec:nonrep}. Intuitively it means that the atoms of that type cannot occur multiple times in an element of the type.
 
   \subsection{Non-repetitiveness}
   \label{subsec:nonrep}
-    At the core of linearization lies the notion of \textit{non-repetitiveness}. We think of an element $x$ of a type $\alpha\; F$ as being non-repetitive if all its $\alpha$ atoms are distinct from another. We give an exact definition \textsf{nonrep} of non-repetitiveness in relation to all other elements of $\alpha\; F$ that are of \textit{equal shape}:
+    At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, a \textsf{$\alpha$ list} is non-repetitive, if all of its $\alpha$-elements it contains are pairwise distinct. 
+    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \textsf{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \textsf{map}_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannnot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
 
+    Recalling our model of \ac{BNF}s as containers that have elements of live variables' types in certain positions, we can generalize the notion of lists having the same length to two elements of a type being of equal or equivalent shape. We can express this through the relator by using the $top$ relation that relates everything with each other as the argument. Thus, we give the defninition of equivalent shape and non-repetitiveness for list:
     \begin{align}
-      \text{\textsf{eq\_shape}}_F\; x\; y &= \text{\textsf{rel}}_F\; top\; x\; y\\
-      \text{\textsf{nonrep}}_F\; x &= \forall y.\; \text{\textsf{eq\_shape}}\; x\; y \longrightarrow (\exists f.\; y = \text{\textsf{map}}_F\; f\; x)
+      \textsf{eq\_shape}_\textsf{list}\; x\; y &= \textsf{rel}_\textsf{list}\; top\; x\; y\\
+      \textsf{nonrep}_\textsf{list}\; x &= \forall y.\; \textsf{\textsf{eq\_shape}}_\textsf{list}\; x\; y \longrightarrow (\exists f.\; y = \textsf{map}_\textsf{list}\; f\; x)
     \end{align}
-
-    We consider two $\alpha\; F$ elements $x$ and $y$ to have \textit{equal shape}, if they are related with the \textit{top} relation, i.e., the relation that relates all $\alpha$ atoms to all others. This is true, if the relator \textsf{rel}$_F$ can relate the elements. In the case of \textsf{list}, this is the case when two lists are equal in length but have possibly different content. 
+    
+    More interesting is the case of \textsf{($\alpha$, $\beta$) alist} which we only want to be non-repetitive on $\alpha$. For our purpose of defining non-repetitiveness on a subset of the live variables, we fix the other live variables to be equal when defining equivalent shape. 
 
     Based on this, $x$ is a non-repetitive element, if for all other elements $y$ with equal shape, a function exists through which $x$ can be mapped to $y$. In our example of \textsf{list}, this holds for all lists with distinct elements (given a second list, one can easily define a function mapping the distinct elements of $x$ to that list). It does not hold for lists with repeating elements, because no $f$ exists that could map two equal elements at different positions in this list to distinct elements in an arbitrary second list.
 
     For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{non-repetitiveness} and having \textit{equal shape} on a subset of the live variables. In that case, we consider $x$ and $y$ of type $(\alpha, \beta)\; G$ to have equal shape with respect to $\alpha$, iff they are \textit{equal} in their $\beta$ atoms and are related with \textit{top} in $\alpha$ as before. Consequently for the map in the \textsf{nonrep} definition, the \textit{id} function is applied to the $\beta$ atoms, since they are already required to be equal. 
     \begin{align}
-      \text{\textsf{eq\_shape}}_G^1\; x\; y &= \text{\textsf{rel}}_G\; top\; (=)\; x\; y\\
-      \text{\textsf{nonrep}}_G^1\; x &= \forall y.\; \text{\textsf{eq\_shape}}\; x\; y \Longrightarrow (\exists f.\; y = \text{\textsf{map}}_G\; f\; id\; x)
+      \textsf{eq\_shape}_G^1\; x\; y &= \textsf{rel}_G\; top\; (=)\; x\; y\\
+      \textsf{nonrep}_G^1\; x &= \forall y.\; \textsf{eq\_shape}_G^1\; x\; y \Longrightarrow (\exists f.\; y = \textsf{map}_G\; f\; id\; x)
     \end{align}
     
     % TODO: Explain how it is for the linearization of multiple lives?
     
   \subsection{Conditions for linearization}
   \label{subsec:conditions}
-    A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \text{\textsf{nonrep}}\; x$
+    A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \textsf{nonrep}\; x$
 
     Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \textsf{$\alpha$ list} and \textsf{$\alpha$ $\beta$ prod} functors but not by \textsf{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
 
@@ -43,7 +44,7 @@
     \paragraph{F strong}
       From the pullback preservation with uniqueness we can prove the following lemma. In fact this notion of strongness is equivalent to pullback preservation: 
       \begin{equation*}
-        [\![\text{\textsf{rel}}_F\; R\; x\; y;\; \text{\textsf{rel}}_F\; Q\; x\; y]\!] \Longrightarrow \text{\textsf{rel}}_F\; (inf\; R\; Q)\; x\; y
+        [\![\textsf{rel}_F\; R\; x\; y;\; \textsf{rel}_F\; Q\; x\; y]\!] \Longrightarrow \textsf{rel}_F\; (inf\; R\; Q)\; x\; y
       \end{equation*} 
       where the infimum $inf$ of two relations $R$ and $Q$ relates exactly those elements that are related by both $R$ and $Q$.
 
@@ -53,7 +54,7 @@
       
       For our purpose of linearization, we are specifically interested in the case, where for all live variables that we linearize on the relation from $\overline{R}$ is chosen and for all others the $Q$ relation. As an example, this results in the following lemma for $(\alpha, \beta)\; G$ from \autoref{subsec:nonrep}:
       \begin{equation*}
-        [\![\text{\textsf{rel}}_G\; R_1\; R_2\; x\; y;\; \text{\textsf{rel}}_G\; Q_1\; Q_2\; x\; y]\!] \Longrightarrow \text{\textsf{rel}}_G\; R_1\; Q_2\; x\; y
+        [\![\textsf{rel}_G\; R_1\; R_2\; x\; y;\; \textsf{rel}_G\; Q_1\; Q_2\; x\; y]\!] \Longrightarrow \textsf{rel}_G\; R_1\; Q_2\; x\; y
       \end{equation*} 
       In the specific case, that the \ac{MRBNF} is linearized on \textit{all} of it's live variables, the goal of the lemma is equal to it's first assumption. Thus, the lemma becomes trivial since exactly the list of relations $\overline{R}$ is chosen.
 
@@ -61,7 +62,7 @@
 
     \paragraph{map peresrving non-repetitiveness}
       \begin{equation*}
-        [\![\text{\textsf{nonrep}}_G^1\; x;\; \text{\textsf{bijective}} f]\!] \Longrightarrow \text{\textsf{nonrep}}_G^1\; (\text{\textsf{map}}_G\; f\; g\; x)
+        [\![\textsf{nonrep}_G^1\; x;\; \textsf{bijective} f]\!] \Longrightarrow \textsf{nonrep}_G^1\; (\textsf{map}_G\; f\; g\; x)
       \end{equation*} 
       
   \subsection{Proving the MRBNF axioms}
@@ -76,11 +77,11 @@
 
     With this command, we can linearize our example by writing the following line in Isabelle:
     \begin{equation*}
-      \text{\textbf{linearize\_mrbnf}}\; (\text{keys:}\; 'k :: \text{var},\; \text{vals:}\; 'v)\; \text{alist} = ('k :: \text{var}\; \times\; 'v)\; \text{list}\; \text{\textbf{on}}\; 'a
+      \textbf{linearize\_mrbnf}\; (\text{keys:}\; 'k :: \text{var},\; \text{vals:}\; 'v)\; \text{alist} = ('k :: \text{var}\; \times\; 'v)\; \text{list}\; \textbf{on}\; 'a
     \end{equation*}
     Since for $('k\; \times\; 'v)\; \text{list}$ both type variables are live and we only linearize on $'k$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
-    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be shown, i.e., non-emptines and strong pullback preservation. 
+    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptines of the linear type and strong pullback preservation. 
     
     These conditions are given dynamically to the user. For example, strong pullback preservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the non-emptines of the non-repetitive type is easily proven when the user specified a non-emptines witness, or a preservable witness of the original type exists. Thus, the user is not asked to show the existance of a non-repetitive element in these cases.
 

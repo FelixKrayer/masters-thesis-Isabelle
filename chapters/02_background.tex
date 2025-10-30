@@ -12,8 +12,17 @@
     \end{equation*}
     it is required that the type constructor \textsf{$'a$ list} is registered as a \ac{BNF}, i.e., the \ac{BNF}-axioms have been shown for it. Non-\ac{BNF} types like \textsf{$'a$ set} may be used in a \textbf{datatype} command, but they cannot be used to recurse. Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (in the example \textsf{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
 
+    % explain live and dead
+
+    A \ac{BNF} $F$ with $n$ live variables is characterized by map and set functions, a relator and a bound. The map function or \textit{mapper} takes functions at the level of $F$'s type variables as arguments, i.e., the domains of these functions are the lives of $F$. These functions are recursively applied to the atoms of an element of the type. The result is a new element of type $F$, where the original type variables have been replaced by the range types of the mapped functions.
+
+    Additionally, a set function or \textit{setter} exists for each live variable. Applied to an $F$-element, the $i$-th setter returns the set of all atoms that are part of the element in some place.
+
+    % relator, bound
+    % example list/prod
+
     \subsection{BNF-axioms}
-      A \ac{BNF} is characterized by map and set functions, a relator and a bound. We consider a $n$-ary \ac{BNF} $F$ and use the notation $\overline{f} = f_1 \dots f_n$. $\dot{G}$. Furthermore, when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq n$.
+      A \ac{BNF} is characterized by map and set functions, a relator and a bound. We consider a \ac{BNF} $F$ with $n$ live variables and use the notation $\overline{f} = f_1 \dots f_n$. $\dot{G}$. Furthermore, when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq n$.
       We give the \ac{BNF}-axioms as follows:
       \begin{align}
         \textsc{map\_id: }& \textsf{map}_F\; \overline{id}\; x = x\\
