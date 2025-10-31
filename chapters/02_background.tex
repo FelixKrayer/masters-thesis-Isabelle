@@ -6,15 +6,23 @@
 
   This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
   \section{Bounded Natural Functors (BNFs)}
-    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a recursive datatype like 
+    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor \textsf{$'a$ list} is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \textsf{$'a$ list}, is a \ac{BNF}.
     \begin{equation*}
       \textbf{datatype}\; 'a\; \textsf{ex} = \text{A}\; "('a\; \times\; 'a\; \textsf{ex})\; \textsf{list}"
     \end{equation*}
-    it is required that the type constructor \textsf{$'a$ list} is registered as a \ac{BNF}, i.e., the \ac{BNF}-axioms have been shown for it. Non-\ac{BNF} types like \textsf{$'a$ set} may be used in a \textbf{datatype} command, but they cannot be used to recurse. Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (in the example \textsf{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
+    Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (here \textsf{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
 
-    % explain live and dead
 
-    A \ac{BNF} $F$ with $n$ live variables is characterized by map and set functions, a relator and a bound. The map function or \textit{mapper} takes functions at the level of $F$'s type variables as arguments, i.e., the domains of these functions are the lives of $F$. These functions are recursively applied to the atoms of an element of the type. The result is a new element of type $F$, where the original type variables have been replaced by the range types of the mapped functions.
+    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Live variables can be used for recursive definitions, while dead ones do not allow for this. 
+    We list a few important \acp{BNF} and note the liveness of their type variables:\\
+
+    \begin{tabular}{l|l}
+      \textsf{$'a$ list} & $'a$ is live\\
+      \textsf{($'a$, $'b$) prod} (infix notation: \textsf{$'a\; \times\; 'b$}) & $'a$ and $'b$ are live\\
+      \textsf{($'a$, $'b$) fun} (infix notation: \textsf{$'a\; \Rightarrow\; 'b$}) & $'a$ is dead, $'b$ is live\\
+    \end{tabular}\\
+
+    A \ac{BNF} $F$ with $n$ live variables is characterized by map and set functions, a relator and a bound. The map function or \textit{mapper} takes functions at the level of $F$'s lives as arguments, i.e., the domains of these functions are the lives of $F$. These functions are recursively applied to the atoms of an element of the type. The result is a new element of type $F$, where the original type variables have been replaced by the range types of the mapped functions.
 
     Additionally, a set function or \textit{setter} exists for each live variable. Applied to an $F$-element, the $i$-th setter returns the set of all atoms that are part of the element in some place.
 
