@@ -20,7 +20,7 @@
     \end{align*}
 
     \subsection{BNF constants}
-      A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a relator and a bound. 
+      A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator. 
 
       \subsubsection{Map function and functors}
         The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$'a$ list} type as an example, a \ac{BNF} with one live $'a$, the mapper has the type $\textsf{map}_\textsf{list}\; ::\; ('a\; \Rightarrow\; 'a_1)\; \Rightarrow\; 'a\; \textsf{list}\; \Rightarrow\; 'a_1\; \textsf{list}$.
@@ -56,15 +56,18 @@
         \noindent Another axiom of the setters and the mapper is the congruency \textsc{map\_cong} of the map function. It states that if two (lists of) functions $f_1 \dots f_l$ and $g_1 \dots g_l$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. 
 
       \subsubsection{Bound and boundedness}
-        Lastly, the \ac{BNF} needs a bound. This is an infinite cardinal that may depend on the cardinalities of the dead variables, but not on the of the live variables. The bound is used for the \textsc{set\_bd} axiom to ensure that the component sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is bounded.
+        Lastly, the \ac{BNF} needs a bound. This is an infinite cardinal that may depend on the cardinalities of the dead variables, but not on the of the live variables. The bound is used for the \textsc{set\_bd} axiom (formalized in \autoref{fig:bnf_axioms}) to ensure that the component sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is bounded.
 
-      \subsubsection{Relator}
-        The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator as follows:
+      \subsubsection{Relator and shapes}
+        The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
         \begin{align*}
           \textsf{rel}_\textsf{prod} ::\; &('a_1\; \Rightarrow\; 'a_2\; \Rightarrow\; \textsf{bool})\; \Rightarrow\; ('b_1\; \Rightarrow\; 'b_2\; \Rightarrow\; \textsf{bool})\Rightarrow\\
             &('a_1\; \times\; 'b_1)\; \Rightarrow\; ('a_2\; \times\; 'b_2)\; \Rightarrow\; \textsf{bool}\\
           \textsf{rel}_\textsf{prod}\; R\; S\; p_1\; p_2 :=\; & R\; (fst\; p_1)\; (fst\; p_2)\land S\; (snd\; p_1)\; (snd\; p_2)
         \end{align*}
+
+        \noindent Considering the list type again, we make an interesting observation: There are some \type{$'a$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $'a$ relation is chosen. The relator on lists is index-wise defined, i.e., the $'a$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}.
+
 
         % extract the axioms from here?
 
