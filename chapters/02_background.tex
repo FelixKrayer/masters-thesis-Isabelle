@@ -20,7 +20,8 @@
     \end{align*}
 
     \subsection{BNF constants}
-      A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator. 
+      \label{subsec:bnf_constants}
+      A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator.
 
       \subsubsection{Map function and functors}
         The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$'a$ list} type as an example, a \ac{BNF} with one live $'a$, the mapper has the type $\textsf{map}_\textsf{list}\; ::\; ('a\; \Rightarrow\; 'a_1)\; \Rightarrow\; 'a\; \textsf{list}\; \Rightarrow\; 'a_1\; \textsf{list}$.
@@ -28,32 +29,16 @@
         To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $id$ function on all lives over an element should leave it unchanged. This axiom is named \textsc{map\_id}. Secondly, mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. We name this axiom \textsc{map\_comp} and fully formalize it and all the other axioms in~\autoref{fig:bnf_axioms}.
 
       \subsubsection{Set functions and naturality}
-        A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all components that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. 
+        A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all components that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
 
         The set functions together with the mapper give rise to another property. We want the setters $\textsf{set}_{F,i}$ to be natural transformations from $F$ and $\textsf{map}_F$ to the set and image function. Thus, they should fulfill the \textsc{set\_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. Again, the formalization of \textsc{set\_map} can be found in~\autoref{fig:bnf_axioms}, while~\autoref{fig:set_nat} shows a visualization of it.
+
         \begin{figure}[!h]
           \centering
-          \begin{tikzpicture}[auto]
-            % Nodes
-            \node (aF) at (0,0) {\(('a_1,\; \dots\; 'a_l)\; F\)};
-            \node (bF) at (0,-3) {\(('b_1,\; \dots\; 'b_l)\; F\)};
-            \node (aset) at (5,0) {\('a_i\; \textsf{set}\)};
-            \node (bset) at (5,-3) {\('b_i\; \textsf{set}\)};
-
-            % Arrows
-            \draw[->] (aF) to node[left] {\(\textsf{map}_F\; f_1\; \dots\; f_l\)} (bF);
-            \draw[->] (aF) to node {\(\textsf{set}_{F,i}\)} (aset);
-            \draw[->] (bF) to node{\(\textsf{set}_{F,i}\)} (bset);
-            \draw[->] (aset) to node[right] {\(image\; f_i\)} (bset);
-          \end{tikzpicture}
-          \newline
-          \footnotesize
-          for all $i$ where $'a_i$ is a live variable of $F$
+          \input{figures/natural_set.tex}
           \caption{$\textsf{set}_{F,i}$ as a natural transformation}
           \label{fig:set_nat}
         \end{figure}
-
-        \noindent Another axiom of the setters and the mapper is the congruency \textsc{map\_cong} of the map function. It states that if two (lists of) functions $f_1 \dots f_l$ and $g_1 \dots g_l$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. 
 
       \subsubsection{Bound and boundedness}
         Lastly, the \ac{BNF} needs a bound. This is an infinite cardinal that may depend on the cardinalities of the dead variables, but not on the of the live variables. The bound is used for the \textsc{set\_bd} axiom (formalized in \autoref{fig:bnf_axioms}) to ensure that the component sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is bounded.
@@ -66,17 +51,16 @@
           \textsf{rel}_\textsf{prod}\; R\; S\; p_1\; p_2 :=\; & R\; (fst\; p_1)\; (fst\; p_2)\land S\; (snd\; p_1)\; (snd\; p_2)
         \end{align*}
 
-        \noindent Considering the list type again, we make an interesting observation: There are some \type{$'a$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $'a$ relation is chosen. The relator on lists is index-wise defined, i.e., the $'a$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}.
-
+        \noindent Considering the list type again, we make an interesting observation: There are some \type{$'a$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $'a$ relation is chosen. The relator on lists is index-wise defined, i.e., the $'a$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{components}. These components are elements of the type constructor's type arguments.
 
         % extract the axioms from here?
+        % Explain how F elements are constructed
 
     \subsection{BNF-axioms}
-      A \ac{BNF} is characterized by map and set functions, a relator and a bound. We consider a \ac{BNF} $F$ with $l$ live variables and use the notation $\overline{f} = f_1 \dots f_l$. Furthermore, when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
-      We give the \ac{BNF}-axioms as follows:
+      We formalize the \ac{BNF}-axioms in \autoref{fig:bnf_axioms} where we use the notation $\overline{f} = f_1 \dots f_l$ for the arguments of the mapper and the relator
       \begin{figure}
         \centering
-        \begin{align}
+        \begin{align*}
           \textsc{map\_id: }& \textsf{map}_F\; \overline{id}\; x = x\\
           \textsc{map\_comp: }& \textsf{map}_F\; \overline{g}\; (\textsf{map}_F\; \overline{f}\; x) = \textsf{map}_F\; \overline{(g \circ f)}\; x\\
           \textsc{map\_cong: }& (\forall i.\; \forall z \in \textsf{set}_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
@@ -86,10 +70,12 @@
             \textsf{regular}\; \textsf{bd}_F \land 
             \textsf{cardinal\_order}\; \textsf{bd}_F\\
           \textsc{set\_bd: }& \forall i.\; | \textsf{set}_{F,i}\; x | <_o \textsf{bd}_F\\
-          \textsc{rel\_compp\_leq: }& \textsf{rel}_F\; \overline{R}\; \bullet\; \textsf{rel}_F\; \overline{Q}\; = 
+          \textsc{rel\_compp: }& \textsf{rel}_F\; \overline{R}\; \bullet\; \textsf{rel}_F\; \overline{Q}\; = 
             \textsf{rel}_F\; \overline{(R\; \bullet\; Q)}\\
-          \textsc{in\_rel: }& \text{Weak Pullback Preservation WP}
-        \end{align}
+          \textsc{in\_rel: }& \textsf{rel}_F\; \overline{R}\; x\; y =\\
+            & \exists z.\; (\forall i.\; \textsf{set}_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
+              \textsf{map}_F\; \overline{fst}\; z = x \land \textsf{map}_F\; \overline{snd}\; z = y
+        \end{align*}
         \newline
         \footnotesize
         where $\grave{\phantom{\_}}$ is the image function on sets, $\bullet$ is the composition of relations and $<_o$ is the less than relation on cardinals
@@ -97,14 +83,17 @@
         \label{fig:bnf_axioms}
       \end{figure}
       % Explain the other axioms
+      % rel_compp has another property
 
-      While most of these properties are straightforward, we want to explain the preservation of weak pullbacks in more detail.
-      \begin{equation}
-        \textsf{rel}_F\; \overline{R}\; x\; y = 
-          \exists z.\; (\forall i.\; \textsf{set}_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
-          \textsf{map}_F\; \overline{fst}\; z = x \land \textsf{map}_F\; \overline{snd}\; z = y \label{eq:WP}
-      \end{equation}
-      The idea is that two elements $x$ and $y$ of the type $'a\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
+      Additionally to the axioms we already motivated in \autoref{subsec:bnf_constants} (\textsc{map\_id} and \textsc{map\_comp} for the functoriality of $F$, \textsc{set\_map} to ensure that the setters are natural transformations and the boundedness of the setters \textsc{set\_bd}), we have four additional ones.
+
+      One of those is the the congruency \textsc{map\_cong} of the map function. It states that if two (lists of) functions $\overline{f}$ and $\overline{g}$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this propety holds, we can be sure, that the mapper only depends on how the functions $\overline{f}$ behave on the components of the $F$ element.
+
+      The axiom \textsc{bd} just ensures that the bound $\textsf{bd}_F$ is a suitable cardinal, i.e., a regular and infinite one.
+
+      % rel_compp
+
+      Lastly, weak pullback preservation \textsc{in\_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $'a\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
 
     \subsection{Witnesses}
       
