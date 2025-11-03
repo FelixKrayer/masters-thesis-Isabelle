@@ -1,9 +1,9 @@
 \begin{tikzpicture}[auto]
   % Nodes
-  \node (aF) at (0,0) {\(('a_1,\; \dots\; 'a_l)\; F\)};
-  \node (bF) at (0,-3) {\(('b_1,\; \dots\; 'b_l)\; F\)};
-  \node (aset) at (5,0) {\('a_i\; \textsf{set}\)};
-  \node (bset) at (5,-3) {\('b_i\; \textsf{set}\)};
+  \node (aF) at (0,0) {\((\alpha_1,\; \dots\; \alpha_l)\; F\)};
+  \node (bF) at (0,-3) {\((\beta_1,\; \dots\; \beta_l)\; F\)};
+  \node (aset) at (5,0) {\(\alpha_i\; \textsf{set}\)};
+  \node (bset) at (5,-3) {\(\beta_i\; \textsf{set}\)};
 
   % Arrows
   \draw[->] (aF) to node[left] {\(\textsf{map}_F\; f_1\; \dots\; f_l\)} (bF);
@@ -13,4 +13,4 @@
 \end{tikzpicture}
 \newline
 \footnotesize
-for all $i$ where $'a_i$ is a live variable of $F$
+for all $i$ where $\alpha_i$ is a live variable of $F$

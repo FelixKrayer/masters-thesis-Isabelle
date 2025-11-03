@@ -7,16 +7,18 @@
 
   This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
   \section{Bounded Natural Functors (BNFs)}
-    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor \type{$'a$ list} is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$'a$ list}, is a \ac{BNF}.
+    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor \type{$\alpha$ list} is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
     \begin{equation*}
-      \textbf{datatype}\; 'a\; \textsf{ex} = \text{A}\; \text{"}('a\; \times\; 'a\; \textsf{ex})\; \textsf{list}\text{"}
+      \textbf{datatype}\; \alpha\; \textsf{ex} = \text{A}\; \text{"}(\alpha \times (\alpha\; \textsf{ex}))\; \textsf{list}\text{"}
     \end{equation*}
-    Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (here \type{$'a$ ex}) can be automatically registered as a \ac{BNF} as well.
+    Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (here \type{$\alpha$ ex}) can be automatically registered as a \ac{BNF} as well.
+    
+    We write type variables as greek letters ($\alpha$, $\beta$, \dots) in this thesis. However, in the Isabelle proof assistant type variables are written with a "'" in front of a name, e.g., 'a~\textsf{list}. To copy our examples to Isabelle, one has to replace these greek letters with "'" variables. Alternatively, a "'" can be prepended to the greek letters, since for example '$\alpha$ is a valid type variable in Isabelle.
 
-    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Live variables can be used for recursive datatype definitions, while dead ones do not allow for this. We take the function type $'a\; \Rightarrow\; 'b$ as an example. It's first type argument $'a$ is dead, while the second one $'b$ is live. Thus, of the following the first command succeeds while the second one fails
+    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Live variables can be used for recursive datatype definitions, while dead ones do not allow for this. We take the function type $\alpha \Rightarrow \beta$ as an example. It's first type argument $\alpha$ is dead, while the second one $\beta$ is live. Thus, of the following the first command succeeds while the second one fails
     \begin{align*}
-      &\textbf{datatype}\; 'a\; \textsf{success} = \text{S1}\; |\; \text{S2}\; \text{"}'a\; \Rightarrow\; 'a\; \textsf{success}\text{"}\\
-      &\textbf{datatype}\; 'a\; \textsf{fail} = \text{F1}\; |\; \text{F2}\; \text{"}'a\; \textsf{fail}\; \Rightarrow\; 'a\text{"}
+      &\textbf{datatype}\; \alpha\; \textsf{success} = \text{S1}\; |\; \text{S2}\; \text{"}\alpha \Rightarrow \alpha\; \textsf{success}\text{"}\\
+      &\textbf{datatype}\; \alpha\; \textsf{fail} = \text{F1}\; |\; \text{F2}\; \text{"}\alpha\; \textsf{fail} \Rightarrow \alpha\text{"}
     \end{align*}
 
     \subsection{BNF constants}
@@ -24,7 +26,7 @@
       A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator.
 
       \subsubsection{Map function and functors}
-        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$'a$ list} type as an example, a \ac{BNF} with one live $'a$, the mapper has the type $\textsf{map}_\textsf{list}\; ::\; ('a\; \Rightarrow\; 'a_1)\; \Rightarrow\; 'a\; \textsf{list}\; \Rightarrow\; 'a_1\; \textsf{list}$.
+        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\textsf{map}_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
         
         To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $id$ function on all lives over an element should leave it unchanged. This axiom is named \textsc{map\_id}. Secondly, mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. We name this axiom \textsc{map\_comp} and fully formalize it and all the other axioms in~\autoref{fig:bnf_axioms}.
 
@@ -33,7 +35,7 @@
 
         The set functions together with the mapper give rise to another property. We want the setters $\textsf{set}_{F,i}$ to be natural transformations from $F$ and $\textsf{map}_F$ to the set and image function. Thus, they should fulfill the \textsc{set\_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. Again, the formalization of \textsc{set\_map} can be found in~\autoref{fig:bnf_axioms}, while~\autoref{fig:set_nat} shows a visualization of it.
 
-        \begin{figure}[!h]
+        \begin{figure}[!ht]
           \centering
           \input{figures/natural_set.tex}
           \caption{$\textsf{set}_{F,i}$ as a natural transformation}
@@ -46,12 +48,11 @@
       \subsubsection{Relator and shapes}
         The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
         \begin{align*}
-          \textsf{rel}_\textsf{prod} ::\; &('a_1\; \Rightarrow\; 'a_2\; \Rightarrow\; \textsf{bool})\; \Rightarrow\; ('b_1\; \Rightarrow\; 'b_2\; \Rightarrow\; \textsf{bool})\Rightarrow\\
-            &('a_1\; \times\; 'b_1)\; \Rightarrow\; ('a_2\; \times\; 'b_2)\; \Rightarrow\; \textsf{bool}\\
-          \textsf{rel}_\textsf{prod}\; R\; S\; p_1\; p_2 :=\; & R\; (fst\; p_1)\; (fst\; p_2)\land S\; (snd\; p_1)\; (snd\; p_2)
+          &\textsf{rel}_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
+          &\textsf{rel}_\textsf{prod}\; R\; S\; p_1\; p_2 :=\; R\; (fst\; p_1)\; (fst\; p_2)\land S\; (snd\; p_1)\; (snd\; p_2)
         \end{align*}
 
-        \noindent Considering the list type again, we make an interesting observation: There are some \type{$'a$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $'a$ relation is chosen. The relator on lists is index-wise defined, i.e., the $'a$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{components}. These components are elements of the type constructor's type arguments.
+        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{components}. These components are elements of the type constructor's type arguments.
 
         % TODO extract the axioms from here?
         % TODO Explain how F elements are constructed
@@ -90,27 +91,25 @@
 
       Distributivity of the relator is formulated in \textsc{in\_rel}. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the inclusion $(\textsf{rel}_F\; \overline{R}\; \bullet\; \textsf{rel}_F\; \overline{Q})\; x\; y \Rightarrow \textsf{rel}_F\; \overline{(R\; \bullet\; Q)}\; x\; y $. The other direction follows automatically from this and the next axiom, weak pullback preservation.
 
-      Lastly, weak pullback preservation \textsc{in\_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $'a\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
+      Lastly, weak pullback preservation \textsc{in\_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
       % TODO Better explanation for pullback preservation?
 
     \subsection{Non-emptiness witnesses}
       \label{subsec:bnf_wits}
-      \acs{BNF} carry non-emptines witnesses as proof that the type contains at least one element. Witnesses may depend on a subset of the \ac{BNF}'s live variables. For example a witness of $('a_1,\; \dots\; 'a_l)\; F$ that depends on the first and last type variable of $F$, this witness has the type $\textsf{wit}_F ::\; 'a_1\; \Rightarrow\; 'a_l\; \Rightarrow\; ('a_1,\; \dots\; 'a_l)\; F$. It denotes that given witnesses for the types $'a_1$ and $'a_l$, a witness for $F$ can be constructed. 
+      \acs{BNF} carry non-emptines witnesses as proof that the type contains at least one element. Witnesses may depend on a subset of the \ac{BNF}'s live variables. For example a witness of $(\alpha_1,\; \dots\; \alpha_l)\; F$ that depends on the first and last type variable of $F$, this witness has the type $\textsf{wit}_F ::\; \alpha_1 \Rightarrow \alpha_l \Rightarrow (\alpha_1,\; \dots\; \alpha_l)\; F$. It denotes that given witnesses for the types $\alpha_1$ and $\alpha_l$, a witness for $F$ can be constructed. 
       
-      Witnesses have to fulfill the following properties: For all type variables $'a_i$ the witness depends on, the witness may only contain the $'a_i$ elements $w_i$, that were given to the witness as arguments, i.e., $textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $'a_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
-      \begin{equation*}
-        \textsc{wits: }\forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; 'a_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)
-      %\forall i \in \{i.\; \textsf{wit}_F\; \text{depends on}\; 'a_i\}.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) &= \{w_i\}\\
-      %\forall i \in \{i.\; \textsf{wit}_F\; \text{does not depend on}\; 'a_i\}.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) &= \emptyset
-      \end{equation*}
+      Witnesses have to fulfill the following properties: For all type variables $\alpha_i$ the witness depends on, the witness may only contain the $\alpha_i$ elements $w_i$, that were given to the witness as arguments, i.e., $textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $\alpha_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
+      \[
+        \textsc{wits: }\forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)
+      \]
 
       If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most usefull for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a true subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more usefull. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
       % TODO cite isabelle doc
 
     \subsection{BNF examples}
-      Further examples of \acp{BNF} are is the product type \type{($'a$, $'b$) prod}, a binary type constructor with infix notation \type{$'a\; \times\; 'b$}, and the type of finite sets \type{$'a$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \textsc{set\_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$'a$ fset} can be shown to be a \ac{BNF}.
+      Further examples of \acp{BNF} are is the product type \type{($\alpha$, $\beta$) prod}, a binary type constructor with infix notation \type{$\alpha \times \beta$}, and the type of finite sets \type{$\alpha$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \textsc{set\_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$\alpha$ fset} can be shown to be a \ac{BNF}.
       
-      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($'a$, $'b$) plist} = \type{($'a\; \times\; 'b)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; S$. The exact definitions are given as such:
+      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; S$. The exact definitions are given as such:
       \begin{align*}
         \textsf{map}_\textsf{plist}\; f\; g\; &= \textsf{map}_\textsf{list}\; (\textsf{map}_\textsf{prod}\; f\; g)\\
         \textsf{set1}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; fst\; xs)\\
@@ -119,17 +118,45 @@
       \end{align*}
       \noindent where we use the standard map, set and relator functions of the list and product type.
 
-      To show that \type{($'a$, $'b$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$. 
+      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$, the smallest infinite cardinal. 
       
       % TODO: EXPLAIN bd and natLeq
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
-    \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. 
-    
-    Consequently, for type constructors with variables that are considered dead in \ac{BNF} terms, we can declare some of them as free or bound variables, depending on the type. Consider for example the type of distinct lists \type{$'a$ dlist}, a subtype of \type{$'a$ list} that describes only lists containing pairwise distinct $'a$ elements. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$'a$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. Thus, it can be shown that \type{$'a$ dlist} is a \ac{MRBNF} with $'a$ as a bound variable.
+    Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. Considering for example the type of distinct lists \type{$\alpha$ dlist}, a subtype of \type{$\alpha$ list} that describes only lists containing pairwise distinct $\alpha$ atoms. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$\alpha$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. 
+
+    \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is a \ac{MRBNF} with $\alpha$ as a bound variable.
+
+    A small-support function leaves most arguments unchanged, meaning it acts like the identity function on them. Concretely defined, the cardinality of the set of arguments the function changes must be smaller than the cardinality of the argument type itself: 
+    \[ 
+      \textsf{small\_supp}\;f = |\{x::\;\alpha.\; f\; x \neq x\}| <_o |\Omega_\alpha| 
+    \]
+    where $\Omega_\alpha$ is the universe of type $\alpha$.
+
+    Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
+
+    The mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds has $l + \fr + b$ setters and a mapper with arity $l + \fr + b + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. Thie means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
+
+    The relator however only relates live variables. We introduce a new map-restricted relator $\textsf{mr\_rel}_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectiveness - in addition to the ralations for the lives. The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as follows:
+    \[
+      \textsf{mr\_rel}_F\; [\overline{u}^{b}\; \overline{v}^{\fr}]\; \overline{R}^l\; x\; y = \textsf{rel}_F\; \overline{R}^l\; x\; (\textsf{map}_F\; [\overline{id}^{l}\; \overline{v}^{\fr}\; \overline{u}^b]\; y)
+    \]
+    where we write $f^l$ for the functions or relations of the live variables $f_1 \dots f_l$ and analoguosly $v^\fr$ and $u^b$ for frees and bounds. Furthermore, we write the arguments of the map function as $[\overline{f}^{l}\; \overline{v}^{\fr}\; \overline{u}^b]$. The argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced. For example for the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\gamma$ are free, while $\beta$ is bound, the mapper has the following type:
+    \[
+      \textsf{map}_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
+    \]
+    Thus, in our notation $\textsf{map}_F\; [\overline{f}^{l}\; \overline{v}^{\fr}\; \overline{u}^b]$ we assume the $[\dots]$ to interlace the arguments correctly to $\textsf{map}_F\; v_1\; u_1\; v_2$. Analoguosly for the $\textsf{mr\_rel}_F$, $[\overline{u}^{b}\; \overline{v}^{\fr}]$ interlaces the functions according to the order of bounds and frees.
+
+    % Why small-support?
+    % Why bijections?
 
     \subsection{MRBNF axioms}
-      TODO: changes to \autoref{fig:bnf_axioms}
+      \acp{MRBNF} require the same axioms as \acp{BNF} with slight modifications. We take the formalized axioms from \autoref{fig:bnf_axioms} as a base and explain the differences.
+
+      For the \textsc{map\_comp}, \textsc{map\_cong} and \textsc{set\_map} axioms, we add the assumptions that the functions that correspond to frees and bounds are small-support functions and that the ones corresponding to bounds are additionally bijections. 
+
+      Furthermore, while \textsc{rel\_compp} stays unchanged, using the original relator, \textsc{in\_rel} is changed to be defined in terms of the map-restricted relator.
+      % TODO copy changes
 
     \subsection{binder datatypes}
       \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 

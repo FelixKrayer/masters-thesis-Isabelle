@@ -65,11 +65,10 @@
         [\![\textsf{nonrep}_G^1\; x;\; \textsf{bijective} f]\!] \Longrightarrow \textsf{nonrep}_G^1\; (\textsf{map}_G\; f\; g\; x)
       \end{equation*} 
       
-  \subsection{Proving the MRBNF axioms}
+    \subsection{Proving the MRBNF axioms}
 
-  \subsection{Lifting Witnesses}
-  \label{subsec:lin_wits}
-    
+    \subsection{Lifting Witnesses}
+    \label{subsec:lin_wits}
       
 
   \section{Linearization of MRBNFs (In Isabelle)}
@@ -79,13 +78,20 @@
 
     With this command, we can linearize our example by writing the following line in Isabelle:
     \begin{equation*}
-      \textbf{linearize\_mrbnf}\; (\text{keys:}\; 'k :: \text{var},\; \text{vals:}\; 'v)\; \text{alist} = ('k :: \text{var}\; \times\; 'v)\; \text{list}\; \textbf{on}\; 'a
+      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \kappa :: \text{var},\; \text{vals:}\; \upsilon)\; \text{alist} = (\kappa :: \text{var} \times \upsilon)\; \text{list}\; \textbf{on}\; \kappa
     \end{equation*}
-    Since for $('k\; \times\; 'v)\; \text{list}$ both type variables are live and we only linearize on $'k$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+    Since for \type{$(\kappa \times \upsilon)$ list} both type variables are live and we only linearize on $\kappa$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
     After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptines of the linear type and strong pullback preservation. 
     
     These conditions are given dynamically to the user. For example, strong pullback preservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the non-emptines of the non-repetitive type is easily proven when the user specified a non-emptines witness, or a preservable witness of the original type exists. Thus, the user is not asked to show the existance of a non-repetitive element in these cases.
+
+    Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation can be proven from weak pullback preservation together with the uniqueness we specify as follows:
+    \begin{align*}
+      \forall x\; y.\; (&\textsf{map}_F\; [\overline{fst}^l\; \overline{id}^\fr\; \overline{id}^b]\; x = \textsf{map}_F\; [\overline{fst}^l\; \overline{id}^\fr\; \overline{id}^b]\; y\; \land\\
+      &\textsf{map}_F\; [\overline{snd}^l\; \overline{id}^\fr\; \overline{id}^b]\; x = \textsf{map}_F\; [\overline{snd}^l\; \overline{id}^\fr\; \overline{id}^b]\; y)\Longrightarrow\\ 
+      &x = y
+    \end{align*}
 
     
     

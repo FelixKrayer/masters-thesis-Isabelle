@@ -12,15 +12,15 @@
     A pattern is defined as either a typed variable or a set of (label, patten) pairs with pairwise distinct labels:
     $\texttt{p}\; ::=\; \texttt{x}:\texttt{T}\; |\; \{(\texttt{l}_j, \texttt{p}_j)\}$
 
-    A formalization of part 2B of the POPLmark challenge in Isabelle/HOL is presented by Blanchette et al.~\cite{blanchette2019bindings}. They use \textit{binder\_datatypes} to abstract types, variables and terms. A central notion in this formalization is the \textit{labeled finite set} \type{($'a$, $'b$) lfset} that is used in the representation of records and patterns. This type constructor is a subtype of \type{$('a\; \times\; 'b)$ fset} that only includes elements that are non-repetitive on $'a$. This restriction is necessary, because for both records and patterns the label $'a$ must be mutually distinct, i.e., the set representing them has to be non-repetitive.
+    A formalization of part 2B of the POPLmark challenge in Isabelle/HOL is presented by Blanchette et al.~\cite{blanchette2019bindings}. They use \textit{binder\_datatypes} to abstract types, variables and terms. A central notion in this formalization is the \textit{labeled finite set} \type{($\alpha$, $\beta$) lfset} that is used in the representation of records and patterns. This type constructor is a subtype of \type{$(\alpha \times \beta)$ fset} that only includes elements that are non-repetitive on $\alpha$. This restriction is necessary, because for both records and patterns the label $\alpha$ must be mutually distinct, i.e., the set representing them has to be non-repetitive.
 
-    While by construction \type{$('a\; \times\; 'b)$ fset} is a \ac{BNF} (and an \ac{MRBNF} since all \acp{BNF} are also \acp{MRBNF}) with both variables being live, \type{($'a$, $'b$) lfset} is a \acp{MRBNF} with $'a$ as a bound variable, since it is non-repetitive on $'a$.
+    While by construction \type{$(\alpha \times \beta)$ fset} is a \ac{BNF} (and an \ac{MRBNF} since all \acp{BNF} are also \acp{MRBNF}) with both variables being live, \type{($\alpha$, $\beta$) lfset} is a \acp{MRBNF} with $\alpha$ as a bound variable, since it is non-repetitive on $\alpha$.
     While this is a linearization, the finite set on pairs does not fulfill strong pullback preservation. Thus the approach and command we presented in~\autoref{chapter:methodology} cannot be used here. Because of an alternate, equivalent description on non-repetitiveness specific to this type, it is still possible to manually linearize this \ac{MRBNF}.
 
     For the pattern a different type is used. It is constructed by linearizing an intermediate type \type{prepat} that is defined using the \textbf{datatype} command:
     
     \begin{equation*}
-      \textbf{datatype}\; ('v,\; 'tv)\; \textsf{prepat} = \text{PPVar}\; \text{"}'v\text{"}\; \text{"}'tv\; \textsf{typ}\text{"}\; |\; \text{PPRec}\; \text{"}(\textsf{string},\; ('v,\; 'tv)\; \textsf{prepat})\; \textsf{lfset}\text{"}
+      \textbf{datatype}\; (\alpha,\; \beta)\; \textsf{prepat} = \text{PPVar}\; \text{"}\alpha\text{"}\; \text{"}\beta\; \textsf{typ}\text{"}\; |\; \text{PPRec}\; \text{"}(\textsf{string},\; (\alpha,\; \beta)\; \textsf{prepat})\; \textsf{lfset}\text{"}
     \end{equation*}
 
     % TODO: blanchette2019bindings (section 8) modulo arity?
