@@ -23,6 +23,12 @@
 
 
 \newcommand*{\type}[1]{\textsf{\mbox{#1}}}
+\newcommand{\dashedoverline}[1]{%
+  \tikz[baseline=(X.base)]{
+    \node[inner sep=0pt,outer sep=0pt] (X) {#1};
+    \draw[dashed] ([yshift=2pt]X.north west) -- ([yshift=2pt]X.north east);
+  }
+}
 
 % TODO: change citation style in settings
 \input{settings}
