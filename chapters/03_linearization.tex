@@ -10,7 +10,7 @@
   \subsection{Non-repetitiveness}
   \label{subsec:nonrep}
     At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, a \type{$\alpha$ list} is non-repetitive, if all of its $\alpha$-elements it contains are pairwise distinct. 
-    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \textsf{map}_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannnot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
+    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \textsf{map}_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
 
     Recalling our model of \ac{BNF}s as containers that have elements of live variables' types in certain positions, we can generalize the notion of lists having the same length to two elements of a type being of equal or equivalent shape. We can express this through the relator by using the $top$ relation that relates everything with each other as the argument. Thus, we give the defninition of equivalent shape and non-repetitiveness for list:
     \begin{align}
@@ -34,7 +34,7 @@
   \label{subsec:conditions}
     A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \textsf{nonrep}\; x$
 
-    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks as defined in \autoref{eq:WP}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existance of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there existes \textit{exactly one} $z$ fulfilling the property in \autoref{eq:WP}. For example the strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functors but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
+    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks defined as \textsc{in\_rel} in \autoref{fig:bnf_axioms}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling the property \textsc{in\_rel}. For example the strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
 
     We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \textit{relation exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
 
@@ -44,7 +44,7 @@
     \paragraph{F strong}
       From the pullback preservation with uniqueness we can prove the following lemma. In fact this notion of strongness is equivalent to pullback preservation: 
       \begin{equation*}
-        [\![\textsf{rel}_F\; R\; x\; y;\; \textsf{rel}_F\; Q\; x\; y]\!] \Longrightarrow \textsf{rel}_F\; (inf\; R\; Q)\; x\; y
+        [\![\textsf{rel}_F\; \overline{R}\; x\; y;\; \textsf{rel}_F\; \overline{Q}\; x\; y]\!] \Longrightarrow \textsf{rel}_F\; \overline{(inf\; R\; Q)}\; x\; y
       \end{equation*} 
       where the infimum $inf$ of two relations $R$ and $Q$ relates exactly those elements that are related by both $R$ and $Q$.
 
@@ -69,7 +69,15 @@
 
     \subsection{Lifting Witnesses}
     \label{subsec:lin_wits}
-      
+      Existing witnesses of the original \ac{MRBNF} that do not depend on any of the linearized variables can be lifted to be witnesses of the linearized \ac{MRBNF}. 
+
+      For this it is necessary to show that they are non-repetitive on the linearized elements, i.e., that they are part of the new type. From \ref{eq:wits} (\autoref{subsec:bnf_wits}) we know that any witness not depending on the linearized lives does not contain atoms from these lives. Thus, we can show that these witnesses are non-repetitive, since an element with no $\alpha$ atoms is trivially non-repetitive on $\alpha$.
+
+      Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of a \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
+
+      Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments.
+
+      When an liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:conditions} is trivially proven.
 
   \section{Linearization of MRBNFs (In Isabelle)}
     We implement a command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. The syntax of the command is given in the following:
@@ -82,9 +90,9 @@
     \end{equation*}
     Since for \type{$(\kappa \times \upsilon)$ list} both type variables are live and we only linearize on $\kappa$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
-    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptines of the linear type and strong pullback preservation. 
+    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptiness of the linear type and strong pullback preservation. 
     
-    These conditions are given dynamically to the user. For example, strong pullback preservation only has to be shown, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, the non-emptines of the non-repetitive type is easily proven when the user specified a non-emptines witness, or a preservable witness of the original type exists. Thus, the user is not asked to show the existance of a non-repetitive element in these cases.
+    These conditions are given dynamically to the user. For example, it is only necessary to show strong pullback preservation, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. Thus, the user is not asked to show the existence of a non-repetitive element in these cases.
 
     Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation can be proven from weak pullback preservation together with the uniqueness we specify as follows:
     \begin{align*}

@@ -5,6 +5,10 @@
 \label{chapter:background}
 % TODO cite Isabelle datatype pdf
 
+% NOTATION, Vocabulary? 
+% "element" always refers to an instance of a type (constructor), e.g. $x$ is an $F$ element, if x is of type F
+% "atom" or "component" - refers to instances of the type variables ($\alpha$, $\beta$, \dots) of a type constructor $F$ that "make up" an $F$ element
+
   This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
   \section{Bounded Natural Functors (BNFs)}
     As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor \type{$\alpha$ list} is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
@@ -99,9 +103,12 @@
       \acs{BNF} carry non-emptines witnesses as proof that the type contains at least one element. Witnesses may depend on a subset of the \ac{BNF}'s live variables. For example a witness of $(\alpha_1,\; \dots\; \alpha_l)\; F$ that depends on the first and last type variable of $F$, this witness has the type $\textsf{wit}_F ::\; \alpha_1 \Rightarrow \alpha_l \Rightarrow (\alpha_1,\; \dots\; \alpha_l)\; F$. It denotes that given witnesses for the types $\alpha_1$ and $\alpha_l$, a witness for $F$ can be constructed. 
       
       Witnesses have to fulfill the following properties: For all type variables $\alpha_i$ the witness depends on, the witness may only contain the $\alpha_i$ elements $w_i$, that were given to the witness as arguments, i.e., $textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $\alpha_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
-      \[
-        \textsc{wits: }\forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)
-      \]
+      \begin{equation*}
+        \textsc{wits: }\forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits}
+      \end{equation*}
+      \begin{equation*}
+        \textsc{wits: }\forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{?}\; \{w_i\}\; \texttt{:}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits3}
+      \end{equation*}
 
       If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most usefull for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a true subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more usefull. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
       % TODO cite isabelle doc
@@ -160,6 +167,8 @@
 
     \subsection{binder datatypes}
       \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
+
+      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh names available. It is defined as the cardinality of the type being at least $\aleph_0$ or $\aleph_1$ depending on whether it is a datatype of codatatype. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes, \texttt{var} and \texttt{covar} respectively.
 
       TODO: cite \cite{blanchette2019bindings}
     % binder_datatype command
