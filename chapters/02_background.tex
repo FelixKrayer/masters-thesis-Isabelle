@@ -47,9 +47,14 @@
         \end{figure}
 
       \subsubsection{Bound and boundedness}
-        Lastly, the \ac{BNF} needs a bound. This is an infinite cardinal that may depend on the cardinalities of the dead variables, but not on the of the live variables. The bound is used for the \textsc{set\_bd} axiom (formalized in \autoref{fig:bnf_axioms}) to ensure that the component sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is bounded.
+        Lastly, the \ac{BNF} needs an infinite cardinal as a bound. This bound may depend on the cardinalities of the dead variables, but not on the of the live variables. In Isabelle/HOL cardinals are implemented as minimal wellorders with respect to isomorphisms~\cite{blanchette2014cardinals}. While details about this implementation are certainly interesting, we will not focus on these details in this thesis. For example $natLeq$, the cardinal that originates from the $\leq$ order on natural numbers, is equivalent to the smallest infinite cardinal $\aleph_0$.
+
+        Besides being a cardinal order, the bound is required to be infinite, i.e., at least $\aleph_0$ with respect to the cardinal order $\leq_o$, and regular. Regularity means that an infinite cardinal $\kappa$ is stable under union, i.e., the union of any two sets of smaller cardinality than $\kappa$ also has a smaller cardinality than $\kappa$. 
+        
+        The bound is used for the \textsc{set\_bd} axiom (formalized in \autoref{fig:bnf_axioms}) to ensure that the sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is also bounded and thus the resulting type $F$ as well.
 
       \subsubsection{Relator and shapes}
+        \label{subsubsec:Rel}
         The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
         \begin{align*}
           &\textsf{rel}_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
@@ -125,9 +130,9 @@
       \end{align*}
       \noindent where we use the standard map, set and relator functions of the list and product type.
 
-      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, a bound $\textsf{bd}_\textsf{plist}$ is needed. We chose $natLeq$, the smallest infinite cardinal. 
-      
-      % TODO: EXPLAIN bd and natLeq
+      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\textsf{bd}_\textsf{plist}$.
+
+  \section{Syntaxes with bindings}
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
     Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. Considering for example the type of distinct lists \type{$\alpha$ dlist}, a subtype of \type{$\alpha$ list} that describes only lists containing pairwise distinct $\alpha$ atoms. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$\alpha$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. 
@@ -144,7 +149,9 @@
 
     The mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds has $l + \fr + b$ setters and a mapper with arity $l + \fr + b + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. Thie means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
 
-    The relator however only relates live variables. We introduce a new map-restricted relator $\textsf{mr\_rel}_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectiveness - in addition to the ralations for the lives. The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as follows:
+    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\textsf{rel}_F$ requires the frees and bounds in each slot to be the same for both elements that are compared.
+    
+    To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\textsf{mr\_rel}_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectiveness - in addition to the ralations for the lives. The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as follows:
     \[
       \textsf{mr\_rel}_F\; [\overline{u}^{b}\; \overline{v}^{\fr}]\; \overline{R}^l\; x\; y = \textsf{rel}_F\; \overline{R}^l\; x\; (\textsf{map}_F\; [\overline{id}^{l}\; \overline{v}^{\fr}\; \overline{u}^b]\; y)
     \]

@@ -12,11 +12,13 @@
     At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, a \type{$\alpha$ list} is non-repetitive, if all of its $\alpha$-elements it contains are pairwise distinct. 
     To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \textsf{map}_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
 
-    Recalling our model of \ac{BNF}s as containers that have elements of live variables' types in certain positions, we can generalize the notion of lists having the same length to two elements of a type being of equal or equivalent shape. We can express this through the relator by using the $top$ relation that relates everything with each other as the argument. Thus, we give the defninition of equivalent shape and non-repetitiveness for list:
+    In \autoref{subsubsec:Rel} we proposed the idea to think about elements of a \ac{BNF} (or \ac{MRBNF}) $F$ as containers with a certain shape with atoms in slots specified by the shape. Using this model, we can generalize the notion of lists having the same length to $F$ elements having the same shape. We can express this through the relator by using the $top$ relation that relates everything with each other as the argument. Thus, we give the defninition of equivalent shape and non-repetitiveness for list:
     \begin{align}
       &\textsf{eq\_shape}_\textsf{list}\; x\; y = \textsf{rel}_\textsf{list}\; top\; x\; y\\
       &\textsf{nonrep}_\textsf{list}\; x = \forall y.\; \textsf{eq\_shape}_\textsf{list}\; x\; y \Longrightarrow (\exists f.\; y = \textsf{map}_\textsf{list}\; f\; x)
     \end{align}
+
+    Note that we use the regular relator that only relates live variables with given relations while it requires equality for all frees and bounds.
     
     More interesting is the case of \type{($\alpha$, $\beta$) alist} which we only want to be non-repetitive on $\alpha$. For our purpose of defining non-repetitiveness on a subset of the live variables, we fix the other live variables to be equal when defining equivalent shape. 
 
@@ -79,6 +81,9 @@
 
       When an liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:conditions} is trivially proven.
 
+    \subsection{Preservation of strongness}
+      
+
   \section{Linearization of MRBNFs (In Isabelle)}
     We implement a command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. The syntax of the command is given in the following:
 
@@ -86,9 +91,9 @@
 
     With this command, we can linearize our example by writing the following line in Isabelle:
     \begin{equation*}
-      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \kappa :: \text{var},\; \text{vals:}\; \upsilon)\; \text{alist} = (\kappa :: \text{var} \times \upsilon)\; \text{list}\; \textbf{on}\; \kappa
+      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \text{alist} = (\alpha :: \text{var} \times \beta)\; \text{list}\; \textbf{on}\; \alpha
     \end{equation*}
-    Since for \type{$(\kappa \times \upsilon)$ list} both type variables are live and we only linearize on $\kappa$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+    Since for \type{$(\alpha \times \beta)$ list} both type variables are live and we only linearize on $\alpha$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
     After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptiness of the linear type and strong pullback preservation. 
     
