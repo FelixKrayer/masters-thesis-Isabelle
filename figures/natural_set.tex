@@ -2,13 +2,13 @@
   % Nodes
   \node (aF) at (0,0) {\((\alpha_1,\; \dots\; \alpha_l)\; F\)};
   \node (bF) at (0,-3) {\((\beta_1,\; \dots\; \beta_l)\; F\)};
-  \node (aset) at (5,0) {\(\alpha_i\; \textsf{set}\)};
-  \node (bset) at (5,-3) {\(\beta_i\; \textsf{set}\)};
+  \node (aset) at (5,0) {\(\alpha_i\; \set\)};
+  \node (bset) at (5,-3) {\(\beta_i\; \set\)};
 
   % Arrows
-  \draw[->] (aF) to node[left] {\(\textsf{map}_F\; f_1\; \dots\; f_l\)} (bF);
-  \draw[->] (aF) to node {\(\textsf{set}_{F,i}\)} (aset);
-  \draw[->] (bF) to node{\(\textsf{set}_{F,i}\)} (bset);
+  \draw[->] (aF) to node[left] {\(\map_F\; f_1\; \dots\; f_l\)} (bF);
+  \draw[->] (aF) to node {\(\set_{F,i}\)} (aset);
+  \draw[->] (bF) to node{\(\set_{F,i}\)} (bset);
   \draw[->] (aset) to node[right] {\(image\; f_i\)} (bset);
 \end{tikzpicture}
 \newline

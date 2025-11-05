@@ -9,9 +9,9 @@
 % "element" always refers to an instance of a type (constructor), e.g. $x$ is an $F$ element, if x is of type F
 % "atom" or "component" - refers to instances of the type variables ($\alpha$, $\beta$, \dots) of a type constructor $F$ that "make up" an $F$ element
 
-  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. 
+  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "components" or "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
   \section{Bounded Natural Functors (BNFs)}
-    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor \type{$\alpha$ list} is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
+    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
     \begin{equation*}
       \textbf{datatype}\; \alpha\; \textsf{ex} = \text{A}\; \text{"}(\alpha \times (\alpha\; \textsf{ex}))\; \textsf{list}\text{"}
     \end{equation*}
@@ -30,19 +30,19 @@
       A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator.
 
       \subsubsection{Map function and functors}
-        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\textsf{map}_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
+        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\map_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
         
-        To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $id$ function on all lives over an element should leave it unchanged, which is formalized in \autoref{eq:map_id}. The second property \autoref{eq:map_comp} is concerned with mapping compositions and reads as follows: Mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. A type constructor $F$ with a map function $\textsf{map}_F$ fulfilling these two properties is considered a functor.
+        To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $\id$ function on all lives over an element should leave it unchanged, which is formalized in \ref{eq:map_id}. The second property \ref{eq:map_comp} is concerned with mapping compositions and reads as follows: Mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. A type constructor $F$ with a map function $\map_F$ fulfilling these two properties is considered a functor.
 
       \subsubsection{Set functions and naturality}
         A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all components that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
 
-        The set functions together with the mapper give rise to another property. We want the setters $\textsf{set}_{F,i}$ to be natural transformations from $F$ and $\textsf{map}_F$ to the set and image function. Thus, they should fulfill the \autoref{eq:set_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. \autoref{fig:set_nat} shows a visualization of this axiom and reads as follows: Starting from an $F$ element first applying the setter and then mapping a function (path through the top right) results in the same as first mapping the function and then applying the setter (path through the bottom left).
+        The set functions together with the mapper give rise to another property. We want the setters $\set_{F,i}$ to be natural transformations from $F$ and $\map_F$ to the set and image function. Thus, they should fulfill the \ref{eq:set_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. \autoref{fig:set_nat} shows a visualization of this axiom and reads as follows: Starting from an $F$ element first applying the setter and then mapping a function (path through the top right) results in the same as first mapping the function and then applying the setter (path through the bottom left).
 
         \begin{figure}[!ht]
           \centering
           \input{figures/natural_set.tex}
-          \caption{$\textsf{set}_{F,i}$ as a natural transformation}
+          \caption{$\set_{F,i}$ as a natural transformation}
           \label{fig:set_nat}
         \end{figure}
 
@@ -51,14 +51,14 @@
 
         Besides being a cardinal order, the bound is required to be infinite, i.e., at least $\aleph_0$ with respect to the cardinal order $\leq_o$, and regular. Regularity means that an infinite cardinal $\kappa$ is stable under union, i.e., the union of any two sets of smaller cardinality than $\kappa$ also has a smaller cardinality than $\kappa$. 
         
-        The bound is used in the \autoref{eq:set_bd} axiom to ensure that the sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is also bounded and thus the resulting type $F$ as well.
+        The bound is used in the \ref{eq:set_bd} axiom to ensure that the sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is also bounded and thus the resulting type $F$ as well.
 
       \subsubsection{Relator and shapes}
         \label{subsubsec:Rel}
         The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
         \begin{align*}
-          &\textsf{rel}_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
-          &\textsf{rel}_\textsf{prod}\; R\; Q\; p_1\; p_2 :=\; R\; (fst\; p_1)\; (fst\; p_2)\land Q\; (snd\; p_1)\; (snd\; p_2)
+          &\rel_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
+          &\rel_\textsf{prod}\; R\; Q\; p_1\; p_2 :=\; R\; (\fst\; p_1)\; (\fst\; p_2)\land Q\; (\snd\; p_1)\; (\snd\; p_2)
         \end{align*}
 
         \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{components}. These components are elements of the type constructor's type arguments.
@@ -71,20 +71,20 @@
       \begin{figure}
         \centering
         \begin{align*}
-          &\textsf{map}_F\; \overline{id}^l\; x = x \tag{\textsc{map\_id}}\label{eq:map_id}\\
-          &\textsf{map}_F\; \overline{g}^l\; (\textsf{map}_F\; \overline{f}^l\; x) =
-            \textsf{map}_F\; \overline{(g \circ f)}^l\; x \tag{\textsc{map\_comp}}\label{eq:map_comp}\\
-          &(\forall i.\; \forall z \in \textsf{set}_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
-            \textsf{map}_F\; \overline{f}^l\; x = \textsf{map}_F\; \overline{g}^l\; x \tag{\textsc{map\_cong}}\label{eq:map_cong}\\
-          &\forall i.\; \textsf{set}_{F,i} (\textsf{map}_F\; \overline{f}^l\; x) = f_i\; \grave{\phantom{\_}}\; \textsf{set}_{F,i}\; x \tag{\textsc{set\_map}}\label{eq:set_map}\\
-          &\textsf{infinite}\; \textsf{bd}_F \land \textsf{regular}\; \textsf{bd}_F \land 
-            \textsf{cardinal\_order}\; \textsf{bd}_F \tag{\textsc{bd}}\label{eq:bd}\\
-          &\forall i.\; | \textsf{set}_{F,i}\; x | <_o \textsf{bd}_F \tag{\textsc{set\_bd}}\label{eq:set_bd}\\
-          &\textsf{rel}_F\; \overline{R}^l\; \bullet\; \textsf{rel}_F\; \overline{Q}^l\; = 
-            \textsf{rel}_F\; \overline{(R\; \bullet\; Q)}^l \tag{\textsc{rel\_compp}}\label{eq:rel_compp}\\
-          &\textsf{rel}_F\; \overline{R}^l\; x\; y = \tag{\textsc{in\_rel}}\label{eq:in_rel}\\
-          &  \exists z.\; (\forall i.\; \textsf{set}_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
-              \textsf{map}_F\; \overline{fst}^l\; z = x \land \textsf{map}_F\; \overline{snd}^l\; z = y
+          \vphantom{\overline{f}^l}&\map_F\; \overline{\id}^l\; x = x \tag{\textsc{map\_id}}\label{eq:map_id}\\
+          \vphantom{\overline{f}^l}&\map_F\; \overline{g}^l\; (\map_F\; \overline{f}^l\; x) =
+            \map_F\; \overline{(g \circ f)}^l\; x \tag{\textsc{map\_comp}}\label{eq:map_comp}\\
+          \vphantom{\overline{f}^l}&(\forall i.\; \forall z \in \set_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
+            \map_F\; \overline{f}^l\; x = \map_F\; \overline{g}^l\; x \tag{\textsc{map\_cong}}\label{eq:map_cong}\\
+          \vphantom{\overline{f}^l}&\forall i.\; \set_{F,i} (\map_F\; \overline{f}^l\; x) = f_i\; \grave{\phantom{\_}}\; \set_{F,i}\; x \tag{\textsc{set\_map}}\label{eq:set_map}\\
+          \vphantom{\overline{f}^l}&\textsf{infinite}\; \bd_F \land \textsf{regular}\; \bd_F \land 
+            \textsf{cardinal\_order}\; \bd_F \tag{\textsc{bd}}\label{eq:bd}\\
+          \vphantom{\overline{f}^l}&\forall i.\; | \set_{F,i}\; x | <_o \bd_F \tag{\textsc{set\_bd}}\label{eq:set_bd}\\
+          \vphantom{\overline{f}^l}&\rel_F\; \overline{R}^l\; \bullet\; \rel_F\; \overline{Q}^l\; = 
+            \rel_F\; \overline{(R\; \bullet\; Q)}^l \tag{\textsc{rel\_compp}}\label{eq:rel_compp}\\
+          \vphantom{\overline{f}^l}&\rel_F\; \overline{R}^l\; x\; y = \tag{\textsc{in\_rel}}\label{eq:in_rel}\\
+          &\smash{\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
+              \map_F\; \overline{\fst}^l\; z = x \land \map_F\; \overline{\snd}^l\; z = y}
         \end{align*}
         \newline
         \footnotesize
@@ -92,15 +92,15 @@
         \caption{The \ac{BNF} axioms}
         \label{fig:bnf_axioms}
       \end{figure}
-      Additionally to the axioms we already motivated in \autoref{subsec:bnf_constants} (\autoref{eq:map_id} and \autoref{eq:map_comp} for the functoriality of $F$, \autoref{eq:set_map} to ensure that the setters are natural transformations and the boundedness of the setters \autoref{eq:set_bd}), we have four additional ones.
+      Additionally to the axioms we already motivated in \autoref{subsec:bnf_constants} (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have four additional ones.
 
-      One of those is the the congruency \autoref{eq:map_cong} of the map function. It states that if two (lists of) functions $\overline{f}^l$ and $\overline{g}^l$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $\overline{f}^l$ behave on the components of the $F$ element.
+      One of those is the the congruency \ref{eq:map_cong} of the map function. It states that if two (lists of) functions $\overline{f}^l$ and $\overline{g}^l$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $\overline{f}^l$ behave on the components of the $F$ element.
 
-      The axiom \autoref{eq:bd} just ensures that the bound $\textsf{bd}_F$ is a suitable cardinal, i.e., a regular and infinite one.
+      The axiom \ref{eq:bd} just ensures that the bound $\bd_F$ is a suitable cardinal, i.e., a regular and infinite one.
 
-      Distributivity of the relator is formulated in \autoref{eq:in_rel}. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the inclusion $(\textsf{rel}_F\; \overline{R}^l\; \bullet\; \textsf{rel}_F\; \overline{Q}^l)\; x\; y \Rightarrow \textsf{rel}_F\; \overline{(R\; \bullet\; Q)}^l\; x\; y $. The other direction follows automatically from this and the next axiom, weak pullback preservation.
+      Distributivity of the relator is formulated in \ref{eq:in_rel}. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the inclusion $(\rel_F\; \overline{R}^l\; \bullet\; \rel_F\; \overline{Q}^l)\; x\; y \Rightarrow \rel_F\; \overline{(R\; \bullet\; Q)}^l\; x\; y $. The other direction follows automatically from this and the next axiom, weak pullback preservation.
 
-      Lastly, weak pullback preservation \autoref{eq:in_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
+      Lastly, weak pullback preservation \ref{eq:in_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
       % TODO Better explanation for pullback preservation?
 
     \subsection{Non-emptiness witnesses}
@@ -109,25 +109,25 @@
       
       Witnesses have to fulfill the following properties: For all type variables $\alpha_i$ the witness depends on, the witness may only contain the $\alpha_i$ elements $w_i$, that were given to the witness as arguments, i.e., $textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $\alpha_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
       \begin{equation*}
-        \forall i.\; \textsf{set}_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits}
+        \forall i.\; \set_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits}
       \end{equation*}
 
       If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most useful for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a true subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more useful. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
       % TODO cite isabelle doc
 
     \subsection{BNF examples}
-      Further examples of \acp{BNF} are is the product type \type{($\alpha$, $\beta$) prod}, a binary type constructor with infix notation \type{$\alpha \times \beta$}, and the type of finite sets \type{$\alpha$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \autoref{eq:set_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$\alpha$ fset} can be shown to be a \ac{BNF}.
+      Further examples of \acp{BNF} are is the product type \type{($\alpha$, $\beta$) prod}, a binary type constructor with infix notation \type{$\alpha \times \beta$}, and the type of finite sets \type{$\alpha$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \ref{eq:set_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$\alpha$ fset} can be shown to be a \ac{BNF}.
       
-      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\textsf{map}_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\textsf{rel}_\textsf{plist}\; R\; Q$. The exact definitions are given as such:
+      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\map_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\rel_\textsf{plist}\; R\; Q$. The exact definitions are given as such:
       \begin{align*}
-        \textsf{map}_\textsf{plist}\; f\; g\; &= \textsf{map}_\textsf{list}\; (\textsf{map}_\textsf{prod}\; f\; g)\\
-        \textsf{set1}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; fst\; xs)\\
-        \textsf{set2}_\textsf{plist}\; xs &= \textsf{set}_\textsf{list}\; (\textsf{map}_\textsf{list}\; snd\; xs)\\
-        \textsf{rel}_\textsf{plist}\; R\; Q &= \textsf{rel}_\textsf{list} (\textsf{rel}_\textsf{prod}\; R\; Q)
+        \map_\textsf{plist}\; f\; g\; &= \map_\textsf{list}\; (\map_\textsf{prod}\; f\; g)\\
+        \textsf{set1}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \fst\; xs)\\
+        \textsf{set2}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \snd\; xs)\\
+        \rel_\textsf{plist}\; R\; Q &= \rel_\textsf{list} (\rel_\textsf{prod}\; R\; Q)
       \end{align*}
       \noindent where we use the standard map, set and relator functions of the list and product type.
 
-      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\textsf{bd}_\textsf{plist}$.
+      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\bd_\textsf{plist}$.
 
   \section{Syntaxes with bindings}
 
@@ -146,17 +146,17 @@
 
     The mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds has $l + \fr + b$ setters and a mapper with arity $l + \fr + b + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
 
-    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\textsf{rel}_F$ requires the frees and bounds in each slot to be the same for both elements that are compared.
+    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\rel_F$ requires the frees and bounds in each slot to be the same for both elements that are compared.
     
-    To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\textsf{mr\_rel}_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as follows:
+    To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\mrrel_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as follows:
     \[
-      \textsf{mr\_rel}_F\; \langle\overline{u}^{b}\; \overline{v}^{\fr}\rangle\; \overline{R}^l\; x\; y = \textsf{rel}_F\; \overline{R}^l\; x\; (\textsf{map}_F\; \langle\overline{id}^{l}\; \overline{v}^{\fr}\; \overline{u}^b\rangle\; y)
+      \mrrel_F\; \langle\overline{u}^{b}\; \overline{v}^{\fr}\rangle\; \overline{R}^l\; x\; y = \rel_F\; \overline{R}^l\; x\; (\map_F\; \langle\overline{\id}^{l}\; \overline{v}^{\fr}\; \overline{u}^b\rangle\; y)
     \]
     where we write $f^l$ for the functions or relations of the live variables $f_1 \dots f_l$ and analogously $v^\fr$ and $u^b$ for frees and bounds. Furthermore, we write the arguments of the map function as $[\overline{f}^{l}\; \overline{v}^{\fr}\; \overline{u}^b]$. The argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced. For example for the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\gamma$ are free, while $\beta$ is bound, the mapper has the following type:
     \[
-      \textsf{map}_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
+      \map_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
     \]
-    Thus, in our notation $\textsf{map}_F\; \langle\overline{f}^{l}\; \overline{v}^{\fr}\; \overline{u}^b\rangle$ we assume the $\langle\dots\rangle$ to interlace the arguments correctly to $\textsf{map}_F\; v_1\; u_1\; v_2$. Analogously for the $\textsf{mr\_rel}_F$, $\langle\overline{u}^{b}\; \overline{v}^{\fr}\rangle$ interlaces the functions according to the order of bounds and frees.
+    Thus, in our notation $\map_F\; \langle\overline{f}^{l}\; \overline{v}^{\fr}\; \overline{u}^b\rangle$ we assume the $\langle\dots\rangle$ to interlace the arguments correctly to $\map_F\; v_1\; u_1\; v_2$. Analogously for the $\mrrel_F$, $\langle\overline{u}^{b}\; \overline{v}^{\fr}\rangle$ interlaces the functions according to the order of bounds and frees.
 
     % Why small-support?
     % Why bijection?
@@ -164,9 +164,9 @@
     \subsection{MRBNF axioms}
       \acp{MRBNF} require the same axioms as \acp{BNF} with slight modifications. We take the formalized axioms from \autoref{fig:bnf_axioms} as a base and explain the differences.
 
-      For the \autoref{eq:map_comp}, \autoref{eq:map_cong} and \autoref{eq:set_map} axioms, we add the assumptions that the functions that correspond to frees and bounds are small-support functions and that the ones corresponding to bounds are additionally bijections. 
+      For the \ref{eq:map_comp}, \ref{eq:map_cong} and \ref{eq:set_map} axioms, we add the assumptions that the functions that correspond to frees and bounds are small-support functions and that the ones corresponding to bounds are additionally bijections. 
 
-      Furthermore, while \autoref{eq:rel_compp} stays unchanged, using the original relator, \autoref{eq:in_rel} is changed to be defined in terms of the map-restricted relator.
+      Furthermore, while \ref{eq:rel_compp} stays unchanged, using the original relator, \ref{eq:in_rel} is changed to be defined in terms of the map-restricted relator.
       % TODO copy changes
 
     \subsection{binder datatypes}

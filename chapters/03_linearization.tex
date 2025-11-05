@@ -2,9 +2,9 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \chapter{Linearizing MRBNFs}
-\label{chapter:methodology}
+\label{chapter:linearizing}
 
-\section{Linearization of MRBNFs (In theory)}
+\section{Linearizing MRBNFs}
   In this section we define the linearization of a \ac{MRBNF} $F$ on a subset of it's \textit{live} variables. Linearization means, that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also a \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
 
   We formalize the idea of distinctness of components as \textit{non-repetitiveness} on the linearized variables. In our notation we use $L$ as the set of indices of live variables we linearize on, i.e., $L \subseteq \{1 \dots l\}$. Furthermore we define a combinator $\overline{R}^l \bowtie^L \overline{Q}^l = [(\texttt{if}\; i \in L\;\texttt{then}\; Q_i\; \texttt{else}\; R_i)\; \texttt{for}\; 1 \leq i \leq l]$ that selects the second argument if $i$ is a variable to be linearized on and the first one, if not.
@@ -12,12 +12,12 @@
   \subsection{Non-repetitiveness}
   \label{subsec:nonrep}
     At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, a \type{$\alpha$ list} is non-repetitive, if all of its $\alpha$-elements it contains are pairwise distinct. 
-    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \textsf{map}_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
+    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we have to express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \map_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
 
-    In \autoref{subsubsec:Rel} we proposed the idea to think about elements of a \ac{BNF} (or \ac{MRBNF}) $F$ as containers with a certain shape with atoms in slots specified by the shape. Using this model, we can generalize the notion of lists having the same length to $F$ elements having the same shape. We can express this through the relator by using the $top$ relation that relates everything with each other as the argument. Thus, we give the definition of equivalent shape and non-repetitiveness for list:
+    In \autoref{subsubsec:Rel} we proposed the idea to think about elements of a \ac{BNF} (or \ac{MRBNF}) $F$ as containers with a certain shape with atoms in slots specified by the shape. Using this model, we can generalize the notion of lists having the same length to $F$ elements having the same shape. We can express this through the relator by using the $\top$ relation that relates everything with each other as the argument. Thus, we give the definition of equivalent shape and non-repetitiveness for list:
     \begin{align*}
-      \textsf{eq\_shape}_\textsf{list}\; x\; y &= \textsf{rel}_\textsf{list}\; top\; x\; y\\
-      \textsf{nonrep}_\textsf{list}\; x &= \forall y.\; \textsf{eq\_shape}_\textsf{list}\; x\; y \Longrightarrow (\exists f.\; y = \textsf{map}_\textsf{list}\; f\; x)
+      \eqshape_\textsf{list}\; x\; y &= \rel_\textsf{list}\; \top\; x\; y\\
+      \nonrep_\textsf{list}\; x &= \forall y.\; \eqshape_\textsf{list}\; x\; y \Longrightarrow (\exists f.\; y = \map_\textsf{list}\; f\; x)
     \end{align*}
 
     Note that we use the regular relator that only relates live variables with given relations while it requires equality for all frees and bounds.
@@ -26,51 +26,74 @@
 
     Based on this, $x$ is a non-repetitive element, if for all other elements $y$ with equal shape, a function exists through which $x$ can be mapped to $y$. In our example of \type{list}, this holds for all lists with distinct elements (given a second list, one can easily define a function mapping the distinct elements of $x$ to that list). It does not hold for lists with repeating elements, because no $f$ exists that could map two equal elements at different positions in this list to distinct elements in an arbitrary second list.
 
-    For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{non-repetitiveness} and having \textit{equal shape} on a subset $L$ of the live variables. In that case, we consider $x$ and $y$ of type $F$ to have equal shape with respect to the variables $\{\alpha_i.\; i \in L\}$, iff they are \textit{equal} in the atoms corresponding to the non linearized lives and are related with \textit{top} in on the linearized variables. Consequently for the map in the \textsf{nonrep} definition, the \textit{id} function is applied to the non linearized lives, since they are already required to be equal. 
+    For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{non-repetitiveness} and having \textit{equal shape} on a subset $L$ of the live variables. In that case, we consider $x$ and $y$ of type $F$ to have equal shape with respect to the variables $\{\alpha_i.\; i \in L\}$, iff they are \textit{equal} in the atoms corresponding to the non linearized lives and are related with $\top$ in on the linearized variables. Consequently for the map in the $\nonrep$ definition, the $\id$ function is applied to the non linearized lives, since they are already required to be equal. 
     \begin{align*}
-      \textsf{eq\_shape}_F^L\; x\; y &= \textsf{rel}_F\; (\overline{(=)}^l \bowtie^L \overline{top}^l)\; x\; y\\
-      \textsf{nonrep}_F^L\; x &= \forall y.\; \textsf{eq\_shape}_F^L\; x\; y \Longrightarrow (\exists \overline{f}^l.\; y = \textsf{map}_f\; \langle(\overline{id}^l \bowtie^L \overline{f}^l)\; \overline{id}^\fr\; \overline{id}^b\rangle\; x)
+      \eqshape_F^L\; x\; y &= \rel_F\; (\overline{(=)}^l \bowtie^L \overline{\top}^l)\; x\; y\\
+      \nonrep_F^L\; x &= \forall y.\; \eqshape_F^L\; x\; y \Longrightarrow (\exists \overline{f}^l.\; y = \map_f\; \langle(\overline{\id}^l \bowtie^L \overline{f}^l)\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; x)
     \end{align*}
-    
-    % TODO: Explain how it is for the linearization of multiple lives?
-    
+
   \subsection{Conditions for linearization}
   \label{subsec:conditions}
-    A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \textsf{nonrep}\; x$
+    A \acp{MRBNF} has to fulfill two properties to be linearized. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \nonrep\; x$
 
-    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks defined as \autoref{eq:in_rel} in \autoref{fig:bnf_axioms}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling the property \autoref{eq:in_rel}. For example the strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
+    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks defined as \ref{eq:in_rel} in \autoref{fig:bnf_axioms}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling the property \ref{eq:in_rel}. For example the strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
+    \begin{align*}
+      \rel_F\; \overline{R}^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land  \tag{\textsc{PB\_strong}}\label{eq:PB_strong}\\
+      &\smash{\map_F\; \langle\overline{\fst}^l\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; z = x \land \map_F\; \langle\overline{\snd}^l\; \overline{\operatorname{\id}}^\fr\; \overline{\id}^b\rangle\; z = y}
+    \end{align*}
 
-    We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \textit{relation exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
+    We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \ref{eq:rel_exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
 
   \subsection{Intermediate lemmas}
     We want to prove the \ac{MRBNF} axioms for the linearized \ac{MRBNF}. For this we utilize some intermediate lemmas which we present in this section.
     
-    \paragraph{F is strong}
+    \subsubsection{F is strong}
       From the pullback preservation with uniqueness we can prove the following lemma. In fact this notion of strength is equivalent to pullback preservation: 
       \begin{equation*}
-        \textsf{rel}_F\; \overline{R}^l\; x\; y\; \land\; \textsf{rel}_F\; \overline{Q}^l\; x\; y \Longrightarrow \textsf{rel}_F\; \overline{(inf\; R\; Q)}^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
+        \rel_F\; \overline{R}^l\; x\; y\; \land\; \rel_F\; \overline{Q}^l\; x\; y \Longrightarrow \rel_F\; \overline{(\inf\; R\; Q)}^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
       \end{equation*} 
-      where the infimum $inf$ of two relations $R$ and $Q$ relates exactly those elements that are related by both $R$ and $Q$.
+      where the infimum $\inf$ of two relations $R$ and $Q$ relates exactly those elements that are related by both $R$ and $Q$. 
 
-    \paragraph{Relation exchange}
+    \subsubsection{Relation exchange}
     \label{par:rel_exchange}
-      The \textit{exchange of relations} is a consequence of the previous property, \autoref{eq:F_strong}: If two elements $x$ and $y$ are related through the relator with two different lists $\overline{R}^l = R_1 \dots R_l$ and $\overline{Q}^l = Q_1 \dots Q_l$ of atom-level relations, then $x$ and $y$ are also related with any index-wise combination of $\overline{R}^l$ or $\overline{Q}^l$. For each index $i$ either the relation $R_i$ or $Q_i$ is selected. 
+      The \textit{exchange of relations} is a consequence of the previous property, \ref{eq:F_strong}: If two elements $x$ and $y$ are related through the relator with two different lists $\overline{R}^l = R_1 \dots R_l$ and $\overline{Q}^l = Q_1 \dots Q_l$ of atom-level relations, then $x$ and $y$ are also related with any index-wise combination of $\overline{R}^l$ or $\overline{Q}^l$. For each index $i$ either the relation $R_i$ or $Q_i$ is selected. 
       
       For our purpose of linearization, we are specifically interested in the case, where for all live variables that we linearize on the relation from $\overline{R}^l$ is chosen and for all others the relation from $\overline{Q}^l$ relation, i.e., the result of the combinator $\bowtie^L$. This results in the following lemma for a \ac{MRBNF} $F$:
       \begin{equation*}
-        \textsf{rel}_F\; \overline{R}^l\; x\; y\; \land\; \textsf{rel}_F\; \overline{Q}^l\; x\; y \Longrightarrow \textsf{rel}_F\; (\overline{Q}^l \bowtie^L \overline{R}^l)\; x\; y \tag{\textsc{rel\_exchange}}\label{eq:rel_exchange}
+        \rel_F\; \overline{R}^l\; x\; y\; \land\; \rel_F\; \overline{Q}^l\; x\; y \Longrightarrow \rel_F\; (\overline{Q}^l \bowtie^L \overline{R}^l)\; x\; y \tag{\textsc{rel\_exchange}}\label{eq:rel_exchange}
       \end{equation*} 
       In the specific case, that the \ac{MRBNF} is linearized on \textit{all} of it's live variables, the combination that is chosen is exactly $\overline{R}$. Then the lemma becomes trivial, since its goal is equal to it's first assumption in this case.
 
-      As a consequence of this, the previous lemma \autoref{eq:F_strong} is not needed to prove this lemma. Furthermore, this lemma is the sole reason why \autoref{eq:F_strong} and strong pullback preservation are needed for the linearization. Thus the requirement of pullback preservation can be lifted, in the case that the linearization is applied to all live variables at the same time.
+      As a consequence of this, the previous lemma \ref{eq:F_strong} is not needed to prove this lemma. Furthermore, this lemma is the sole reason why \ref{eq:F_strong} and strong pullback preservation are needed for the linearization. Thus the requirement of pullback preservation can be lifted, in the case that the linearization is applied to all live variables at the same time.
 
-    \paragraph{map peresrving non-repetitiveness}
+    \subsubsection{map peresrving non-repetitiveness}
       \begin{align*}
         &\textsf{small\_supp}\; \overline{v}^\fr\; \land\; \textsf{small\_supp}\; \overline{u}^b\; \land\; \textsf{bijective}\; \overline{u}^b\; \land\\
-        &\textsf{nonrep}_F^L\; x\; \land\; \textsf{bijective}\; \overline{f}^l\; \Longrightarrow \textsf{nonrep}_F^L\; (\textsf{map}_F\; \langle(\overline{g}^l \bowtie_L \overline{f}^l)\; \overline{v}^\fr\; \overline{u}^b\rangle\; x)
+        &\nonrep_F^L\; x\; \land\; \textsf{bijective}\; \overline{f}^l\; \Longrightarrow \nonrep_F^L\; (\map_F\; \langle(\overline{g}^l \bowtie_L \overline{f}^l)\; \overline{v}^\fr\; \overline{u}^b\rangle\; x)
       \end{align*} 
+
+    \subsection{Defining the subtype and its constants}
+      Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $L$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ - provided that they are non-repetitive.
+
+      In the following we specify the \ac{MRBNF} constants, i.e., the mapper, setters, bound and relator for $F'$. We define these in terms of the base types constants and apply the morphisms to match the types: The setters stay unchanged and thus we can keep the same bound. For the relator the relations for the linearized lives are fixed to the equality relation, since in the new \ac{MRBNF} these will be bounds. Lastly, for the mapper we only allow it to map bijective functions on the linearized variables in addition to the restrictions for the existing frees and bounds. This restriction is necessary to ensure that applying the map function to a $F'$ element preserves it non-repetitiveness. If a function that violates any of the restrictions is given to the mapper, it is ignored and not applied.
+
+      As for the morphisms, concretely, we apply $\rep_{F'}$ to the $F'$ arguments of the new mapper, setters and relator, and $\abs_{F'}$ to the result of the mapper. This leads us to the following definitions:
+      \begin{align*}
+        \set_{F',i} &= \set_{F,i} \circ \rep_{F'}\\
+        \map_{F'}\; \langle f^l\;u^\fr\;v^b \rangle &= \abs_{F'} \circ (\map_{F} \langle (f^l \bowtie_F (\asBij f^l))\; v^\fr\; u^b \rangle) \circ \rep_{F'}\\
+        \rel_{F'}\; R^l\; x\; y &= \rel_{F}\; (R^l \bowtie_F (=)^l)\; (\rep_{F'}\; x)\; (\rep_{F'}\; y)
+      \end{align*}
+      where $\asBij f = \texttt{if}\; \textsf{bijective}\; f\; \texttt{then}\; f\; \texttt{else}\; \id$.
+      We note here, that in our implementation in Isabelle/HOL, we also enforce the $u^b$ to be bijective using $\asBij$ and both $v^\fr$ and $u^b$ to be small-support functions in a similar way. We omit this here as we assume $\map_{F}$ to handle these cases.
       
     \subsection{Proving the MRBNF axioms}
+      To show that $F'$ is a \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. 
+      For most of the axioms this is straight forward for most of the axioms, as they only require unfolding the definitions of the new $F'$ constants and applying the axioms of the original $F$. The axioms \ref{eq:map_id} are \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. As an example we show \ref{eq:set_map}:
+      \begin{align*}
+        \set_{F',i}
+      \end{align*}
+      
+      The validity of the bound \ref{eq:bd} is also trivially proven, since the bound is copied from $F$.
 
     \subsection{Lifting Witnesses}
     \label{subsec:lin_wits}
@@ -87,7 +110,7 @@
     \subsection{Preservation of strength}
       
 
-  \section{Linearization of MRBNFs (In Isabelle)}
+  \section{Implementing the \textbf{linearize\_mrbnf} command}
     We implement a command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. The syntax of the command is given in the following:
 
     \input{figures/linearize_rail.tex}
@@ -100,12 +123,12 @@
 
     After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven, i.e., non-emptiness of the linear type and strong pullback preservation. 
     
-    These conditions are given dynamically to the user. For example, it is only necessary to show strong pullback preservation, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. Thus, the user is not asked to show the existence of a non-repetitive element in these cases.
+    These conditions are given dynamically to the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. Thus, the user is not asked to show the existence of a non-repetitive element in these cases.
 
-    Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation can be proven from weak pullback preservation together with the uniqueness we specify as follows:
+    Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
     \begin{align*}
-      \forall x\; y.\; (&\textsf{map}_F\; [\overline{fst}^l\; \overline{id}^\fr\; \overline{id}^b]\; x = \textsf{map}_F\; [\overline{fst}^l\; \overline{id}^\fr\; \overline{id}^b]\; y\; \land\\
-      &\textsf{map}_F\; [\overline{snd}^l\; \overline{id}^\fr\; \overline{id}^b]\; x = \textsf{map}_F\; [\overline{snd}^l\; \overline{id}^\fr\; \overline{id}^b]\; y)\Longrightarrow\\ 
+      \forall x\; y.\; (&\map_F\; \langle\overline{\fst}^l\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; x = \map_F\; \langle\overline{\fst}^l\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; y\; \land\\
+      &\map_F\; \langle\overline{\snd}^l\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; x = \map_F\; \langle\overline{\snd}^l\; \overline{\id}^\fr\; \overline{\id}^b\rangle\; y)\Longrightarrow\\ 
       &x = y
     \end{align*}
 
