@@ -168,14 +168,16 @@
 
       Furthermore, while \ref{eq:rel_compp} stays unchanged, using the original relator, \ref{eq:in_rel} is changed to be defined in terms of the map-restricted relator $\mrrel_F$ as follows:
       \begin{align*}
-        \mrrel_F\;  u^{b}\; v^{\fr}\; R^l\; x\; y =\; &\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land \\
+        \mrrel_F\; u^{b}\; v^{\fr}\; R^l\; x\; y =\; &\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land \\
         &\smash{\map_F\; \fst^{l}\; \id^{\fr}\; \id^b\; z = x \land \map_F\; \snd^{l}\; v^{\fr}\; u^b\; z = y}
       \end{align*}
 
     \subsection{binder datatypes}
       \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
 
-      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh names available. It is defined as the cardinality of the type being at least $\aleph_0$ or $\aleph_1$ depending on whether it is a datatype of codatatype. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes, \texttt{var} and \texttt{covar} respectively.
+      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least $\aleph_0$ for datatypes or $\aleph_1$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes, \texttt{var} and \texttt{covar} respectively.
+
+      % TODO maybe explain more? induction
 
       TODO: more + cite \cite{blanchette2019bindings}
     % binder_datatype command
