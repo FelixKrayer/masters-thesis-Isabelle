@@ -29,7 +29,7 @@
     For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{non-repetitiveness} and having \textit{equal shape} on a subset $L$ of the live variables. In that case, we consider $x$ and $y$ of type $F$ to have equal shape with respect to the variables $\{\alpha_i.\; i \in L\}$, iff they are \textit{equal} in the atoms corresponding to the non linearized lives and are related with $\top$ in on the linearized variables. Consequently for the map in the $\nonrep$ definition, the $\id$ function is applied to the non linearized lives, since they are already required to be equal. 
     \begin{align*}
       \eqshape_F^L\; x\; y &= \rel_F\; ((=)^l \bowtie^L (\top)^l)\; x\; y\\
-      \nonrep_F^L\; x &= \forall y.\; \eqshape_F^L\; x\; y \Longrightarrow (\exists f^l.\; y = \map_f\; \langle(\id^l \bowtie^L f^l)\; \id^\fr\; \id^b\rangle\; x)
+      \nonrep_F^L\; x &= \forall y.\; \eqshape_F^L\; x\; y \Longrightarrow (\exists f^l.\; y = \map_f\; (\id^l \bowtie^L f^l)\; \id^\fr\; \id^b\; x)
     \end{align*}
 
   \subsection{Conditions for linearization}
@@ -39,7 +39,7 @@
     Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks defined as \ref{eq:in_rel} in \autoref{fig:bnf_axioms}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the equation has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling the property \ref{eq:in_rel}. For example the strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
     \begin{align*}
       \rel_F\; R^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land  \tag{\textsc{PB\_strong}}\label{eq:PB_strong}\\
-      &\smash{\map_F\; \langle\fst^l\; \id^\fr\; \id^b\rangle\; z = x \land \map_F\; \langle\snd^l\; \id^\fr\; \id^b\rangle\; z = y}
+      &\smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}
     \end{align*}
 
     We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \ref{eq:rel_exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
@@ -69,14 +69,14 @@
     \subsubsection{map peresrving non-repetitiveness}
       \begin{align*}
         &\textsf{small\_supp}\; v^\fr\; \land\; \textsf{small\_supp}\; u^b\; \land\; \textsf{bijective}\; u^b\; \land \tag{\textsc{nonrep\_map}}\label{eq:nrp_map}\\
-        &\textsf{bijective}\; f^l\; \land\; \nonrep_F^L\; x\; \Longrightarrow \nonrep_F^L\; (\map_F\; \langle(g^l \bowtie_L f^l)\; v^\fr\; u^b\rangle\; x)
+        &\textsf{bijective}\; f^l\; \land\; \nonrep_F^L\; x\; \Longrightarrow \nonrep_F^L\; (\map_F\; (g^l \bowtie_L f^l)\; v^\fr\; u^b\; x)
       \end{align*} 
 
     
     \subsubsection{map reflecting non-repetitiveness}
       reverse \ref{eq:nrp_map}
       \begin{equation*}
-        \nonrep_F^L\; (\map_F\; \langle(f^l \bowtie_L \id^l)\; \id^\fr\; \id^b\rangle\; x)\Longrightarrow \nonrep_F^L\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
+        \nonrep_F^L\; (\map_F\; (f^l \bowtie_L \id^l)\; \id^\fr\; \id^b\; x)\Longrightarrow \nonrep_F^L\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
       \end{equation*} 
 
     \subsection{Defining the subtype and its constants}
@@ -87,7 +87,7 @@
       As for the morphisms, concretely, we apply $\rep_{F'}$ to the $F'$ arguments of the new mapper, setters and relator, and $\abs_{F'}$ to the result of the mapper. This leads us to the following definitions:
       \begin{align*}
         \set_{F',i} &= \set_{F,i} \circ \rep_{F'}\\
-        \map_{F'}\; \langle f^l\;u^\fr\;v^b \rangle &= \abs_{F'} \circ (\map_{F} \langle (f^l \bowtie_F (\asBij f^l))\; v^\fr\; u^b \rangle) \circ \rep_{F'}\\
+        \map_{F'}\;  f^l\;u^\fr\;v^b  &= \abs_{F'} \circ (\map_{F}  (f^l \bowtie_F (\asBij f^l))\; v^\fr\; u^b ) \circ \rep_{F'}\\
         \rel_{F'}\; R^l\; x\; y &= \rel_{F}\; (R^l \bowtie_F (=)^l)\; (\rep_{F'}\; x)\; (\rep_{F'}\; y)
       \end{align*}
       where $\asBij f = \texttt{if}\; \textsf{bijective}\; f\; \texttt{then}\; f\; \texttt{else}\; \id$.
@@ -114,21 +114,21 @@
 
       It remains to show \ref{eq:rel_compp} and \ref{eq:in_rel} for $F'$. While the former is easily proven using the corresponding axiom of $F$ and some simple properties of relational composition, the latter is certainly the most interesting axiom to show. 
       
-      We don't show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^L\; (\map_F\; \langle \fst^l\; \id^\fr\; \id^b\rangle\; z) \Longrightarrow \nonrep_F^L\; (\map_F\; \langle (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\rangle\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
+      We don't show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^L\; (\map_F\;  \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow \nonrep_F^L\; (\map_F\;  (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
 
       \begin{align*}
-        &\nonrep_F^L\; (\map_F\; \langle \fst^l\; \id^\fr\; \id^b\rangle\; z) \Longrightarrow\\
-        &\nonrep_F^L\; (\map_F\; \langle (\fst^l \bowtie_L \id^l)\; \id^\fr\; \id^b\rangle\; (\map_F\; \langle (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\rangle\; z)) \Longrightarrow\\
-        &\nonrep_F^L\; (\map_F\; \langle (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\rangle\; z)\\
+        &\nonrep_F^L\; (\map_F\;  \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow\\
+        &\nonrep_F^L\; (\map_F\;  (\fst^l \bowtie_L \id^l)\; \id^\fr\; \id^b\; (\map_F\;  (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\; z)) \Longrightarrow\\
+        &\nonrep_F^L\; (\map_F\;  (\id^l \bowtie_L \fst^l)\; \id^\fr\; \id^b\; z)\\
       \end{align*}
 
       The first step is reached through \ref{eq:map_comp} of $F$, while the second one needs the \ref{eq:nrp_map_rev} lemma. This is the final place, where strong pullback preservation is used and the reason why it is required.
 
       %Another interesting step is the conversion from $\mrrel_{F'}$ to $\mrrel_F$. While $\mrrel_{F'}$ takes functions for the linearized type variables - that turned to bounds, the relator of original \ac{MRBNF} $F$ takes relations for these. By explicitly specifying 
       % TODO: not done! needs l', b' and L_b. Also big issue with this in general...
-      %$\rel_F \; (R^l \bowtie_L (\Grp f)^l)\; (\map_F \langle \id^l\; v^\fr\; u^b \rangle x)\; y$
-      %$\rel_F \; (R^l \bowtie_L (=)^l)\; (\map_F \langle (\id^l \bowtie_L f^l)\; v^\fr\; u^b \rangle x)\; y$
-      %$\rel_{F'} \; R^{l'}\; (\map_{F'} \langle (\id^l \bowtie_L f^l)\; v^\fr\; u^b \rangle x)\; y$
+      %$\rel_F \; (R^l \bowtie_L (\Grp f)^l)\; (\map_F  \id^l\; v^\fr\; u^b  x)\; y$
+      %$\rel_F \; (R^l \bowtie_L (=)^l)\; (\map_F  (\id^l \bowtie_L f^l)\; v^\fr\; u^b  x)\; y$
+      %$\rel_{F'} \; R^{l'}\; (\map_{F'}  (\id^l \bowtie_L f^l)\; v^\fr\; u^b  x)\; y$
 
     \subsection{Lifting Witnesses}
     \label{subsec:lin_wits}
@@ -162,8 +162,8 @@
 
     Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
     \begin{align*}
-      \forall x\; y.\; (&\map_F\; \langle\fst^l\; \id^\fr\; \id^b\rangle\; x = \map_F\; \langle\fst^l\; \id^\fr\; \id^b\rangle\; y\; \land\\
-      &\map_F\; \langle\snd^l\; \id^\fr\; \id^b\rangle\; x = \map_F\; \langle\snd^l\; \id^\fr\; \id^b\rangle\; y)\Longrightarrow\\ 
+      \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land\\
+      &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
       &x = y
     \end{align*}
 

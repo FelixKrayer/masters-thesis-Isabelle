@@ -130,6 +130,7 @@
       To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\bd_\textsf{plist}$.
 
   \section{Syntaxes with bindings}
+    WIP: Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
     Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. Considering for example the type of distinct lists \type{$\alpha$ dlist}, a subtype of \type{$\alpha$ list} that describes only lists containing pairwise distinct $\alpha$ atoms. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$\alpha$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. 
@@ -137,29 +138,26 @@
     \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is a \ac{MRBNF} with $\alpha$ as a bound variable.
 
     A small-support function leaves most arguments unchanged, meaning it acts like the identity function on them. Concretely defined, the cardinality of the set of arguments the function changes must be smaller than the cardinality of the argument type itself: 
-    \[ 
-      \textsf{small\_supp}\;f = |\{x::\;\alpha.\; f\; x \neq x\}| <_o |\Omega_\alpha| 
-    \]
-    where $\Omega_\alpha$ is the universe of type $\alpha$.
+    \begin{align*}
+      \textsf{small\_supp}\;f = |\{x::\;\alpha.\; f\; x \neq x\}| <_o |\Omega_\alpha|\\
+      \text{where $\Omega_\alpha$ is the universe of type $\alpha$.}
+    \end{align*}
 
-    Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
+    For a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
 
-    The mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds has $l + \fr + b$ setters and a mapper with arity $l + \fr + b + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
-
-    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\rel_F$ requires the frees and bounds in each slot to be the same for both elements that are compared.
-    
-    To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\mrrel_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. It then uses the graphs $\Grp$ of these functions as relations for the respective free or bound variable. Transferring the ideas of bijectivity ans small-support to these graph relations, it means, that 
-    
-    The new arguments are placed in front of the relations for the live variables. It is then defined in terms of the relator as shown below. Note, that relating two elements with the graph of a function $v$ is equivalent to mapping $v$ over the first element and relating that to the second one by equality.
-    \[
-      \mrrel_F\; \langle u^{b}\; v^{\fr}\rangle\; R^l\; x\; y = \rel_F\; R^l\; (\map_F\; \langle\id^{l}\; v^{\fr}\; u^b\rangle\; x)\; y
-    \]
-    Here we write $f^l$ for the functions or relations of the live variables $f_1 \dots f_l$ and analogously $v^\fr$ and $u^b$ for frees and bounds. Furthermore, we write the arguments of the map function as $\langle f^{l}\; v^{\fr}\; u^b\rangle$. The argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced in some order. For example for the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\gamma$ are free, while $\beta$ is bound, the mapper has the following type:
+    As before, we write $f^l$ for the functions or relations of the live variables $f_1 \dots f_l$ and analogously $v^\fr$ and $u^b$ for frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. For example for the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free, while $\gamma$ is bound, the mapper has the following type:
     \[
       \map_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
     \]
-    Thus, in our notation $\map_F\; \langle f^{l}\; v^{\fr}\; u^b\rangle$ we assume the $\langle\dots\rangle$ to interlace the arguments correctly to $\map_F\; v_1\; u_1\; v_2$. Analogously for the $\mrrel_F$, $\langle u^{b}\; v^{\fr}\rangle$ interlaces the functions according to the order of bounds and frees.
 
+    From now on we assume that the type variables of any \ac{MRBNF} are ordered \textit{lives} first, followed by \textit{frees} and \textit{bounds}, and \textit{deads} at the end. This simplifies many definitions and arguments we make about \acp{MRBNF}, however these are all easily generalized to an arbitrary ordering of type variables. For example, the argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced in some order. \acp{MRBNF} that are explicitly defined in terms of primitive types like \type{list} or \type{prod} are exempt from this rule.
+
+    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\rel_F$ requires the frees and bounds in each slot to be the same for both elements that are compared. To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\mrrel_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. It then uses the graphs $\Grp$ of these functions as relations for the respective free or bound variable. Transferring the ideas of bijectivity ans small-support to these graph relations, the graph of a bijective function relates each atom to exactly one other atom, while the graph of small-support function acts as equality on all the arguments that are not in its support.
+    The new arguments of the map-restricted relator are placed in front of the relations for the live variables. It is then defined in terms of the relator as shown below. Note, that relating two elements with the graph of a function $v$ is equivalent to mapping $v$ over the first element and relating that to the second one by equality. Thus, we define it as follows:
+    \[
+      \mrrel_F\; u^{b}\; v^{\fr}\; R^l\; x\; y = \rel_F\; R^l\; (\map_F\; \id^{l}\; v^{\fr}\; u^b\; x)\; y
+    \]
+    
     % Why small-support?
     % Why bijection?
 
@@ -170,8 +168,8 @@
 
       Furthermore, while \ref{eq:rel_compp} stays unchanged, using the original relator, \ref{eq:in_rel} is changed to be defined in terms of the map-restricted relator $\mrrel_F$ as follows:
       \begin{align*}
-        \mrrel_F\; \langle u^{b}\; v^{\fr}\rangle\; R^l\; x\; y =\; &\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land \\
-        &\smash{\map_F\; \langle\fst^{l}\; \id^{\fr}\; \id^b\rangle\; z = x \land \map_F\; \langle\snd^{l}\; v^{\fr}\; u^b\rangle\; z = y}
+        \mrrel_F\;  u^{b}\; v^{\fr}\; R^l\; x\; y =\; &\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land \\
+        &\smash{\map_F\; \fst^{l}\; \id^{\fr}\; \id^b\; z = x \land \map_F\; \snd^{l}\; v^{\fr}\; u^b\; z = y}
       \end{align*}
 
     \subsection{binder datatypes}
