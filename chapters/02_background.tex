@@ -6,10 +6,8 @@
 % TODO cite Isabelle datatype pdf
 
 % NOTATION, Vocabulary? 
-% "element" always refers to an instance of a type (constructor), e.g. $x$ is an $F$ element, if x is of type F
-% "atom" or "component" - refers to instances of the type variables ($\alpha$, $\beta$, \dots) of a type constructor $F$ that "make up" an $F$ element
 
-  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "components" or "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
+  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
   \section{Bounded Natural Functors (BNFs)}
     As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
     \begin{equation*}
@@ -30,12 +28,12 @@
       A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator.
 
       \subsubsection{Map function and functors}
-        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the components of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\map_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
+        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the atoms of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\map_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
         
         To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $\id$ function on all lives over an element should leave it unchanged, which is formalized in \ref{eq:map_id}. The second property \ref{eq:map_comp} is concerned with mapping compositions and reads as follows: Mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. A type constructor $F$ with a map function $\map_F$ fulfilling these two properties is considered a functor.
 
       \subsubsection{Set functions and naturality}
-        A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all components that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
+        A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all atoms that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
 
         The set functions together with the mapper give rise to another property. We want the setters $\set_{F,i}$ to be natural transformations from $F$ and $\map_F$ to the set and image function. Thus, they should fulfill the \ref{eq:set_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. \autoref{fig:set_nat} shows a visualization of this axiom and reads as follows: Starting from an $F$ element first applying the setter and then mapping a function (path through the top right) results in the same as first mapping the function and then applying the setter (path through the bottom left).
 
@@ -55,13 +53,13 @@
 
       \subsubsection{Relator and shapes}
         \label{subsubsec:Rel}
-        The relator is used to build a relation on $F$ by relating the components of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
+        The relator is used to build a relation on $F$ by relating the atoms of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
         \begin{align*}
           &\rel_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
           &\rel_\textsf{prod}\; R\; Q\; p_1\; p_2 :=\; R\; (\fst\; p_1)\; (\fst\; p_2)\land Q\; (\snd\; p_1)\; (\snd\; p_2)
         \end{align*}
 
-        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{components}. These components are elements of the type constructor's type arguments.
+        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
 
         % TODO extract the axioms from here?
         % TODO Explain how F elements are constructed
@@ -94,13 +92,13 @@
       \end{figure}
       Additionally to the axioms we already motivated in \autoref{subsec:bnf_constants} (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have four additional ones.
 
-      One of those is the the congruency \ref{eq:map_cong} of the map function. It states that if two (lists of) functions $f^l$ and $g^l$ are equal when applied to the corresponding sets of all components of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $f^l$ behave on the components of the $F$ element.
+      One of those is the the congruency \ref{eq:map_cong} of the map function. It states that if two (lists of) functions $f^l$ and $g^l$ are equal when applied to the corresponding sets of all atoms of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $f^l$ behave on the atoms of the $F$ element.
 
       The axiom \ref{eq:bd} just ensures that the bound $\bd_F$ is a suitable cardinal, i.e., a regular and infinite one.
 
       Distributivity of the relator is formulated in \ref{eq:in_rel}. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the inclusion $(\rel_F\; R^l\; \bullet\; \rel_F\; Q^l)\; x\; y \Rightarrow \rel_F\; (R\; \bullet\; Q)^l\; x\; y $. The other direction follows automatically from this and the next axiom, weak pullback preservation.
 
-      Lastly, weak pullback preservation \ref{eq:in_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The components of this $z$ are $R_i$-related pairs of the components of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
+      Lastly, weak pullback preservation \ref{eq:in_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are $R_i$-related pairs of the atoms of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
       % TODO Better explanation for pullback preservation?
 
     \subsection{Non-emptiness witnesses}

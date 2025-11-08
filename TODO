@@ -1,10 +1,11 @@
 Questions:
+  - How to cite / mention Popescus .thy file as basis for proofs?
+  
 
+
+Old:
   - how to cite Isabell Doc     -> cite other papers
   - why "in_rel"                -> describes when something is in relation
   - cardinalities? What is a "infinite regular card order"? What is "natLeq" -> regular: |A| <o |C| and |B| <o |C| ==> |A u B| <o |C| >; card order: well order and Field
   - Future Work?                -> strongness
-
-
-DONE
   - preference 'a or \alpha     -> \alpha is better
