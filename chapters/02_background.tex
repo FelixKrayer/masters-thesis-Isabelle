@@ -7,7 +7,7 @@
 
 % NOTATION, Vocabulary? 
 
-  This Chapter serves to introduce \acfp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a $n$-ary type constructor $F$, we are always talking about a term of type $(\alpha^n)\; F$. In contrast to that, we call the $\alpha_i$ elements that make up a $F$ element "atoms". The structure of the $F$ element dictates how and where the atoms occur in it.
+  This Chapter serves to introduce \acfp{BNF} and their generalization to \acfp{MRBNF}. Note, that when we use the notion "element" of a $n$-ary type constructor $F$, we are always talking about a term of type $(\alpha^n)\; F$. In contrast to that, we call the $\alpha_i$ elements that make up a $F$ element "atoms". The structure of the $F$ element dictates how and where the atoms occur in it.
   \section{Bounded Natural Functors (BNFs)}
     As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list} and $(\alpha \times \beta)$, are \acp{BNF}.
     \begin{equation*}

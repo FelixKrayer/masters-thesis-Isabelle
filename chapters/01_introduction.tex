@@ -6,6 +6,18 @@
 
   Isabelle/HOL provides a fleshed out system for defining datatypes and codatatypes through the \textbf{datatype} command. This system is built on the foundation of \acp{BNF}.
 
+  This allows to express and thus reason about many different kinds of structured concepts. (Induction!)
+
+  How about expressing simple lambda terms? For example\dots
+
+  While lambda terms could be expressed as\dots, this has a number of problems. Mainly it allows for many non-valid terms and does not consider alpha-equivalence.
+
+  It is possible to carve out subtypes with Isabelle's \textbf{typedef} command (and quotient?), however thereby the \ac{BNF}-Properties are lost.
+
+  Recently a new way of representing Binding aware datatypes was presented in the \textbf{binder\_datatype} command that is build on the theory of \acp{MRBNF}
+
+  While this solves some issues, it relies on manually linearizing types, i.e. creating types that are non-repettitive. These are not closed under \dots and thus they cannot be structurally defined. Instead a non-linear type is built and then they are carved out. This was a manual process but now we automate it.
+
   - Datatypes in Isabelle/HOL are built on \acp{BNF} (defined in \cite{traytel2012foundational})
 
   - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes
