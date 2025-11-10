@@ -7,7 +7,7 @@
 
 % NOTATION, Vocabulary? 
 
-  This Chapter serves to introduce \acp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
+  This Chapter serves to introduce \acfp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
   \section{Bounded Natural Functors (BNFs)}
     As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
     \begin{equation*}
@@ -59,7 +59,7 @@
           &\rel_\textsf{prod}\; R\; Q\; p_1\; p_2 :=\; R\; (\fst\; p_1)\; (\fst\; p_2)\land Q\; (\snd\; p_1)\; (\snd\; p_2)
         \end{align*}
 
-        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $false$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
+        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to \textit{false}, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
 
         % TODO extract the axioms from here?
         % TODO Explain how F elements are constructed
@@ -105,13 +105,14 @@
       \label{subsec:bnf_wits}
       \acs{BNF} carry non-emptiness witnesses as proof that the type contains at least one element. Witnesses may depend on a subset of the \ac{BNF}'s live variables. For example a witness of $(\alpha_1,\; \dots\; \alpha_l)\; F$ that depends on the first and last type variable of $F$, this witness has the type $\textsf{wit}_F ::\; \alpha_1 \Rightarrow \alpha_l \Rightarrow (\alpha_1,\; \dots\; \alpha_l)\; F$. It denotes that given witnesses for the types $\alpha_1$ and $\alpha_l$, a witness for $F$ can be constructed. 
       
-      Witnesses have to fulfill the following properties: For all type variables $\alpha_i$ the witness depends on, the witness may only contain the $\alpha_i$ elements $w_i$, that were given to the witness as arguments, i.e., $textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $\alpha_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
+      Witnesses have to fulfill the following properties: For all type variables $\alpha_i$ the witness depends on, the witness may only contain the $\alpha_i$ elements $w_i$, that were given to the witness as arguments, i.e., $\textsc{set}_{F,i}$ applied to the witness evaluates to the singleton $\{w_i\}$. Furthermore, the witness must not contain any elements of the live type variables $\alpha_j$, the witness does not depend on, i.e., $\textsc{set}_{F,j}$ must be empty. We formalize these properties in the following where \dashedoverline{$w$} denotes the arguments that the witness depends on.
       \begin{equation*}
         \forall i.\; \set_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits}
       \end{equation*}
 
       If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most useful for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a true subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more useful. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
-      % TODO cite isabelle doc
+      % TODO cite witness paper
+      % TODO witnesses are automatically generated if not given
 
     \subsection{BNF examples}
       Further examples of \acp{BNF} are is the product type \type{($\alpha$, $\beta$) prod}, a binary type constructor with infix notation \type{$\alpha \times \beta$}, and the type of finite sets \type{$\alpha$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \ref{eq:set_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$\alpha$ fset} can be shown to be a \ac{BNF}.
@@ -170,10 +171,12 @@
         &\smash{\map_F\; \fst^{l}\; \id^{\fr}\; \id^b\; z = x \land \map_F\; \snd^{l}\; v^{\fr}\; u^b\; z = y}
       \end{align*}
 
-    \subsection{binder datatypes}
+    \subsection{Datatypes with bindings}
       \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
 
       In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least $\aleph_0$ for datatypes or $\aleph_1$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes, \texttt{var} and \texttt{covar} respectively.
+
+      We call \acp{MRBNF} declared through this command \textit{binder-datatypes}
 
       % TODO maybe explain more? induction
 

@@ -114,19 +114,66 @@
         \equiv\; &y = \map_F\; \langle\id^{l'} (h \circ \id)^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\inv$ $\circ$}\\
         \equiv\; &y = \map_F\; \langle\id^{l'} h^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\circ$ $\id$}\\
       \end{align*}
-
-      It remains to show that mapping appropriately restricted functions over the other, not linearized type variables also preserves non-repetitiveness. We informally motivate this part of the proof in terms of shapes and atoms of $F$ elements:
-      Consider the shape of a non-repetitive element $x$. From the definition \ref{eq:nonrep} we know that for any element $y$ of equivalent shape, we can find functions $f^\lin$ acting only on the linearized variables to map to this other element. As we noted before in \autoref{subsec:nonrep}, we only consider elements to be of equivalent shape, if they are \textit{equal} in all non-linearized atoms. Thus all of the other elements of equivalent shape have the same atoms of non-linearized type in the same slots of that element. Mapping function over the non-linearized atoms changes these in the exact same way for $x$ and for any $y$ of equivalent shape. Thus, the results $x'$ and $y'$ of these maps are also of equivalent shape. Furthermore, this map changes nothing about the linearized variables and thus the same $f^\lin$ can be used to map from the mapped $x'$ to the mapped $y'$. 
-      We need to consider that there could exist a $z$ that is equivalent to $x'$ in terms of shape but it is not the result of a map on a $y$. This means however, that it is equal to $x'$ in all non-linearized atoms and since $x'$ is a result of mapping functions on these atoms. With this we can assume that there actually exists a $y$ with equivalent shape of $x$, that would map to $z$ through the same functions.
-      Combining these two parts, the lemma \ref{eq:nrp_map} can be shown.
       
+      \begin{figure}[!h]
+        \begin{tikzpicture}[auto]
+          % Nodes
+          \node (x) at (0,0) {\(\mathbf{x}\)};
+          \node (x') at (0,-3) {\(\mathbf{x'}\)};
+          \node (y) at (5,0) {\(\mathbf{\forall y.}\; \eqshape_F^\lin\; \mathbf{x \;y}\)};
+          \node (y') at (5,-3) {\(\forall y'. \; \eqshape_F^\lin\;x' \;y' \)};
+
+          % Arrows
+          \draw[thick,->] (x) to node[left] {\(\map_F\; \mathbf{\langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b}\)} (x');
+          \draw[thick,->] (x) to node {\(\mathbf{\exists f^\lin}\)} (y);
+          \draw[->] (x') to node{\(\exists f^\lin\)} (y');
+          \draw[dashed, ->] (y) to node[right] {\(\map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\)} (y');
+        \end{tikzpicture} 
+        \caption{Illustration of lemma \ref{eq:nrp_map}}
+        \label{fig:nrp_map}
+      \end{figure}
+
+      It remains to show that mapping appropriately restricted functions over the other, not linearized type variables also preserves non-repetitiveness. From the definition \ref{eq:nonrep} we know that for any element $y$ of equivalent shape, we can find functions $f^\lin$ acting only on the linearized variables to map to this other element.
+      Next, we consider the mapped $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; x$ and all $y'$ of equivalent shape to it. To proceed we show, that for every fixed $y'$ there exists a $y$ of equivalent shape to the original $x$, such that $y'$ can be expressed as $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; y$. Knowing this, we deduce that the same $f^\lin$ that map $x$ to $y$ from the assumption also map $x'$ to $y'$. Using \ref{eq:map_comp} this proofs non-repetitiveness for $x'$.
+      \autoref{fig:nrp_map} shows an illustration of this lemma. The thick or bolded elements are what we know from the assumption. The dashed arrow stands for the existence of a $y$ with equivalent shape to $x$ for each $y'$ on which this proof depends. This existence can be shown using \ref{eq:in_rel} and other theorems about the relator.
+
       % Diagram? 
 
     \subsubsection{Mapper reflects non-repetitiveness}
       Lastly we need the reflection of non-repetitiveness through map. This lemma can be seen as a partial reverse of \ref{eq:nrp_map}, but only on the non-linearized lives.
       \begin{equation*}
-        \nonrep_F^\lin\; (\map_F\; \langle f^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x)\Longrightarrow \nonrep_F^\lin\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
+        \nonrep_F^\lin\; (\map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x)\Longrightarrow \nonrep_F^\lin\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
       \end{equation*} 
+
+      We start of the proof by defining $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x$ and fixing a $y$ with equivalent shape to $x$: $\eqshape_F^\lin\; x\; y$. This time we can easily obtain and fix $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; y$ with $\eqshape_F^\lin\; x'\; y'$ and $y' = \map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; y$ from the assumption. We can express these maps in terms of the relator using graphs $\Grp$ of functions and \textit{converse} graphs $\Grp^{-1}$. For this we use the following properties obtained from the \ac{MRBNF} $F$:
+      \begin{align*}
+        \rel_F\; (Grp\; f)^l\; x\; y \equiv\; &\map_F\; f^l\; \id^\fr\; \id^b\; x = y \tag{\textsc{rel\_map\_1}}\label{eq:rel_map_1}\\
+        \rel_F\; (Grp^{-1}\; f)^l\; x\; y \equiv\; &x = \map_F\; f^l\; \id^\fr\; \id^b\; y \tag{\textsc{rel\_map\_2}}
+      \end{align*}
+      With this we can express the current proof state as shown in \autoref{fig:nrp_map_rev}. The arrows denote a relation from the element at their base to the element at their tip through the given relator. The top relation is obtained from $\eqshape_F^\lin\; x\; y$, the bottom arrow with $f^\lin$ from the non-repetitiveness in the assumption, while the vertical arrows denote the definitions of $'x$ and $'y$ in terms of the relator. 
+      \begin{figure}[!h]
+        \begin{tikzpicture}[auto]
+          % Nodes
+          \node (x) at (0,0) {\(x\)};
+          \node (x') at (0,-3) {\(x'\)};
+          \node (y) at (5,0) {\(y\)};
+          \node (y') at (5,-3) {\(y'\)};
+
+          % Arrows
+          \draw[->] (x) to node[left] {\(\rel_F\; \langle (\Grp\; g)^{l'}\; (=)^\lin \rangle\)} (x');
+          \draw[->] (x) to node {\(\rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\)} (y);
+          \draw[->] (x') to node{\(\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\)} (y');
+          \draw[<-] (y) to node[right] {\(\rel_F\; \langle (\Grp^{-1}\; g)^{l'}\; (=)^\lin \rangle\)} (y');
+        \end{tikzpicture} 
+        \caption{Illustration of lemma \ref{eq:nrp_map_rev}}
+        \label{fig:nrp_map_rev}
+      \end{figure}
+      Following the arrows and applying relational composition with the associated axiom \ref{eq:in_rel} we can express the relationship path between $x$ and $y$ through $x'$ and $y'$ as $\rel_F\; \langle (\Grp\; g \bullet Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Together with the top relation from the definition of equivalent shape we can apply the \ref{par:rel_exchange} lemma to receive $\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Unfolding the \ref{eq:rel_map_1} equality, we can show the non-repetitiveness of $x$:
+      \begin{align*}
+        \rel_F\; \langle (\Grp\; g \bullet Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y \land \rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\; x\; y\\
+        \rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y\\
+        y = \map_F\; \langle \id^{l'}\; f^\lin \rangle\; id^\fr\; \id^b\; x
+      \end{align*}
 
     \subsection{Defining the subtype and its constants}
       Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ - provided that they are non-repetitive.
@@ -164,7 +211,7 @@
 
       It remains to show \ref{eq:rel_compp} and \ref{eq:in_rel} for $F'$. While the former is easily proven using the corresponding axiom of $F$ and some simple properties of relational composition, the latter is certainly the most interesting axiom to show. 
       
-      We don't show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle\id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
+      We do not show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle\id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
 
       \begin{align*}
         &\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow\\
@@ -192,7 +239,7 @@
 
       Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of a \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
 
-      Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments.
+      Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments. Furthermore, it has to be shown that they are part of the type, i.e., that they are non-repetitive.
 
       When an liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:conditions} is trivially proven.
 
@@ -211,29 +258,27 @@
 
     With this command, we can linearize our example by writing the following line in Isabelle:
     \begin{equation*}
-      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \text{alist} = (\alpha :: \text{var} \times \beta)\; \text{list}\; \textbf{on}\; \alpha
+      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \textsf{alist} = \text{"}(\alpha :: \text{var} \times \beta)\; \textsf{list}\text{"}\; \textbf{on}\; \alpha
     \end{equation*}
     Since for \type{$(\alpha \times \beta)$ list} both type variables are live and we only linearize on $\alpha$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
 
     After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven. These are the non-emptiness of the linear type, strong pullback preservation \ref{eq:PB_strong} and the witness axioms \ref{eq:wits} if applicable. 
     
-    These conditions are given dynamically to the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
+    These conditions dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
 
     Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
     \begin{align*}
-      \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land\\
+      \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
       &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
       &x = y
     \end{align*}
-
     When the required properties are shown, the subtype and the constants for the new \ac{MRBNF} are defined. 
     % Specified names
 
-    The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs had to be converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions, deterministic repetitions and in certain cases instantiations of free variables in existing theorems and lemmas.
+    The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions, deterministic repetitions and in certain cases instantiations of free variables in existing theorems and lemmas.
     
 
     
     % TODO: Implementation in Isabelle (theorem names, definitions)
-    % resulting MRBNF is also "strong" (preserves all pullbacks)
 
   
