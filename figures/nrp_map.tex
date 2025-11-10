@@ -1,0 +1,14 @@
+
+\begin{tikzpicture}[auto]
+  % Nodes
+  \node (x) at (0,0) {\(\mathbf{x}\)};
+  \node (x') at (0,-3) {\(\mathbf{x'}\)};
+  \node (y) at (5,0) {\(\mathbf{\forall y.}\; \eqshape_F^\lin\; \mathbf{x \;y}\)};
+  \node (y') at (5,-3) {\(\forall y'. \; \eqshape_F^\lin\;x' \;y' \)};
+
+  % Arrows
+  \draw[thick,->] (x) to node[left] {\(\map_F\; \mathbf{\langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b}\)} (x');
+  \draw[thick,->] (x) to node {\(\mathbf{\exists f^\lin}\)} (y);
+  \draw[->] (x') to node{\(\exists f^\lin\)} (y');
+  \draw[dashed, ->] (y) to node[right] {\(\map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\)} (y');
+\end{tikzpicture} 

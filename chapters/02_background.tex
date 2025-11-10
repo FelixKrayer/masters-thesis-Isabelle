@@ -7,99 +7,98 @@
 
 % NOTATION, Vocabulary? 
 
-  This Chapter serves to introduce \acfp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a type constructor $F$, we are always talking about a term of type $F$. In contrast to that, we call the components that make up a $F$ element "atoms". Their type is one of the type variables of $F$ and the structure of that $F$ element dictates how and where they occur in it.
+  This Chapter serves to introduce \acfp{BNF} and their generalization to \acp{MRBNF}. Note, that when we use the notion "element" of a $n$-ary type constructor $F$, we are always talking about a term of type $(\alpha^n)\; F$. In contrast to that, we call the $\alpha_i$ elements that make up a $F$ element "atoms". The structure of the $F$ element dictates how and where the atoms occur in it.
   \section{Bounded Natural Functors (BNFs)}
-    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list}, is a \ac{BNF}.
+    As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF}-axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list} and $(\alpha \times \beta)$, are \acp{BNF}.
     \begin{equation*}
-      \textbf{datatype}\; \alpha\; \textsf{ex} = \text{A}\; \text{"}(\alpha \times (\alpha\; \textsf{ex}))\; \textsf{list}\text{"}
+      \textbf{datatype}\; \alpha\; \textsf{ex} = \text{A}\; \text{"}((\alpha \times \alpha)\; \textsf{ex})\; \textsf{list}\text{"}
     \end{equation*}
     Since \acp{BNF} are closed under composition and fixpoints, the resulting datatype (here \type{$\alpha$ ex}) can be automatically registered as a \ac{BNF} as well.
     
     We write type variables as greek letters ($\alpha$, $\beta$, \dots) in this thesis. However, in the Isabelle proof assistant type variables are written with a "'" in front of a name, e.g., 'a~\textsf{list}. To copy our examples to Isabelle, one has to replace these greek letters with "'" variables. Alternatively, a "'" can be prepended to the greek letters, since for example '$\alpha$ is a valid type variable in Isabelle.
 
-    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Live variables can be used for recursive datatype definitions, while dead ones do not allow for this. We take the function type $\alpha \Rightarrow \beta$ as an example. It's first type argument $\alpha$ is dead, while the second one $\beta$ is live. Thus, of the following the first command succeeds while the second one fails
+    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Recursive occurences may appear only in positions corresponding to live variables when defining a new datatype. Dead variables do not allow for this. We take the function type $\alpha \Rightarrow \beta$ as an example. It's first type argument $\alpha$ is dead, while the second one $\beta$ is live. Thus, of the following the first command succeeds while the second one fails:
     \begin{align*}
-      &\textbf{datatype}\; \alpha\; \textsf{success} = \text{S1}\; |\; \text{S2}\; \text{"}\alpha \Rightarrow \alpha\; \textsf{success}\text{"}\\
-      &\textbf{datatype}\; \alpha\; \textsf{fail} = \text{F1}\; |\; \text{F2}\; \text{"}\alpha\; \textsf{fail} \Rightarrow \alpha\text{"}
+      &\textbf{datatype}\; \alpha\; \textsf{success} = \text{S1}\; |\; \text{S2 "}\alpha \Rightarrow \alpha\; \textsf{success}\text{"}\\
+      &\textbf{datatype}\; \alpha\; \textsf{fail} = \text{F1}\; |\; \text{F2 "}\alpha\; \textsf{fail} \Rightarrow \alpha\text{"}
     \end{align*}
+    The reason for this failure is, that certain properties have to hold for a \ac{BNF} with regard to its live variables. These properties are necessary for the internal construction of a newly specified type. A variable is dead when it has to be omitted such that these axioms hold, which is the case for the first type variable of the function type.
 
-    \subsection{BNF constants}
-      \label{subsec:bnf_constants}
-      A \ac{BNF} $F$ with $l$ live variables is characterized by one map and $l$ set functions, a bound and a relator.
+    These properties - or "\ac{BNF}-axioms" as we call them - are formalized in terms of constnts that characterize a \ac{BNF}. For a \ac{BNF} $F$ with $l$ live variables these are one $l+1$-ary map function, $l$ set functions, a bound and a $l+2$-ary relator. In the following Subsections \autoref{subsec:map} - \autoref{subsec:rel} we define these constants and motivate the \ac{BNF}-axioms that we formalize in \autoref{fig:bnf_axioms}. We use the notation $f^l = f_1 \dots f_l$ for the arguments of the mapper and similarly $R^l = R_1 \dots R_l$ for the relator. Note that we extend this notation to binary (infix and prefix) operations $\op$ on functions and relations as follows: $(R^l \op Q^l) = (R_1 \op Q_1)\dots (R_l \op Q_l)$ and $(\op\; R^l\; Q^l) = (\op\; R_1\; Q_1) \dots (\op\; R_l\; Q_l)$.
 
-      \subsubsection{Map function and functors}
-        The $l+1$-ary map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are recursively applied to the atoms of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\map_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
-        
-        To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $\id$ function on all lives over an element should leave it unchanged, which is formalized in \ref{eq:map_id}. The second property \ref{eq:map_comp} is concerned with mapping compositions and reads as follows: Mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the index-wise composition $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. A type constructor $F$ with a map function $\map_F$ fulfilling these two properties is considered a functor.
+    \begin{figure}[!hb]
+      \centering
+      \begin{align*}
+        \vphantom{f^l}&\map_F\; \id^l\; x = x \tag{\textsc{map\_id}}\label{eq:map_id}\\
+        \vphantom{f^l}&\map_F\; g^l\; (\map_F\; f^l\; x) =
+          \map_F\; (g \circ f)^l\; x \tag{\textsc{map\_comp}}\label{eq:map_comp}\\
+        \vphantom{f^l}&(\forall i.\; \forall z \in \set_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
+          \map_F\; f^l\; x = \map_F\; g^l\; x \tag{\textsc{map\_cong}}\label{eq:map_cong}\\
+        \vphantom{f^l}&\forall i.\; \set_{F,i}\; (\map_F\; f^l\; x) = f_i\; \grave{\phantom{\_}}\; \set_{F,i}\; x \tag{\textsc{set\_map}}\label{eq:set_map}\\
+        \vphantom{f^l}&\textsf{infinite}\; \bd_F \land \textsf{regular}\; \bd_F \land 
+          \textsf{cardinal\_order}\; \bd_F \tag{\textsc{bd}}\label{eq:bd}\\
+        \vphantom{f^l}&\forall i.\; | \set_{F,i}\; x | <_o \bd_F \tag{\textsc{set\_bd}}\label{eq:set_bd}\\
+        \vphantom{f^l}&(\rel_F\; R^l\; \bullet\; \rel_F\; Q^l)\; x\; y \Longrightarrow \rel_F\; (R\; \bullet\; Q)^l\; x\; y \tag{\textsc{rel\_compp}}\label{eq:rel_compp}\\
+        \vphantom{f^l}&\rel_F\; R^l\; x\; y = \tag{\textsc{in\_rel}}\label{eq:in_rel}\\
+        &\smash{\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
+            \map_F\; \fst^l\; z = x \land \map_F\; \snd^l\; z = y}
+      \end{align*}
+      \newline
+      \footnotesize
+      where $\grave{\phantom{\_}}$ is the image function on sets, $\bullet$ is the composition of relations and $<_o$ is the less than relation on cardinals
+      \caption{The \ac{BNF} axioms}
+      \label{fig:bnf_axioms}
+    \end{figure}
 
-      \subsubsection{Set functions and naturality}
-        A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all atoms that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
+    \subsection{Map function and functors}
+    \label{subsec:map}
+      The map function or \textit{mapper} takes one function for each live of $F$ as arguments as well as one $F$ element. The domain types of these functions are the lives of $F$. These functions are applied to the atoms of an element. The result is a new element of type $F$, where the original type variables are replaced by the range types of the mapped functions. Taking the \type{$\alpha$ list} type as an example, a \ac{BNF} with one live $\alpha$, the mapper has the type $\map_\textsf{list}\; ::\; (\alpha \Rightarrow \alpha') \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list}$.
+      
+      To make $F$ with its mapper a \textit{functor} on the universe of all types, the mapper has to fulfill two axioms~\cite{traytel2012foundational}. First, mapping the $\id$ function on all lives over an element should leave it unchanged, which is formalized in \ref{eq:map_id} (Fig. \ref{fig:bnf_axioms}). The second property \ref{eq:map_comp} (Fig. \ref{fig:bnf_axioms}) is concerned with mapping composed functions and reads as follows: Mapping two lists of functions over an element, e.g., first $f_1 \dots f_l$ and then $g_1 \dots g_l$, should produce the same result as mapping the pair-wise composed functions $(g_1 \circ f_1) \dots (g_l \circ f_l)$ over it once. A type constructor $F$ with a map function $\map_F$ fulfilling these two properties is considered a functor.
 
-        The set functions together with the mapper give rise to another property. We want the setters $\set_{F,i}$ to be natural transformations from $F$ and $\map_F$ to the set and image function. Thus, they should fulfill the \ref{eq:set_map} axiom. It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. \autoref{fig:set_nat} shows a visualization of this axiom and reads as follows: Starting from an $F$ element first applying the setter and then mapping a function (path through the top right) results in the same as first mapping the function and then applying the setter (path through the bottom left).
+    \subsection{Set functions and naturality}
+      A set function or \textit{setter} is defined for each of the $l$ live variables. Applied to an $F$-element, the $i$-th setter returns the set of all atoms that are part of the element and correspond to the $i$-th live. For example, the setter of the \type{list} type returns the set of elements in the list. We note here that when we write $i$ as an index, we assume it to be in the range $1 \leq i \leq l$.
 
-        \begin{figure}[!ht]
-          \centering
-          \input{figures/natural_set.tex}
-          \caption{$\set_{F,i}$ as a natural transformation}
-          \label{fig:set_nat}
-        \end{figure}
-
-      \subsubsection{Bound and boundedness}
-        Lastly, the \ac{BNF} needs an infinite cardinal as a bound. This bound may depend on the cardinalities of the dead variables, but not on the of the live variables. In Isabelle/HOL cardinals are implemented as minimal wellorders with respect to isomorphisms~\cite{blanchette2014cardinals}. While details about this implementation are certainly interesting, we will not focus on these details in this thesis. For example $natLeq$, the cardinal that originates from the $\leq$ order on natural numbers, is equivalent to the smallest infinite cardinal $\aleph_0$.
-
-        Besides being a cardinal order, the bound is required to be infinite, i.e., at least $\aleph_0$ with respect to the cardinal order $\leq_o$, and regular. Regularity means that an infinite cardinal $\kappa$ is stable under union, i.e., the union of any two sets of smaller cardinality than $\kappa$ also has a smaller cardinality than $\kappa$. 
-        
-        The bound is used in the \ref{eq:set_bd} axiom to ensure that the sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is also bounded and thus the resulting type $F$ as well.
-
-      \subsubsection{Relator and shapes}
-        \label{subsubsec:Rel}
-        The relator is used to build a relation on $F$ by relating the atoms of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product type as follows:
-        \begin{align*}
-          &\rel_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
-          &\rel_\textsf{prod}\; R\; Q\; p_1\; p_2 :=\; R\; (\fst\; p_1)\; (\fst\; p_2)\land Q\; (\snd\; p_1)\; (\snd\; p_2)
-        \end{align*}
-
-        \noindent Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $xs$ and $ys$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is index-wise defined, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to \textit{false}, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
-
-        % TODO extract the axioms from here?
-        % TODO Explain how F elements are constructed
-
-    \subsection{BNF-axioms}
-      We formalize the \ac{BNF}-axioms in \autoref{fig:bnf_axioms} where we use the notation $f^l = f_1 \dots f_l$ for the arguments of the mapper and the relator
-      \begin{figure}
+      The set functions together with the mapper give rise to another property. We want the setters $\set_{F,i}$ to be natural transformations from $F$ and $\map_F$ to the set and image function. Thus, they should fulfill the \ref{eq:set_map} axiom (Fig. \ref{fig:bnf_axioms}). It states that taking the $i$-th set of an $F$ after mapping $f_1 \dots f_l$ to it, results in the same set as if $i$-th set was taken from the original $F$ before the image of $f_i$ was applied to it. \autoref{fig:set_nat} shows a visualization of this axiom and reads as follows: Starting from an $F$ element first applying the setter and then mapping a function (path through the top right) results in the same as first mapping the function and then applying the setter (path through the bottom left).
+      \begin{figure}[!ht]
         \centering
-        \begin{align*}
-          \vphantom{f^l}&\map_F\; \id^l\; x = x \tag{\textsc{map\_id}}\label{eq:map_id}\\
-          \vphantom{f^l}&\map_F\; g^l\; (\map_F\; f^l\; x) =
-            \map_F\; (g \circ f)^l\; x \tag{\textsc{map\_comp}}\label{eq:map_comp}\\
-          \vphantom{f^l}&(\forall i.\; \forall z \in \set_{F,i}\; x.\; f_i\; z = g_i\; z) \Longrightarrow 
-            \map_F\; f^l\; x = \map_F\; g^l\; x \tag{\textsc{map\_cong}}\label{eq:map_cong}\\
-          \vphantom{f^l}&\forall i.\; \set_{F,i}\; (\map_F\; f^l\; x) = f_i\; \grave{\phantom{\_}}\; \set_{F,i}\; x \tag{\textsc{set\_map}}\label{eq:set_map}\\
-          \vphantom{f^l}&\textsf{infinite}\; \bd_F \land \textsf{regular}\; \bd_F \land 
-            \textsf{cardinal\_order}\; \bd_F \tag{\textsc{bd}}\label{eq:bd}\\
-          \vphantom{f^l}&\forall i.\; | \set_{F,i}\; x | <_o \bd_F \tag{\textsc{set\_bd}}\label{eq:set_bd}\\
-          \vphantom{f^l}&\rel_F\; R^l\; \bullet\; \rel_F\; Q^l\; = 
-            \rel_F\; (R\; \bullet\; Q)^l \tag{\textsc{rel\_compp}}\label{eq:rel_compp}\\
-          \vphantom{f^l}&\rel_F\; R^l\; x\; y = \tag{\textsc{in\_rel}}\label{eq:in_rel}\\
-          &\smash{\exists z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \}) \land 
-              \map_F\; \fst^l\; z = x \land \map_F\; \snd^l\; z = y}
-        \end{align*}
-        \newline
-        \footnotesize
-        where $\grave{\phantom{\_}}$ is the image function on sets, $\bullet$ is the composition of relations and $<_o$ is the less than relation on cardinals
-        \caption{The \ac{BNF} axioms}
-        \label{fig:bnf_axioms}
+        \input{figures/natural_set.tex}
+        \caption{$\set_{F,i}$ as a natural transformation}
+        \label{fig:set_nat}
       \end{figure}
-      Additionally to the axioms we already motivated in \autoref{subsec:bnf_constants} (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have four additional ones.
 
-      One of those is the the congruency \ref{eq:map_cong} of the map function. It states that if two (lists of) functions $f^l$ and $g^l$ are equal when applied to the corresponding sets of all atoms of an $F$ (obtained through the setters), then mapping these two lists of functions over the $F$ each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $f^l$ behave on the atoms of the $F$ element.
+      This axiom alone would be fulfilled by declaring every setter as the constant function returning the empty set. To solve this, the \ref{eq:map_cong} axiom (Fig. \ref{fig:bnf_axioms}) acts as a completeness property on the setter. It states that if two (lists of) functions $f^l$ and $g^l$ are equal when applied to the corresponding sets of all atoms of an $F$ element (obtained through the setters), then mapping these two lists of functions over the $F$ element each produces the same result. When this property holds, we can be sure, that the mapper only depends on how the functions $f^l$ behave on the atoms of the $F$ element. At the same time this axiom ensures that the setters actually return the complete set of atoms of the $F$ element.
 
-      The axiom \ref{eq:bd} just ensures that the bound $\bd_F$ is a suitable cardinal, i.e., a regular and infinite one.
+    \subsection{Bound and boundedness}
+      Lastly, the \ac{BNF} must be equipped with an infinite cardinal as a bound. This bound may depend on the cardinalities of the dead variables, but not on the of the live variables. In Isabelle/HOL cardinals are implemented as minimal wellorders with respect to isomorphisms~\cite{blanchette2014cardinals}. For example $natLeq$, the cardinal that originates from the $\leq$ order on natural numbers, is equivalent to the smallest infinite cardinal $\aleph_0$. While details about this implementation are certainly interesting, we will not focus on these details in this thesis and refer to cardinals in therms of their $\aleph$-notation.
 
-      Distributivity of the relator is formulated in \ref{eq:in_rel}. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the inclusion $(\rel_F\; R^l\; \bullet\; \rel_F\; Q^l)\; x\; y \Rightarrow \rel_F\; (R\; \bullet\; Q)^l\; x\; y $. The other direction follows automatically from this and the next axiom, weak pullback preservation.
+      Besides being a cardinal order, the bound is required to be infinite, i.e., at least $\aleph_0$ with respect to the cardinal order $\leq_o$, and regular. Regularity means that an infinite cardinal $\kappa$ is stable under union, i.e., the union of any set of sets that are of smaller cardinality than $\kappa$ also has smaller cardinality than $\kappa$. Note that the set of sets must also be of smaller cardinality than $\kappa$:
+      \[
+        \big(\bigwedge_{i \in I} |S_i| <_o \kappa\big) \land |I| <_o \kappa \Longrightarrow \big| \bigcup_{i \in I} S_i \big| <_o \kappa
+      \]
+      The bound is used in the \ref{eq:set_bd} axiom (Fig. \ref{fig:bnf_axioms}) to ensure that the sets obtained by the setters are bounded. This ensures that the branching of a recursively defined datatype is also bounded and so is the resulting type $F$ as well.
 
-      Lastly, weak pullback preservation \ref{eq:in_rel} is the most abstract and complex axiom. The idea is that two elements $x$ and $y$ of the type $\alpha\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are $R_i$-related pairs of the atoms of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$.
-      % TODO Better explanation for pullback preservation?
+    \subsection{Relator and shapes}
+      \label{subsec:rel}
+      The relator is used to build a relation on $F$ by relating the atoms of an $F$ element. It takes one relation for each live, that relates the corresponding type variables of the two $F$s that are to be related. As an example we give the type and definition of the relator for the product and list type as follows, where $x!i$ refers to the atom of list $x$ at index $i$:
+      \begin{align*}
+        &\rel_\textsf{prod} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow (\beta \Rightarrow \beta' \Rightarrow \textsf{bool})\Rightarrow (\alpha \times \beta) \Rightarrow (\alpha' \times \beta') \Rightarrow \textsf{bool}\\
+        &\rel_\textsf{prod}\; R\; Q\; x\; y :=\; R\; (\fst\; x)\; (\fst\; y)\land Q\; (\snd\; x)\; (\snd\; y)\\
+        &\rel_\textsf{list} ::\; (\alpha \Rightarrow \alpha' \Rightarrow \textsf{bool}) \Rightarrow \alpha\; \textsf{list} \Rightarrow \alpha'\; \textsf{list} \Rightarrow \textsf{bool}\\
+        &\rel_\textsf{list}\; R\; x\; y :=\; \textsf{length}\; x = \textsf{length}\; y \land (\forall i \leq \textsf{length}\; x.\; R\; (x!i)\; (y!i))
+      \end{align*}
+      Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $x$ and $y$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is defined index-wise, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $\mathit{false}$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
+      % TODO Explain how F elements are constructed
+
+    \subsection{Additional BNF-axioms}
+    \label{subsec:bnf_axioms_additional}
+      Additionally to the axioms we already motivated in the previeous subsections (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} and \ref{eq:map_cong} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have three additional ones.
+
+      The axiom \ref{eq:bd} (Fig. \ref{fig:bnf_axioms}) just ensures that the bound $\bd_F$ is a suitable cardinal, i.e., a regular and infinite one.
+
+      The relator is required to be distributive, i.e., it should fulfill $(\rel_F\; R^l\; \bullet\; \rel_F\; Q^l)\; x\; y = \rel_F\; (R\; \bullet\; Q)^l\; x\; y$. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the implication stated in \ref{eq:rel_compp} (Fig. \ref{fig:bnf_axioms}). The other direction of the implication follows automatically.
+
+      Lastly, \ref{eq:in_rel} (Fig. \ref{fig:bnf_axioms}) characterizes the relator. It is the most abstract and complex axiom but we want to give an intuition about it here: The idea is that two elements $x$ and $y$ of the type $(\alpha^l)\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are $R_i$-related pairs of the atoms of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$. This axiom (\ref{eq:in_rel}) together with the previeous one (\ref{eq:in_rel}) ammounts to \textit{weak pullback preservation} of the \ac{BNF}.
 
     \subsection{Non-emptiness witnesses}
       \label{subsec:bnf_wits}
@@ -110,7 +109,7 @@
         \forall i.\; \set_{F,i}\; (\textsf{wit}_F\; \dashedoverline{$w$}) = (\texttt{if}\; \textsf{wit}_F\; \text{depends on}\; \alpha_i\; \texttt{then}\; \{w_i\}\; \texttt{else}\; \emptyset)\tag{\textsc{wits}}\label{eq:wits}
       \end{equation*}
 
-      If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most useful for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a true subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more useful. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
+      If multiple types of witnesses exist for a given $F$, then the ones with the fewest arguments are most useful for showing non-emptiness. Concretely, we say a witness $\textsf{wit}_{F,1}$ \textit{subsumes} $\textsf{wit}_{F,2}$, when $\textsf{wit}_{F,1}$ depends on a proper subset of the arguments of $\textsf{wit}_{F,2}$. In this case we ignore the subsumed witness, as the other one is more useful. However, when two witnesses have overlapping dependencies but neither depends on a subset of the other we are interested in both, even if one has a smaller number of arguments than the other.
       % TODO cite witness paper
       % TODO witnesses are automatically generated if not given
 
@@ -120,8 +119,8 @@
       To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\map_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\rel_\textsf{plist}\; R\; Q$. The exact definitions are given as such:
       \begin{align*}
         \map_\textsf{plist}\; f\; g\; &= \map_\textsf{list}\; (\map_\textsf{prod}\; f\; g)\\
-        \textsf{set1}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \fst\; xs)\\
-        \textsf{set2}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \snd\; xs)\\
+        \textsf{set1}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set1}_\textsf{prod}\; xs)\\
+        \textsf{set2}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set2}_\textsf{prod}\; xs)\\
         \rel_\textsf{plist}\; R\; Q &= \rel_\textsf{list} (\rel_\textsf{prod}\; R\; Q)
       \end{align*}
       \noindent where we use the standard map, set and relator functions of the list and product type.
@@ -132,26 +131,30 @@
     WIP: Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
+  % Other example. plist!
     Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. Considering for example the type of distinct lists \type{$\alpha$ dlist}, a subtype of \type{$\alpha$ list} that describes only lists containing pairwise distinct $\alpha$ atoms. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$\alpha$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. 
 
-    \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is a \ac{MRBNF} with $\alpha$ as a bound variable.
+    \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. Concretely, it allows us to include type variables in the mapper that would be considered \textit{dead} from a \ac{BNF} point of view. We can reason about these variables in terms of the \ac{BNF} axioms (Fig. \ref{fig:bnf_axioms}) with a few restrictions and consequently use them in recursive definitions of binder-datatypes under certain conditions. This is explained in more detail in \autoref{subsec:binders}.
+    
+    We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is a \ac{MRBNF} with $\alpha$ as a bound variable.
 
-    A small-support function leaves most arguments unchanged, meaning it acts like the identity function on them. Concretely defined, the cardinality of the set of arguments the function changes must be smaller than the cardinality of the argument type itself: 
+    A small-support function leaves most arguments unchanged, meaning it acts as the identity function on them. Concretely defined, the cardinality of the set of arguments the function changes must be smaller than the cardinality of the argument type itself: 
     \begin{align*}
       \textsf{small\_supp}\;f = |\{x::\;\alpha.\; f\; x \neq x\}| <_o |\Omega_\alpha|\\
-      \text{where $\Omega_\alpha$ is the universe of type $\alpha$.}
+      \text{\footnotesize where $\Omega_\alpha$ is the universe of type $\alpha$.}
     \end{align*}
 
-    For a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. Since the mapper takes small-support functions and bijections for the free and bound variables, which have the same type for their domain and range, this transfers to $F$ as well. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the lives can change type.
+    For a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. We note here, that any small-support function acts as the identity function at least for "some" (actually for "most") inputs and thus its domain type and range type are the same. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the live type variables may be changed through a map.
 
-    As before, we write $f^l$ for the functions or relations of the live variables $f_1 \dots f_l$ and analogously $v^\fr$ and $u^b$ for frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. For example for the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free, while $\gamma$ is bound, the mapper has the following type:
+    As before, we use the notation $f^l = f_1 \dots f_l$ for functons and $R^l = R_1 \dots R_l$ for ralations on the live variables. Analogously we write $v^\fr$ and $u^b$ for functions on frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. As an example, the mapper of the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free and $\gamma$ is bound has the following type:
     \[
       \map_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
     \]
 
-    From now on we assume that the type variables of any \ac{MRBNF} are ordered \textit{lives} first, followed by \textit{frees} and \textit{bounds}, and \textit{deads} at the end. This simplifies many definitions and arguments we make about \acp{MRBNF}, however these are all easily generalized to an arbitrary ordering of type variables. For example, the argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced in some order. \acp{MRBNF} that are explicitly defined in terms of primitive types like \type{list} or \type{prod} are exempt from this rule.
+    From now on we assume that the type variables of any \ac{MRBNF} are ordered \textit{lives} first, followed by \textit{frees} and \textit{bounds}, and \textit{deads} at the end. This simplifies many definitions and arguments we make about \acp{MRBNF}, however these are all easily generalized to an arbitrary ordering of type variables. For example, the argument order of the mapper might be different, as the lives, bounds and frees do not have to be separated, but can be interlaced in some order. 
+    In concrete examples we may use \acp{MRBNF} that are explicitly defined in terms of primitive types like \type{list} or \type{prod}. For these examples we may define a different order for live, free and bound type variables.
 
-    We keep the original relator that only relates live variables with given relations and relates the free and bound variables to be with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\rel_F$ requires the frees and bounds in each slot to be the same for both elements that are compared. To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\mrrel_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. It then uses the graphs $\Grp$ of these functions as relations for the respective free or bound variable. Transferring the ideas of bijectivity ans small-support to these graph relations, the graph of a bijective function relates each atom to exactly one other atom, while the graph of small-support function acts as equality on all the arguments that are not in its support.
+    We keep the original relator that only relates live variables with given relations and relates the free and bound variables with equality. Thinking in our model of $F$ elements being shapes with atoms in slots, the regular relator $\rel_F$ requires the frees and bounds in each slot to be the same for both elements that are compared. To relate $F$ elements that are not equal in all frees and bounds, we introduce a new map-restricted relator $\mrrel_F$. It takes a function for each free and bound - with the appropriate restrictions to small-support and bijectivity - in addition to the relations for the lives. It then uses the graphs $\Grp$ of these functions as relations for the respective free or bound variable. Transferring the ideas of bijectivity ans small-support to these graph relations, the graph of a bijective function relates each atom to exactly one other atom, while the graph of small-support function acts as equality on all the arguments that are not in its support.
     The new arguments of the map-restricted relator are placed in front of the relations for the live variables. It is then defined in terms of the relator as shown below. Note, that relating two elements with the graph of a function $v$ is equivalent to mapping $v$ over the first element and relating that to the second one by equality. Thus, we define it as follows:
     \[
       \mrrel_F\; u^{b}\; v^{\fr}\; R^l\; x\; y = \rel_F\; R^l\; (\map_F\; \id^{l}\; v^{\fr}\; u^b\; x)\; y
@@ -172,9 +175,10 @@
       \end{align*}
 
     \subsection{Datatypes with bindings}
+    \label{subsec:binders}
       \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
 
-      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least $\aleph_0$ for datatypes or $\aleph_1$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes, \texttt{var} and \texttt{covar} respectively.
+      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least the bound of $F$ $\bd_F$ for datatypes or the cardinal successor $\textsf{cardSuc} \bd_F$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes. For the cases where $\bd_F = \aleph_0$, predefined \texttt{var} and \texttt{covar} implement the appropriate requirements.
 
       We call \acp{MRBNF} declared through this command \textit{binder-datatypes}
 

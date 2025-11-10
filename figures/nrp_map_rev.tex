@@ -1,0 +1,13 @@
+\begin{tikzpicture}[auto]
+  % Nodes
+  \node (x) at (0,0) {\(x\)};
+  \node (x') at (0,-3) {\(x'\)};
+  \node (y) at (5,0) {\(y\)};
+  \node (y') at (5,-3) {\(y'\)};
+
+  % Arrows
+  \draw[->] (x) to node[left] {\(\rel_F\; \langle (\Grp\; g)^{l'}\; (=)^\lin \rangle\)} (x');
+  \draw[->] (x) to node {\(\rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\)} (y);
+  \draw[->] (x') to node{\(\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\)} (y');
+  \draw[<-] (y) to node[right] {\(\rel_F\; \langle (\Grp^{-1}\; g)^{l'}\; (=)^\lin \rangle\)} (y');
+\end{tikzpicture} 
