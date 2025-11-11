@@ -114,25 +114,25 @@
       % TODO witnesses are automatically generated if not given
 
     \subsection{BNF examples}
+      \label{subsec:BNF_examples}
       Further examples of \acp{BNF} are is the product type \type{($\alpha$, $\beta$) prod}, a binary type constructor with infix notation \type{$\alpha \times \beta$}, and the type of finite sets \type{$\alpha$ fset}. The latter is interesting for the reason that it is a subtype of the set type, which is not a \ac{BNF}. By enforcing finiteness for the elements of the type it is possible to give a bound for the set function, fulfilling the \ref{eq:set_bd} axiom, which is not possible for the unrestricted set type. Since unboundedness is the only reason that the set type is not a \ac{BNF}, \type{$\alpha$ fset} can be shown to be a \ac{BNF}.
       
-      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\map_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\rel_\textsf{plist}\; R\; Q$. The exact definitions are given as such:
-      \begin{align*}
-        \map_\textsf{plist}\; f\; g\; &= \map_\textsf{list}\; (\map_\textsf{prod}\; f\; g)\\
-        \textsf{set1}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set1}_\textsf{prod}\; xs)\\
-        \textsf{set2}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set2}_\textsf{prod}\; xs)\\
-        \rel_\textsf{plist}\; R\; Q &= \rel_\textsf{list} (\rel_\textsf{prod}\; R\; Q)
-      \end{align*}
-      \noindent where we use the standard map, set and relator functions of the list and product type.
-
-      To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\bd_\textsf{plist}$.
+      To show, how \acp{BNF} can be combined to create new ones, we consider the type constructor \type{($\alpha$, $\beta$) plist} = \type{($\alpha \times \beta)$ list}. We define for it a map function ($\map_\textsf{plist}$) and two set functions ($\textsf{set1}_\textsf{plist}$ and $\textsf{set2}_\textsf{plist}$) as well as a relator $\rel_\textsf{plist}\; R\; Q$. We give the exact definitions in terms of the standard map, set and relator functions of the list and product type as follows:
+        \begin{align*}
+          \map_\textsf{plist}\; f\; g\; &= \map_\textsf{list}\; (\map_\textsf{prod}\; f\; g)\\
+          \textsf{set1}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set1}_\textsf{prod}\; xs)\\
+          \textsf{set2}_\textsf{plist}\; xs &= \set_\textsf{list}\; (\map_\textsf{list}\; \textsf{set2}_\textsf{prod}\; xs)\\
+          \rel_\textsf{plist}\; R\; Q &= \rel_\textsf{list} (\rel_\textsf{prod}\; R\; Q)
+        \end{align*}
+      To proof that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF}-axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\bd_\textsf{plist}$.
 
   \section{Syntaxes with bindings}
     WIP: Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
-  % Other example. plist!
-    Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. Considering for example the type of distinct lists \type{$\alpha$ dlist}, a subtype of \type{$\alpha$ list} that describes only lists containing pairwise distinct $\alpha$ atoms. The issue with this type is that the standard map function on lists cannot guarantee that the resulting list is still distinct, i.e., that it is still part of the type. Thus in \ac{BNF} terms the type variable of \type{$\alpha$ dlist} is dead. However, by restricting the mapper to only use bijections, the distinctness of the resulting list can be ensured. 
+    Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. An example of this is the type of labeled lists \type{$\alpha$ $\beta$ alist} with $\alpha$ as the type of labels. This is a subtype of the previously defined \type{$\alpha$ $\beta$ plist} that describes only lists of pairs that are pairwise distinct on the first elements, i.e., the $\alpha$ atoms. We call it labeled list since one can consider the first atom of each pair a distinct label that identifies the second atom. An alternative but structurally equal interpretation is that of a "key-value" list.
+
+    The main issue with this type is that the map function we defined in \autoref{subsec:BNF_examples} for \type{plist} cannot be used for \type{alist} right away. The reason is, that it cannot guarantee that the list that results from the map is still distinct on $\alpha$, i.e., that it is still a member of the type. Thus, in \ac{BNF} terms the type variable $\alpha$ of \type{($\alpha$, $\beta$) alist} is dead, which is a huge drawback for the versatility of the type. For example, using \type{($\alpha$, $\beta$) alist} in a \textbf{datatype} command would kill $\alpha$ also in the resulting datatype effectively disabling any map functions on that type variable. However, by enforcing that only \textit{bijections} are mapped over $\alpha$, we can ensure that the result of a map on an \type{alist} still fulfills the distinctness property of the type.
 
     \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. Concretely, it allows us to include type variables in the mapper that would be considered \textit{dead} from a \ac{BNF} point of view. We can reason about these variables in terms of the \ac{BNF} axioms (Fig. \ref{fig:bnf_axioms}) with a few restrictions and consequently use them in recursive definitions of binder-datatypes under certain conditions. This is explained in more detail in \autoref{subsec:binders}.
     
