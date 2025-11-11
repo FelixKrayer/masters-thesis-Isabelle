@@ -3,23 +3,34 @@
 
 \chapter{Introduction}
 \label{chapter:introduction}
+% Why datatypes?
 
-  Isabelle/HOL provides a fleshed out system for defining datatypes and codatatypes through the \textbf{datatype} command. This system is built on the foundation of \acp{BNF}.
+  Isabelle/HOL provides a fleshed out system for constructing datatypes and codatatypes through the \textbf{datatype} command that is built on the theory of \acp{BNF}. 
 
-  This allows to express and thus reason about many different kinds of structured concepts. (Induction!)
+  This allows to express and thus reason about many different kinds of structured concepts. % TODO: (Induction!)
 
-  How about expressing lambda calculus terms? Let us consider lambda terms with paralell let bindings in the syntax $\mathtt{t} := \mathtt{x}\; |\; (\lambda x.\; t)\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; \mathtt{let} x $ where $\mathtt{x}$ are variables.  
+  How about expressing lambda calculus terms? As an example we consider lambda terms with paralell let bindings, where a term is either a variable, a lambda abstraction, an application or a parallel let binding. Concretely, we want to represent the following syntax, where $\mathtt{x}$ are variable names.
+  \[
+    \mathtt{t} := \mathtt{x}\; |\; (\lambda x.\; t)\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; \texttt{let } \mathtt{x}_1 = \mathtt{t}_1 \texttt{ and } \dots \texttt{ and } \mathtt{x}_n = \mathtt{t}_n \texttt{ in } \mathtt{t}_{n+1}
+  \]
+  We can express the structure of these terms with a regular Isabelle datatype as follows, where $\alpha$ is the type of variable names:
+  \begin{align*}
+    &\textbf{datatype}\; \alpha\; \textsf{ltrm} = \text{Var}\; \alpha\; | \;\text{Abs}\; \alpha\; \text{"}\alpha\; \textsf{ltrm}\text{"}\; | \;\text{App}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\\
+    &\indent | \;\text{Let}\; \text{"}(\alpha \times \alpha\; \textsf{ltrm})\; \textsf{list}\text{"}\; \text{"}\alpha\; \textsf{ltrm}\text{"}
+  \end{align*}
+  However, this representation is not ideal. For example, it does not consider $\alpha$-equivalence of lambda terms, i.e., the notion that $(\lambda x.\; x\; z)$ and $(\lambda y.\; y\; z)$ are semantically equivalent terms.
 
-  While lambda terms could be expressed as\dots, this has a number of problems. Mainly it allows for many non-valid terms and does not consider alpha-equivalence.
+  Furthermore, this datatype represents invalid terms. This makes working with the type very tedious, since it calls for a separate definition of and checks for validity. For example, \type{$\alpha$ ltrm} contains "$\text{Let}\; [(\text{Var}\; x, \text{Var}\; y), (\text{Var}\; x, \text{Var}\; z)]\; (\text{Var}\; x)$" as a valid term. This would be the representation of "$\texttt{let } \mathtt{x} = \mathtt{y} \texttt{ and } \mathtt{x} = \mathtt{z} \texttt{ in } \mathtt{x}$" which is not a valid type, since a variable cannot be bound to different terms in the same parallel let binding. This can in theory be solved by defining a subtype of \type{$(\alpha \times \beta)$ list} that only contains lists of pairs, where the first elements of each pair are unique in the list. However, this subtype is not a \ac{BNF} right after that and thus it cannot be used in the recursive definition.
+
+  An important step towards solving these issues has been taken by Blanchette et al.~\cite{blanchette2019bindings} in their implementation of a definitional package for binding-aware datatypes in Isabelle/HOL. They provide a new \textbf{binder\_datatype} command that allows for the definition of datatypes that do not distinguish between $\alpha$-equivalent terms and provide functions for renaming and obtaining the free variables of a term. Furthermore these binding-aware datatypes (or short \textit{binder datatypes}) provide propositions similar to those provided by a regular datatype, e.g., a principle for scructural induction. This package is built on the theory of \acp{MRBNF}, a generalization of \acp{BNF}.
+
 
   It is possible to carve out subtypes with Isabelle's \textbf{typedef} command (and quotient?), however thereby the \ac{BNF}-Properties are lost.
 
-  Recently a new way of representing Binding aware datatypes was presented in the \textbf{binder\_datatype} command that is build on the theory of \acp{MRBNF}
-
   While this solves some issues, it relies on manually linearizing types, i.e. creating types that are non-repettitive. These are not closed under \dots and thus they cannot be structurally defined. Instead a non-linear type is built and then they are carved out. This was a manual process but now we automate it.
 
-  - Datatypes in Isabelle/HOL are built on \acp{BNF} (defined in \cite{traytel2012foundational})
+  - Datatypes in Isabelle/HOL are built on \acp{BNF} (defined in~\cite{traytel2012foundational})
 
-  - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes \cite{vanbrugge2025animating}
+  - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes~\cite{vanbrugge2025animating}
 
   - Structure of the Thesis
