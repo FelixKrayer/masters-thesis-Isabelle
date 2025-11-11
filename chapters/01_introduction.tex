@@ -8,7 +8,7 @@
 
   This allows to express and thus reason about many different kinds of structured concepts. (Induction!)
 
-  How about expressing simple lambda terms? For example\dots
+  How about expressing lambda calculus terms? Let us consider lambda terms with paralell let bindings in the syntax $\mathtt{t} := \mathtt{x}\; |\; (\lambda x.\; t)\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; \mathtt{let} x $ where $\mathtt{x}$ are variables.  
 
   While lambda terms could be expressed as\dots, this has a number of problems. Mainly it allows for many non-valid terms and does not consider alpha-equivalence.
 
@@ -20,6 +20,6 @@
 
   - Datatypes in Isabelle/HOL are built on \acp{BNF} (defined in \cite{traytel2012foundational})
 
-  - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes
+  - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes \cite{vanbrugge2025animating}
 
   - Structure of the Thesis

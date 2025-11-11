@@ -1,37 +1,103 @@
 @article{blanchette2019bindings,
-  title={Bindings as bounded natural functors},
-  author={Blanchette, Jasmin Christian and Gheri, Lorenzo and Popescu, Andrei and Traytel, Dmitriy},
-  journal={Proceedings of the ACM on Programming Languages},
-  volume={3},
-  number={POPL},
-  pages={1--34},
-  year={2019},
-  publisher={ACM New York, NY, USA}
+  author = {Blanchette, Jasmin Christian and Gheri, Lorenzo and Popescu, Andrei and Traytel, Dmitriy},
+  title = {Bindings as bounded natural functors},
+  year = {2019},
+  issue_date = {January 2019},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {3},
+  number = {POPL},
+  url = {https://doi.org/10.1145/3290335},
+  doi = {10.1145/3290335},
+  abstract = {We present a general framework for specifying and reasoning about syntax with bindings. Abstract binder types are modeled using a universe of functors on sets, subject to a number of operations that can be used to construct complex binding patterns and binding-aware datatypes, including non-well-founded and infinitely branching types, in a modular fashion. Despite not committing to any syntactic format, the framework is ``concrete'' enough to provide definitions of the fundamental operators on terms (free variables, alpha-equivalence, and capture-avoiding substitution) and reasoning and definition principles. This work is compatible with classical higher-order logic and has been formalized in the proof assistant Isabelle/HOL.},
+  journal = {Proc. ACM Program. Lang.},
+  month = jan,
+  articleno = {22},
+  numpages = {34},
+  keywords = {syntax with bindings, proof assistants, inductive and coinductive datatypes}
 }
 
 @inproceedings{traytel2012foundational,
-  title={Foundational, compositional (co) datatypes for higher-order logic: Category theory applied to theorem proving},
-  author={Traytel, Dmitry and Popescu, Andrei and Blanchette, Jasmin C},
-  booktitle={2012 27th Annual IEEE Symposium on Logic in Computer Science},
-  pages={596--605},
+  author={Traytel, Dmitry and Popescu, Andrei and Blanchette, Jasmin C.},
+  booktitle={2012 27th Annual IEEE Symposium on Logic in Computer Science}, 
+  title={Foundational, Compositional (Co)datatypes for Higher-Order Logic: Category Theory Applied to Theorem Proving}, 
   year={2012},
-  organization={IEEE}
+  volume={},
+  number={},
+  pages={596-605},
+  keywords={Standards;Shape;Semantics;Abstracts;Set theory;Category theory;higher-order logic;interactive theorem proving;(co)datatypes;cardinals},
+  doi={10.1109/LICS.2012.75}
 }
 
 @inproceedings{aydemir2005mechanized,
-  title={Mechanized metatheory for the masses: The POPLmark challenge},
-  author={Aydemir, Brian E and Bohannon, Aaron and Fairbairn, Matthew and Foster, J Nathan and Pierce, Benjamin C and Sewell, Peter and Vytiniotis, Dimitrios and Washburn, Geoffrey and Weirich, Stephanie and Zdancewic, Steve},
-  booktitle={International Conference on Theorem Proving in Higher Order Logics},
-  pages={50--65},
-  year={2005},
-  organization={Springer}
+  author="Aydemir, Brian E.
+    and Bohannon, Aaron
+    and Fairbairn, Matthew
+    and Foster, J. Nathan
+    and Pierce, Benjamin C.
+    and Sewell, Peter
+    and Vytiniotis, Dimitrios
+    and Washburn, Geoffrey
+    and Weirich, Stephanie
+    and Zdancewic, Steve",
+  editor="Hurd, Joe
+    and Melham, Tom",
+  title="Mechanized Metatheory for the Masses: The PoplMark Challenge",
+  booktitle="Theorem Proving in Higher Order Logics",
+  year="2005",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="50--65",
+  abstract="How close are we to a world where every paper on programming languages is accompanied by an electronic appendix with machine-checked proofs?",
+  isbn="978-3-540-31820-0"
 }
 
 @inproceedings{blanchette2014cardinals,
-  title={Cardinals in Isabelle/HOL},
-  author={Blanchette, Jasmin Christian and Popescu, Andrei and Traytel, Dmitriy},
-  booktitle={International Conference on Interactive Theorem Proving},
-  pages={111--127},
-  year={2014},
-  organization={Springer}
+    author="Blanchette, Jasmin Christian
+    and Popescu, Andrei
+    and Traytel, Dmitriy",
+  editor="Klein, Gerwin
+    and Gamboa, Ruben",
+  title="Cardinals in Isabelle/HOL",
+  booktitle="Interactive Theorem Proving",
+  year="2014",
+  publisher="Springer International Publishing",
+  address="Cham",
+  pages="111--127",
+  abstract="We report on a formalization of ordinals and cardinals in Isabelle/HOL. A main challenge we faced is the inability of higher-order logic to represent ordinals canonically, as transitive sets (as done in set theory). We resolved this into a ``decentralized'' representation that identifies ordinals with wellorders, with all concepts and results proved to be invariant under order isomorphism. We also discuss two applications of this general theory in formal developments.",
+  isbn="978-3-319-08970-6"
+}
+
+@InProceedings{blanchette2015witnessing,
+  author="Blanchette, Jasmin Christian
+    and Popescu, Andrei
+    and Traytel, Dmitriy",
+  editor="Vitek, Jan",
+  title="Witnessing (Co)datatypes",
+  booktitle="Programming Languages and Systems",
+  year="2015",
+  publisher="Springer Berlin Heidelberg",
+  address="Berlin, Heidelberg",
+  pages="359--382",
+  abstract="Datatypes and codatatypes are useful for specifying and reasoning about (possibly infinite) computational processes. The Isabelle/HOL proof assistant has recently been extended with a definitional package that supports both. We describe a complete procedure for deriving nonemptiness witnesses in the general mutually recursive, nested case---nonemptiness being a proviso for introducing types in higher-order logic.",
+  isbn="978-3-662-46669-8"
+}
+
+@InProceedings{vanbrugge2025animating,
+  author =	{van Br\"{u}gge, Jan and Popescu, Andrei and Traytel, Dmitriy},
+  title =	{{Animating MRBNFs: Truly Modular Binding-Aware Datatypes in Isabelle/HOL}},
+  booktitle =	{16th International Conference on Interactive Theorem Proving (ITP 2025)},
+  pages =	{11:1--11:20},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-95977-396-6},
+  ISSN =	{1868-8969},
+  year =	{2025},
+  volume =	{352},
+  editor =	{Forster, Yannick and Keller, Chantal},
+  publisher =	{Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITP.2025.11},
+  URN =		{urn:nbn:de:0030-drops-246091},
+  doi =		{10.4230/LIPIcs.ITP.2025.11},
+  annote =	{Keywords: syntax with bindings, datatypes, inductive predicates, Isabelle/HOL}
 }
