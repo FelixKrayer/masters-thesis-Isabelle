@@ -22,6 +22,12 @@
 \newcommand*{\getSubmissionLocation}{Munich}
 
 
+
+
+% TODO: change citation style in settings
+\input{settings}
+
+
 \newcommand*{\type}[1]{\textsf{\mbox{#1}}}
 \newcommand*{\fr}{{f\!r}}
 \newcommand*{\vs}{{v\!s}}
@@ -32,10 +38,6 @@
     \draw[dashed] ([yshift=2pt]X.north west) -- ([yshift=2pt]X.north east);
   }
 }
-
-
-% TODO: change citation style in settings
-\input{settings}
 
 \DeclareMathOperator{\id}{id}
 \DeclareMathOperator{\fst}{fst}
@@ -69,7 +71,7 @@
 
 \input{pages/title}
 \input{pages/disclaimer}
-\input{pages/acknowledgments}
+%\input{pages/acknowledgments}
 \input{pages/abstract}
 \microtypesetup{protrusion=false}
 \tableofcontents{}
@@ -94,7 +96,7 @@
 \end{acronym}
 
 \listoffigures{}
-\listoftables{}
+%\listoftables{}
 \microtypesetup{protrusion=true}
 \printbibliography{}
 

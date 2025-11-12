@@ -3,8 +3,9 @@
 
 \chapter{Linearizing MRBNFs}
 \label{chapter:linearizing}
+This chapter explains the theoretical definitions and steps for linearizing an arbitrary \ac{MRBNF}. We state necessary conditions for the linearization and sketch out proofs for a few intermediate lemmas that help us to to construct the new linearized \ac{MRBNF}. Afterwards we describe the command syntax and details about its implementation in \autoref{sec:implementation}.
 
-\section{Linearizing MRBNFs}
+\section{Theory}
   In this section we define the linearization of a \ac{MRBNF} $F$ on a subset of it's \textit{live} variables. Linearization means, that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also a \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
 
   We formalize the idea of distinctness of atoms as \textit{non-repetitiveness} on the linearized variables. In our notation we use $\lin \leq l$ to refer to the number of linearized variables. Furthermore, we assume the variables that we linearize on to be the the \textit{last} $\lin$ of the live variables. Consequently, the first $l' = l - \lin$ lives of $F$ are not linearized.
@@ -227,31 +228,45 @@
       This is easily proven by unfolding the definition of $\rel_{F'}$, applying \ref{eq:F_strong} and unfolding $(\inf\; (=)\; (=))\; \equiv (=)$ for the linearized variables. Strength of an \ac{MRBNF} is a property that often comes in useful, however in Isabelle it is not tracked in the \ac{MRBNF} construct at the moment. At the very least, this proof allows us to easily linearize a linearized \ac{MRBNF} again on further live variables.
       
 
-  \section{Implementing the \textbf{linearize\_mrbnf} command}
-    We implement a command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. The syntax of the command is given in the following:
+  \section{Implementation of the \textbf{linearize\_mrbnf} command}
+  \label{sec:implementation}
+    In this section we implement a new \textbf{linearize\_mrbnf} command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables.
 
-    \input{figures/linearize_rail.tex}
+    \subsection{Command syntax}
+      We give the syntax of the command in the following rail diagram:
+      \input{figures/linearize_rail.tex}\mbox{}\\
 
-    With this command, we can linearize our example by writing the following line in Isabelle:
-    \begin{equation*}
-      \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \textsf{alist} = \text{"}(\alpha :: \text{var} \times \beta)\; \textsf{list}\text{"}\; \textbf{on}\; \alpha
-    \end{equation*}
-    Since for \type{$(\alpha \times \beta)$ list} both type variables are live and we only linearize on $\alpha$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+      \noindent After the name of the command the new \ac{MRBNF} is specified by a \textit{name} and a specification. The specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}} is a list of type variables (\textit{typefree}s), where it is possible (but optional) to give a \textit{name} for the setter associated to a certain \textit{typefree}. We note here, that it is necessary to annotate the \textit{typefree}s corresponding to free and bound variables with the appropriate type class or \textit{sort} as it is shown in the definition of \hypertarget{syntax.tfree}{\hyperlink{syntax.tfree}{\textit{tfree}}}. This also applies to the linearized variables that turn into bound variables.
 
-    After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven. These are the non-emptiness of the linear type, strong pullback preservation \ref{eq:PB_strong} and the witness axioms \ref{eq:wits} if applicable. 
-    
-    These conditions dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
+      The specification is followed by the type (\textit{typ} in the diagram) that is to be linearized. This type must a registered \ac{BNF}, \ac{MRBNF} or a construct made of (MR)\acp{BNF}, e.g., \type{($\alpha \times \beta$) list}. Furthermore, the type needs to contain the same type variables that are listed in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}, however the same type variable may occur in multiple positions. Type variables must be annotated with the respective type class as in \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
 
-    Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
-    \begin{align*}
-      \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
-      &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
-      &x = y
-    \end{align*}
-    When the required properties are shown, the subtype and the constants for the new \ac{MRBNF} are defined. 
-    % Specified names
+      Next, the user can optionally add witnesses \hypertarget{syntax.wits}{\hyperlink{syntax.wits}{\textit{wits}}} in a list of correctly typed \textit{term}s before specifying the type variables the type should be linearized on in a list separated by \textbf{and}s. 
+      
+      Lastly, custom names for the mapper, relator and predicator can optionally be specified as well as for the definitions of $\nonrep$ and $\eqshape$ and the morphisms $\abs$ and $\rep$. We did not explain the predicator in this thesis, as it is not relevant in this context. It is used to lift unary predicates on atoms of a type to a predicate on the type itself in a similar fashion as the relator lifts binary predicates.
 
-    The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions, deterministic repetitions and in certain cases instantiations of free variables in existing theorems and lemmas.
+      If no names are given, the default names are the base name of the constant (map, rel, pred, nonrep, eq\_shape, Abs, Rel) suffixed with "\_<F'>", where <F'> is replaced by the name of the linearized type. Setters without a specified name are named "set<i>\_<F'>", where <i> is replaced with the 1-based index of the corresponding type variable in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
+
+      By writing the following syntactically correct command in Isabelle, we can linearize our example of the list of pairs on the first type variable:
+      \begin{equation*}
+        \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \textsf{alist} = \text{"}(\alpha :: \text{var} \times \beta)\; \textsf{list}\text{"}\; \textbf{on}\; \alpha
+      \end{equation*}
+      This generates the setters with the names "keys" and "vals" once the linearization is completed, while the other constants, definitions and morphisms follow the default naming scheme, e.g., "map\_alist" for the mapper.
+
+    \subsection{Proof obligations}
+      After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven. These are the non-emptiness of the linear type, strong pullback preservation \ref{eq:PB_strong} and the witness axioms \ref{eq:wits} if applicable. 
+
+      These conditions dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
+
+      Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
+      \begin{align*}
+        \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
+        &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
+        &x = y
+      \end{align*}
+      Since for \type{$(\alpha \times \beta)$ list} both type variables are live and we only linearize on $\alpha$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+
+    \subsection{Automatization of the proofs}
+      The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions, deterministic repetitions and in certain cases instantiations of free variables in existing theorems and lemmas.
     
 
     
