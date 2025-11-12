@@ -37,9 +37,9 @@ This chapter explains the theoretical definitions and steps for linearizing an a
   \label{subsec:conditions}
     Two properties are necessary to linearize a \acp{MRBNF}. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \nonrep_F^\lin\; x$.
 
-    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks. as described in \autoref{subsec:bnf_axioms_additional}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the \ref{eq:in_rel} axiom (Fig. \ref{fig:bnf_axioms}) has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling this property. For example, strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. 
+    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks. as described in \autoref{subsec:bnf_axioms_additional}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the \ref{eq:in_rel} axiom (Fig. \ref{fig:bnf_axioms}) has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling this property. For example, strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. We refer to this property as "strong pullback preservation" even though strictly speaking, \ref{eq:rel_compp}
     \begin{align*}
-      \rel_F\; R^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land \tag{\textsc{PB\_strong}}\label{eq:PB_strong}\\
+      \rel_F\; R^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land \tag{\textsc{in\_rel\_strong}}\label{eq:in_rel_strong}\\
       &\smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}
     \end{align*}
 
@@ -55,11 +55,11 @@ This chapter explains the theoretical definitions and steps for linearizing an a
         \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
       \end{equation*} 
       Here the infimum $\inf$ of two relations $R_i$ and $Q_i$ relates exactly those elements that are related by both $R_i$ and $Q_i$. 
-      To prove this lemma we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or a \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:PB_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words any two $z$ and $z'$ fulfilling this condition must be equal.
+      To prove this lemma we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or a \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:in_rel_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words any two $z$ and $z'$ fulfilling this condition must be equal.
       \begin{align*}
         &\rel_F\; R^l\; x\; y\\
         \Longrightarrow\; &\rel_F\; (\top)^l\; x\; y &\text{$\rel_F$ mono}\\
-        \Longrightarrow\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\top)\; a\; b \})\; \land&\text{\ref{eq:PB_strong}}\\
+        \Longrightarrow\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\top)\; a\; b \})\; \land&\text{\ref{eq:in_rel_strong}}\\
         &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}\\
         \Longrightarrow\; &\exists!z.\; \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}&\text{$\top \equiv$ True}\\
         \Longrightarrow\; &\forall z\; z'.\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y\; \land\\
@@ -253,23 +253,23 @@ This chapter explains the theoretical definitions and steps for linearizing an a
       This generates the setters with the names "keys" and "vals" once the linearization is completed, while the other constants, definitions and morphisms follow the default naming scheme, e.g., "map\_alist" for the mapper.
 
     \subsection{Proof obligations}
-      After the user has written the command, the conditions for linearization we presented in~\autoref{subsec:conditions} have to be proven. These are the non-emptiness of the linear type, strong pullback preservation \ref{eq:PB_strong} and the witness axioms \ref{eq:wits} if applicable. 
+      After the user has written the command in the syntax we introduced above, a number of goals to be proven or "proof obligations" are presented to them. These are the Conditions for linearization we presented in~\autoref{subsec:conditions}, i.e., the non-emptiness of the linear type, strong pullback preservation \ref{eq:in_rel_strong} and the witness axioms \ref{eq:wits} if applicable. 
 
-      These conditions dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:PB_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
+      These goals are dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:in_rel_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
 
-      Furthermore, since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property of strong pullback preservation and require the user to prove only this. Strong pullback preservation \ref{eq:PB_strong} can be proven from weak pullback preservation \ref{eq:in_rel} together with the uniqueness property we specify as follows:
+      Furthermore, we simplified the goal the user has to prove. Since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property from strong pullback preservation. Strong pullback preservation \ref{eq:in_rel_strong} can be proven from the \ref{eq:in_rel} axiom together with the uniqueness property we specify as follows:
       \begin{align*}
         \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
         &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
         &x = y
       \end{align*}
-      Since for \type{$(\alpha \times \beta)$ list} both type variables are live and we only linearize on $\alpha$, it is necessary to prove strong pullback preservation for this \ac{MRBNF}. 
+
+      For \type{$(\alpha \times \beta)$ list} in our example, both type variables are live. Since we only linearize on $\alpha$, it is necessary to prove the uniqueness of for preservation for this \ac{MRBNF}, i.e., \ref{eq:PB_unique}. However, it is not necessary to prove the existence of a non-repetitive element, since the empty list $[\:]$ is a witness of the \type{list} type constructor that does not depend on any type variable.
 
     \subsection{Automatization of the proofs}
-      The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions, deterministic repetitions and in certain cases instantiations of free variables in existing theorems and lemmas.
-    
+      The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions and deterministic repetitions. In certain cases it is necessary to instantiate free variables in existing theorems and lemmas, for example when an explicit term is introduced to replace an existential quantifier in the goal. This can be challenging in certain cases because the term has to be constructed in a type-correct manner.
 
-    
-    % TODO: Implementation in Isabelle (theorem names, definitions)
+    % Order of vars? Other challenges? (instantiations, complexity of the base type => custom proof tactic subst)
+    % Notifications?
 
   

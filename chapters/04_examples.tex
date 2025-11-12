@@ -49,7 +49,7 @@
     \end{align*}
     We specified the non-emptiness witness "PPRec lfempty" that is constructed by applying the PPRec constructor of \type{prepat} to the empty \type{lfset} lfempty. This witness is independent of any type variable and thus it trivially fulfills the witness axiom \ref{eq:wits}.
 
-    The command generates the conditions that need to be proven. Since $\beta$ is the only live of \type{prepat}, strong pullback preservation \ref{eq:PB_strong} (or \ref{eq:PB_unique}) does not have to be proven as explained in \autoref{subsec:lemmas}. Furthermore, since we specified a non-emptiness witness, we do not have to prove that a non-repetitive element of the type exists, but show that the witness "PPRec lfempty" is non-repetitive instead. This is easily shown with the \ac{MRBNF} axioms after noticing that "PPRec lfempty" is only equivalent in shape to itself.
+    The command generates the conditions that need to be proven. Since $\beta$ is the only live of \type{prepat}, strong pullback preservation \ref{eq:in_rel_strong} (or \ref{eq:PB_unique}) does not have to be proven as explained in \autoref{subsec:lemmas}. Furthermore, since we specified a non-emptiness witness, we do not have to prove that a non-repetitive element of the type exists, but show that the witness "PPRec lfempty" is non-repetitive instead. This is easily shown with the \ac{MRBNF} axioms after noticing that "PPRec lfempty" is only equivalent in shape to itself.
 
     The linearized \ac{MRBNF} is then used in the definition of \type{trm} in the alternative that represents pattern-lets:
     \[
