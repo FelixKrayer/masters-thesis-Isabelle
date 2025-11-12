@@ -153,7 +153,7 @@
       \end{align*}
 
     \subsection{Defining the subtype and its constants}
-      Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ - provided that they are non-repetitive.
+      Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ --- provided that they are non-repetitive.
 
       In the following we specify the \ac{MRBNF} constants, i.e., the mapper, setters, bound and relator for $F'$. We define these in terms of the base type's constants and apply the morphisms to match the types: For the setters, $\rep_{F'}$ is applied to the argument before applying the appropriate setter of $F$ to it. Since this does not change the set that is outputted, we can use the bound of $F$ for $F'$. For the relator, the relations for the linearized lives are fixed to the equality relation, since in the new \ac{MRBNF} these will be bounds. Lastly, for the mapper we only allow it to map bijective functions on the linearized variables in addition to the restrictions for the existing frees and bounds. This restriction is necessary to ensure that applying the map function to a $F'$ element preserves it non-repetitiveness. If a function that violates any of the restrictions is given to the mapper, it is ignored and not applied.
 
@@ -197,7 +197,7 @@
       \end{align*}
       The first step is reached through \ref{eq:map_comp} of $F$, while the second one needs the \ref{eq:nrp_map_rev} lemma. This is the final place, where strong pullback preservation is used and the reason why it is required.
 
-      %Another interesting step in the proof of \ref{eq:in_rel} is the conversion from $\mrrel_{F'}$ to $\mrrel_F$. While $\mrrel_{F'}$ takes functions for the linearized type variables - that turned to bounds, the relator of original \ac{MRBNF} $F$ takes relations for these. By explicitly specifying the following:
+      %Another interesting step in the proof of \ref{eq:in_rel} is the conversion from $\mrrel_{F'}$ to $\mrrel_F$. While $\mrrel_{F'}$ takes functions for the linearized type variables that turned to bounds, the relator of original \ac{MRBNF} $F$ takes relations for these. By explicitly specifying the following:
       % TODO: maybe
       %\begin{align*}
       %  &\mrrel_{F'}\; f^\lin\; v^\fr\; u^b\; R^{l'}\; x\; y =\\

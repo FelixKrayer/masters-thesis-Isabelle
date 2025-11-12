@@ -5,11 +5,9 @@
 \label{chapter:introduction}
 % Why datatypes?
 
-  Isabelle/HOL provides a fleshed out system for constructing datatypes and codatatypes through the \textbf{datatype} command that is built on the theory of \acp{BNF}. 
+  Isabelle/HOL provides a fleshed out system for defining datatypes and codatatypes through the \textbf{datatype} command that is built on the theory of \acp{BNF}. This makes it possible to construct possibly recursive datatypes from primitive types like the list, product and function type. The resulting datatype is equipped with several predicates that allow for reasoning about the datatype, for example through structural induction.
 
-  This allows to express and thus reason about many different kinds of structured concepts. % TODO: (Induction!)
-
-  How about expressing lambda calculus terms? As an example we consider lambda terms with paralell let bindings, where a term is either a variable, a lambda abstraction, an application or a parallel let binding. Concretely, we want to represent the following syntax, where $\mathtt{x}$ are variable names.
+  However, these regular datatypes are not very well suited to express and reason about lambda calculus terms. As an example we consider lambda terms with parallel let bindings, where a term is either a variable, a lambda abstraction, an application or a parallel let binding. Concretely, we want to represent the following syntax, where $\mathtt{x}$ are variable names.
   \[
     \mathtt{t} := \mathtt{x}\; |\; (\lambda x.\; t)\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; \texttt{let } \mathtt{x}_1 = \mathtt{t}_1 \texttt{ and } \dots \texttt{ and } \mathtt{x}_n = \mathtt{t}_n \texttt{ in } \mathtt{t}_{n+1}
   \]
@@ -18,19 +16,18 @@
     &\textbf{datatype}\; \alpha\; \textsf{ltrm} = \text{Var}\; \alpha\; | \;\text{Abs}\; \alpha\; \text{"}\alpha\; \textsf{ltrm}\text{"}\; | \;\text{App}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\\
     &\indent | \;\text{Let}\; \text{"}(\alpha \times \alpha\; \textsf{ltrm})\; \textsf{list}\text{"}\; \text{"}\alpha\; \textsf{ltrm}\text{"}
   \end{align*}
-  However, this representation is not ideal. For example, it does not consider $\alpha$-equivalence of lambda terms, i.e., the notion that $(\lambda x.\; x\; z)$ and $(\lambda y.\; y\; z)$ are semantically equivalent terms.
+  However, this representation is not ideal. For example, it does not consider $\alpha$-equivalence of lambda terms, i.e., the notion that $(\lambda x.\; x\; z)$ and $(\lambda y.\; y\; z)$ are semantically equivalent terms. This would be desirable, since it facilitates reasoning about the semantics of terms. We could try to quotient the type by $\alpha$-equivalence, this is a manual process and requires effort. Furthermore, if we desire the type to have \ac{BNF} properties, it is necessary to lift the quotiented type to a \ac{BNF}.
 
+  Secondly, it would be convenient to have functions for renaming and obtaining free variables in a term. While the map and set function that are provided by the datatype seem like suitable candidates, they do not fulfill these tasks. For example the mapper does not support capture-avoiding substitution, i.e., it might rename a bound variable to the name of a free one, which changes the term semantically.
+ 
   Furthermore, this datatype represents invalid terms. This makes working with the type very tedious, since it calls for a separate definition of and checks for validity. For example, \type{$\alpha$ ltrm} contains "$\text{Let}\; [(\text{Var}\; x, \text{Var}\; y), (\text{Var}\; x, \text{Var}\; z)]\; (\text{Var}\; x)$" as a valid term. This would be the representation of "$\texttt{let } \mathtt{x} = \mathtt{y} \texttt{ and } \mathtt{x} = \mathtt{z} \texttt{ in } \mathtt{x}$" which is not a valid type, since a variable cannot be bound to different terms in the same parallel let binding. This can in theory be solved by defining a subtype of \type{$(\alpha \times \beta)$ list} that only contains lists of pairs, where the first elements of each pair are unique in the list. However, this subtype is not a \ac{BNF} right after that and thus it cannot be used in the recursive definition.
 
-  An important step towards solving these issues has been taken by Blanchette et al.~\cite{blanchette2019bindings} in their implementation of a definitional package for binding-aware datatypes in Isabelle/HOL. They provide a new \textbf{binder\_datatype} command that allows for the definition of datatypes that do not distinguish between $\alpha$-equivalent terms and provide functions for renaming and obtaining the free variables of a term. Furthermore these binding-aware datatypes (or short \textit{binder datatypes}) provide propositions similar to those provided by a regular datatype, e.g., a principle for scructural induction. This package is built on the theory of \acp{MRBNF}, a generalization of \acp{BNF}.
+  An important step towards solving these issues has been taken by Blanchette et al.~\cite{blanchette2019bindings} in their implementation of a definitional package for binding-aware datatypes in Isabelle/HOL. They provide a new \textbf{binder\_datatype} command that allows for the definition of datatypes that do not distinguish between $\alpha$-equivalent terms and provide functions for renaming and obtaining the free variables of a term. Furthermore these binding-aware datatypes (or short \textit{binder datatypes}) provide propositions similar to those provided by a regular datatype, e.g., a principle for structural induction. This package is built on the theory of \acp{MRBNF}, a generalization of \acp{BNF}.
 
+  Declaring \type{ltrm} as a binder datatype fixes the first two issues regarding $\alpha$-equivalence and the obtaining and renaming of free variables in a capture-avoiding fashion. Additionally, the explicit notion of \textit{bound} variables in \acp{MRBNF} allows us to define a linearized version of \type{$(\alpha \times \beta)$ list} that ensures the pairwise distinctness of $\alpha$ atoms in each element of the type. This is possible, since declaring a variable as bound allows us to restrict the map function to bijections on a certain type variable --- $\alpha$ in this case.
 
-  It is possible to carve out subtypes with Isabelle's \textbf{typedef} command (and quotient?), however thereby the \ac{BNF}-Properties are lost.
-
-  While this solves some issues, it relies on manually linearizing types, i.e. creating types that are non-repettitive. These are not closed under \dots and thus they cannot be structurally defined. Instead a non-linear type is built and then they are carved out. This was a manual process but now we automate it.
+  While this solves the issue, it relies on manually linearizing types, i.e. creating types that are non-repetitive. These are not closed under \dots and thus they cannot be structurally defined. Instead a non-linear type is built and then they are carved out. This was a manual process but now we automate it.
 
   - Datatypes in Isabelle/HOL are built on \acp{BNF} (defined in~\cite{traytel2012foundational})
-
-  - Difficult represent lambda terms (alpha equivalence, capture-avoiding substitution) ==> binding-aware datatypes~\cite{vanbrugge2025animating}
 
   - Structure of the Thesis
