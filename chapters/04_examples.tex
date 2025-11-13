@@ -1,56 +1,56 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
-\chapter{Example application: POPLmark Challenge Pattern}
+\chapter{Example application: POPLmark Challenge - Pattern}
 \label{chapter:examples}
-  The POPLmark Challenge~\cite{aydemir2005mechanized} presents a selection of problems to benchmark the progress in formalizing programming language metatheory. The challenges are built around formalizing aspects of $\textit{System F}_\textit{<:}$ calculus, a polymorphic typed lambda calculus with subtyping. We are interested in part 2B of this Challenge, which has the goal to formalize and proof \textit{type soundness} for terms with pattern matching over records. Type soundness is considered in terms of \textit{preservation} (evaluating a term preserves its type) and \textit{progress} (a term is either a value or can be evaluated).
+ The POPLmark Challenge~\cite{aydemir2005mechanized} presents a selection of problems to benchmark the progress in formalizing programming language metatheory. The challenges are built around formalizing aspects of $\textit{System F}_\textit{<:}$ calculus, a polymorphic typed lambda calculus with subtyping. We are interested in part 2B of this Challenge, which has the goal to formalize and prove \textit{type soundness} for terms with pattern matching over records. Type soundness is considered in terms of \textit{preservation} (evaluating a term preserves its type) and \textit{progress} (a term is either a value or can be evaluated).
 
-  The challenge defines the syntax of terms $\mathtt{t}$ and patterns $\mathtt{p}$ as follows:
-  \begin{align*}
-    \mathtt{t} ::= \ & \mathtt{x} \tag{\textit{variable}}\\
-        \mid\ & \lambda \mathtt{x}:\mathtt{T}.\ \mathtt{t} \tag{\textit{abstraction}}\\
-        \mid\ & \mathtt{t}_1\ \mathtt{t}_2 \tag{\textit{application}}\\
-        \mid\ & \lambda \mathtt{X}<:\mathtt{T}.\ \mathtt{t} \tag{\textit{type abstraction}}\\
-        \mid\ & \mathtt{t}\ [\mathtt{T}] \tag{\textit{type application}}\\
-        \mid\ & \{j \in 1 \dots n:\ \mathtt{l}_j = \mathtt{t}_j\} \tag{\textit{record}}\\
-        \mid\ & \mathtt{t}.\mathtt{l} \tag{\textit{projection}}\\
-        \mid\ & \texttt{let}\; \mathtt{p}=\mathtt{t}_1\; \texttt{in}\; \mathtt{t}_2 \tag{\textit{pattern-let}}\\%
-        \\
-    \mathtt{p} ::= \ & \mathtt{x} : \mathtt{T} \tag{\textit{variable pattern}}\\
-        \mid\ & \{j \in 1 \dots n:\ \mathtt{l}_j = \mathtt{p}_j\} \tag{\textit{record pattern}}
-  \end{align*}
-  In this syntax types $\mathtt{T}$ are defined similarly, however we omit this here as it is not important for this example. Furthermore $\mathtt{x}$ stand for variables, $\mathtt{X}$ for type variables and $\mathtt{l}$ for labels.
+ The challenge defines the syntax of terms $\mathtt{t}$ and patterns $\mathtt{p}$ as follows:
+ \begin{align*}
+   \mathtt{t} ::= \ & \mathtt{x} \tag{\textit{variable}}\\
+       \mid\ & \lambda \mathtt{x}:\mathtt{T}.\ \mathtt{t} \tag{\textit{abstraction}}\\
+       \mid\ & \mathtt{t}_1\ \mathtt{t}_2 \tag{\textit{application}}\\
+       \mid\ & \lambda \mathtt{X}<:\mathtt{T}.\ \mathtt{t} \tag{\textit{type abstraction}}\\
+       \mid\ & \mathtt{t}\ [\mathtt{T}] \tag{\textit{type application}}\\
+       \mid\ & \{j \in 1 \dots n:\ \mathtt{l}_j = \mathtt{t}_j\} \tag{\textit{record}}\\
+       \mid\ & \mathtt{t}.\mathtt{l} \tag{\textit{projection}}\\
+       \mid\ & \texttt{let}\; \mathtt{p}=\mathtt{t}_1\; \texttt{in}\; \mathtt{t}_2 \tag{\textit{pattern-let}}\\%
+       \\
+   \mathtt{p} ::= \ & \mathtt{x} : \mathtt{T} \tag{\textit{variable pattern}}\\
+       \mid\ & \{j \in 1 \dots n:\ \mathtt{l}_j = \mathtt{p}_j\} \tag{\textit{record pattern}}
+ \end{align*}
+ In this syntax, types $\mathtt{T}$ are defined similarly. We omit this here as it is not important for this example. Furthermore, $\mathtt{x}$ stands for variables, $\mathtt{X}$ for type variables, and $\mathtt{l}$ for labels.
 
-  We focus on the \textit{record} and \textit{pattern-let} terms together with the \textit{variable} and \textit{record patterns}. A record is a term defined as a finite set of assignments of $n$ terms to one label each. The labels $l$ within a record must be pairwise distinct. A pattern is defined as either a typed variable or a finite set of $n$ assignments of patterns to labels. Again the labels must be pairwise distinct.
+ We focus on the \textit{record} and \textit{pattern-let} terms together with the \textit{variable} and \textit{record patterns}. A record is a term defined as a finite set of assignments of $n$ terms to one label each. The labels $l$ within a record must be pairwise distinct. A pattern is defined as either a typed variable or a finite set of $n$ assignments of patterns to labels. Again, the labels must be pairwise distinct.
 
-  Van Br{\"u}gge et al. present a formalization of part 2B of the POPLmark Challenge in Isabelle/HOL in their ITP~'25 contribution~\cite{vanbrugge2025animating}. Datatypes with bindings play an important role in their formalization. They represent types $\mathtt{T}$ as \type{$\alpha$ typ} and terms $\mathtt{t}$ as \type{($\alpha$, $\beta$) trm}. These two are defined with the \textbf{binder\_datatype} command, where $\alpha$ is the type representing type variables $\mathtt{X}$ and $\beta$ represents variable names $\mathtt{x}$. Labels are implemented as \type{string}s, however any infinite type could be used in their place.
-  
-  A central notion in this formalization is the \textit{labeled finite set} \type{($\alpha$, $\beta$) lfset} that is used in the representation of records and record patterns. This type constructor is a subtype of \type{$(\alpha \times \beta)$ fset} that only includes elements that are non-repetitive on $\alpha$. This restriction is necessary, because for both records and patterns the label $\alpha$ must be mutually distinct, i.e., the set representing them has to be non-repetitive.
+ Van Br{\"u}gge et al. present a formalization of part 2B of the POPLmark Challenge in Isabelle/HOL in their ITP~'25 contribution~\cite{vanbrugge2025animating}. Datatypes with bindings play an important role in their formalization. They represent types $\mathtt{T}$ as \type{$\alpha$ typ} and terms $\mathtt{t}$ as \type{($\alpha$, $\beta$) trm}. These two are defined with the \textbf{binder\_datatype} command, where $\alpha$ is the type representing type variables $\mathtt{X}$ and $\beta$ represents variable names $\mathtt{x}$. Labels are implemented as \type{string}s. However, any infinite type could be used in their place.
+ 
+ A central notion in this formalization is the \textit{labeled finite set} \type{($\alpha$, $\beta$) lfset} that is used in the representation of records and record patterns. This type constructor is a subtype of \type{$(\alpha \times \beta)$ fset} that only includes elements that are non-repetitive on $\alpha$. This restriction is necessary because for both records and patterns the label $\alpha$ must be mutually distinct, i.e., the set representing them has to be non-repetitive.
 
-  While by construction \type{$(\alpha \times \beta)$ fset} is a \ac{BNF} (and an \ac{MRBNF} since all \acp{BNF} are also \acp{MRBNF}) with both variables being live, \type{($\alpha$, $\beta$) lfset} is a \acp{MRBNF} with $\alpha$ as a bound variable, since it is non-repetitive on $\alpha$.
-  While this is a linearization, the finite set on pairs does not fulfill strong pullback preservation. Thus the approach and command we presented in \autoref{chapter:linearizing} cannot be used here. Because of an alternate, equivalent description on non-repetitiveness specific to this type, it is still possible to manually linearize this \ac{MRBNF}. The linearized \type{lfset} is used in the \textbf{binder\_datatype} definition of term \type{trm} as one the alternative representing records: 
-  \[
-    |\ \text{Rec "(\type{string}, ($\alpha$, $\beta$) \type{trm}) \type{lfset}"}
-  \]
-  For the pattern a new type is used. It is constructed by linearizing an intermediate datatype \type{prepat} that is defined using the \textbf{datatype} command:
-  \begin{equation*}
-    \textbf{datatype}\; (\alpha,\; \beta)\; \textsf{prepat} = \text{PPVar}\; \text{"}\beta\text{"}\; \text{"}\alpha\; \textsf{typ}\text{"}\; |\; \text{PPRec}\; \text{"}(\textsf{string},\; (\alpha,\; \beta)\; \textsf{prepat})\; \textsf{lfset}\text{"}
-  \end{equation*}
-  The \type{prepat} datatype is an \ac{MRBNF} with $\alpha$ as a free and $\beta$ as a live variable. The binder-datatype \type{typ} is a unary \ac{MRBNF} with its only type variable being free, \type{prepat} inherits this variable type for $\alpha$. 
+ While by construction \type{($\alpha \times \beta$) fset} is a \ac{BNF} (and an \ac{MRBNF} since all \acp{BNF} are also \acp{MRBNF}) with both variables being live, \type{($\alpha$, $\beta$) lfset} is a \acp{MRBNF} with $\alpha$ as a bound variable, since it is non-repetitive on $\alpha$.
+ While this is a linearization, the finite set of pairs does not fulfill strong pullback preservation. Thus, the approach and command we presented in \autoref{chapter:linearizing} cannot be used here. Because of an alternate, equivalent description of non-repetitiveness specific to this type, it is still possible to manually linearize this \ac{MRBNF}. The linearized \type{lfset} is used in the \textbf{binder\_datatype} definition of term \type{trm} as one the alternative representing records: 
+ \[
+   |\ \text{Rec "(\type{string}, ($\alpha$, $\beta$) \type{trm}) \type{lfset}"}
+ \]
+ For the pattern, a new type is used. It is constructed by linearizing an intermediate datatype \type{prepat} that is defined using the \textbf{datatype} command:
+ \begin{equation*}
+   \textbf{datatype}\; (\alpha,\; \beta)\; \textsf{prepat} = \text{PPVar}\; \text{"}\beta\text{"}\; \text{"}\alpha\; \textsf{typ}\text{"}\; |\; \text{PPRec}\; \text{"}(\textsf{string},\; (\alpha,\; \beta)\; \textsf{prepat})\; \textsf{lfset}\text{"}
+ \end{equation*}
+ The \type{prepat} datatype is an \ac{MRBNF} with $\alpha$ as a free and $\beta$ as a live variable. The binder-datatype \type{typ} is a unary \ac{MRBNF} with its only type variable being free, \type{prepat} inherits this variable type for $\alpha$. 
 
-  This datatype can represent all possible patterns just fine, however it also represents many patterns that are not allowed. In the definition of Challenge 2B it is stated that ``[\dots] the variable patterns appearing in a pattern are assumed to bind pairwise distinct variables'' (\cite{aydemir2005mechanized}). Thus, we linearize \type{($\alpha$, $\beta$) prepat} on the type variables for $\beta$
+ This datatype can represent all possible patterns just fine. However, it also represents many patterns that are not allowed. In the definition of Challenge 2B, it is stated that ``[\dots] the variable patterns appearing in a pattern are assumed to bind pairwise distinct variables'' \mbox{\cite[§3]{aydemir2005mechanized}}. Thus, we linearize \type{($\alpha$, $\beta$) prepat} on the type variables for $\beta$
 
-  This \ac{MRBNF} can be linearized using the \textbf{linearize\_mrbnf} command from \autoref{chapter:linearizing} as follows:
-  \begin{align*}
-    &\textbf{linearize\_mrbnf}\; (\text{PTVars:}\; \alpha :: \text{var},\; \text{PVars:}\; \beta :: \text{var})\; \textsf{pat} = \text{"}(\alpha :: \text{var},\; \beta :: \text{var})\; \textsf{prepat}\text{"}\\
-    &\qquad [\text{wits: "PPRec lfempty :: $(\alpha :: \text{var},\; \beta :: \text{var})\; \textsf{prepat}$"}]\; \textbf{on}\; \beta
-  \end{align*}
-  We specified the non-emptiness witness "PPRec lfempty" that is constructed by applying the PPRec constructor of \type{prepat} to the empty \type{lfset} lfempty. This witness is independent of any type variable and thus it trivially fulfills the witness axiom \ref{eq:wits}.
+ This \ac{MRBNF} can be linearized using the \textbf{linearize\_mrbnf} command from \autoref{chapter:linearizing} as follows:
+ \begin{align*}
+   &\textbf{linearize\_mrbnf}\; (\text{PTVars:}\; \alpha :: \text{var},\; \text{PVars:}\; \beta :: \text{var})\; \textsf{pat} = \text{"}(\alpha :: \text{var},\; \beta :: \text{var})\; \textsf{prepat}\text{"}\\
+   &\qquad [\text{wits: "PPRec lfempty :: $(\alpha :: \text{var},\; \beta :: \text{var})\; \textsf{prepat}$"}]\; \textbf{on}\; \beta
+ \end{align*}
+ We specified the non-emptiness witness "PPRec lfempty" that is constructed by applying the PPRec constructor of \type{prepat} to the empty \type{lfset} lfempty. This witness is independent of any type variable and thus it trivially fulfills the witness axiom \ref{eq:wits}.
 
-  The command generates the conditions that need to be proven. Since $\beta$ is the only live of \type{prepat}, strong pullback preservation \ref{eq:in_rel_strong} (or \ref{eq:PB_unique}) does not have to be proven as explained in \autoref{subsec:lemmas}. Furthermore, since we specified a non-emptiness witness, we do not have to prove that a non-repetitive element of the type exists, but show that the witness "PPRec lfempty" is non-repetitive instead. This is easily shown with the \ac{MRBNF} axioms after noticing that "PPRec lfempty" is only equivalent in shape to itself.
+ The command generates the conditions that need to be proven. Since $\beta$ is the only live of \type{prepat}, strong pullback preservation \ref{eq:in_rel_strong} (or \ref{eq:PB_unique}) does not have to be proven as explained in \autoref{subsec:lemmas}. Furthermore, since we specified a non-emptiness witness, we do not have to prove that a non-repetitive element of the type exists, but show that the witness "PPRec lfempty" is non-repetitive instead. This is easily shown with the \ac{MRBNF} axioms after noticing that "PPRec lfempty" is only equivalent in shape to itself.
 
-  The linearized \ac{MRBNF} is then used for the definition of \type{trm} in the alternative that represents pattern-lets:
-  \[
-    |\ \text{Let "($\alpha$, $\mathtt{p}$::$\beta$) \type{pat}" "($\alpha$, $\beta$) \type{trm}" $\mathtt{t}$::"($\alpha$, $\beta$) \type{trm}" binds $\mathtt{p}$ in $\mathtt{t}$}
-  \]
-  We note here, that van Br{\"u}gge et al. already used the \type{($\alpha$, $\beta$) pat} type in this manner for their ITP~'25 contribution~\cite{vanbrugge2025animating}, however, they had to manually linearize it from \text{prepat}, i.e., define the subtype, its constants and prove the \ac{MRBNF} axioms. We simplified this process using our new \textbf{linearize\_mrbnf} command.
+ The linearized \ac{MRBNF} is then used for the definition of \type{trm} in the alternative that represents pattern-lets:
+ \[
+   |\ \text{Let "($\alpha$, $\mathtt{p}$::$\beta$) \type{pat}" "($\alpha$, $\beta$) \type{trm}" $\mathtt{t}$::"($\alpha$, $\beta$) \type{trm}" binds $\mathtt{p}$ in $\mathtt{t}$}
+ \]
+ We note here, that van Br{\"u}gge et al. already used the \type{($\alpha$, $\beta$) pat} type in this manner for their ITP~'25 contribution~\cite{vanbrugge2025animating}, however, they had to manually linearize it from \text{prepat}, i.e., define the subtype, its constants and prove the \ac{MRBNF} axioms. We simplified this process using our new \textbf{linearize\_mrbnf} command.

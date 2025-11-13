@@ -3,285 +3,285 @@
 
 \chapter{Linearizing MRBNFs}
 \label{chapter:linearizing}
-This chapter explains the theoretical definitions and steps for linearizing an arbitrary \ac{MRBNF}. We state necessary conditions for the linearization and sketch out proofs for a few intermediate lemmas that help us to to construct the new linearized \ac{MRBNF}. We note here, that the theory we present in \autoref{sec:theory} is a generalization of a example by Blanchette et al.~\cite{blanchette2019bindings}. This example is the linearization of an \ac{MRBNF} in Isabelle/HOL. After the theory we describe the syntax of our new \textbf{linearize\_mrbnf} command and details about its implementation in \autoref{sec:implementation}.
+This chapter explains the theoretical definitions and steps for linearizing an arbitrary \ac{MRBNF}. We state necessary conditions for the linearization and sketch out proofs for a few intermediate lemmas that help us to construct the new linearized \ac{MRBNF}. We note here that the theory we present in \autoref{sec:theory} is a generalization of an example by Blanchette et al.~\cite{blanchette2019bindings}. This example is the linearization of an \ac{MRBNF} in Isabelle/HOL. After the theory, we describe the syntax of our new \textbf{linearize\_mrbnf} command and details about its implementation in \autoref{sec:implementation}.
 
 \section{Theory of linearization}
-  \label{sec:theory}
-  In this section we define the linearization of an \ac{MRBNF} $F$ on a subset of it's \textit{live} variables. Linearization means, that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also an \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
+ \label{sec:theory}
+ In this section, we define the linearization of an \ac{MRBNF} $F$ on a subset of its \textit{live} variables. Linearization means that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also an \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
 
-  We formalize the idea of distinctness of atoms as \textit{non-repetitiveness} on the linearized variables. In our notation we use $\lin \leq l$ to refer to the number of linearized variables. Furthermore, we assume the variables that we linearize on to be the the \textit{last} $\lin$ of the live variables. Consequently, the first $l' = l - \lin$ lives of $F$ are not linearized.
+ We formalize the idea of distinctness of atoms as \textit{non-repetitiveness} on the linearized variables. In our notation, we use $\lin \leq l$ to refer to the number of linearized variables. Furthermore, we assume the variables that we linearize on to be the \textit{last} $\lin$ of the live variables. Consequently, the first $l' = l - \lin$ lives of $F$ are not linearized.
 
-  \subsection{Non-repetitiveness}
-  \label{subsec:nonrep}
-    At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, an \type{$\alpha$ list} is non-repetitive, if all of its $\alpha$-elements it contains are pairwise distinct. 
-    To define non-repetitiveness for an arbitrary \ac{MRBNF}, we express this property in terms of its map, set and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \map_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
+ \subsection{Non-repetitiveness}
+ \label{subsec:nonrep}
+   At the core of linearization lies the notion of \textit{non-repetitiveness}. An element $x$ of a type is considered to be non-repetitive with respect to a type variable $\alpha$ if it does not contain repeating $\alpha$-atoms. For example, an \type{$\alpha$ list} is non-repetitive if all of its $\alpha$-elements it contains are pairwise distinct. 
+   To define non-repetitiveness for an arbitrary \ac{MRBNF}, we express this property in terms of its map, set, and relator functions. Considering \type{$\alpha$ list}s again, we can show a list $xs$ to be distinct, iff for each other list $ys$ of the same length, we can find a function $f$ such that $ys = \map_\textsf{list}\; f\; xs$. If $xs$ were not distinct, there must exist two indices with the same $\alpha$ element in $xs$. Furthermore, there exists a $ys$ that has different elements at these two indices and thus a function mapping $xs$ to $ys$ cannot exist, since it would have to map two same elements in $xs$ to two differing ones in $ys$. 
 
-    In \autoref{subsec:rel} we proposed the idea to think about elements of a \ac{BNF} (or \ac{MRBNF}) $F$ as containers with a certain shape with atoms in slots specified by the shape. Using this model, we can generalize the notion of lists having the same length to $F$ elements having the same shape. We can express this through the relator by using the $\top$ relation that relates every pair of arguments with each other. Thus, we give the definition of equivalent shape and non-repetitiveness for list:
-    \begin{align*}
-      &\eqshape_\textsf{list}\; x\; y = \rel_\textsf{list}\; \top\; x\; y\\
-      &\nonrep_\textsf{list}\; x = \forall y.\; \eqshape_\textsf{list}\; x\; y \Longrightarrow (\exists f.\; y = \map_\textsf{list}\; f\; x)
-    \end{align*}
+   In \autoref{subsec:rel}, we proposed the idea to think about elements of a \ac{BNF} (or \ac{MRBNF}) $F$ as containers with a certain shape with atoms in slots specified by the shape. Using this model, we can generalize the notion of lists having the same length to $F$ elements having the same shape. We can express this through the relator by using the $\top$ relation that relates every pair of arguments to each other. Thus, we give the definition of equivalent shape and non-repetitiveness for a list:
+   \begin{align*}
+     &\eqshape_\textsf{list}\; x\; y = \rel_\textsf{list}\; (\top)\; x\; y\\
+     &\nonrep_\textsf{list}\; x = \forall y.\; \eqshape_\textsf{list}\; x\; y \Longrightarrow (\exists f.\; y = \map_\textsf{list}\; f\; x)
+   \end{align*}
 
-    Note that we use the regular relator that only relates live variables with given relations while it requires equality for all frees and bounds. 
+   Note that we use the regular relator that only relates live variables with given relations, while it requires equality for all frees and bounds. 
 
-    Based on this, $x$ is a non-repetitive element, if for all other elements $y$ with equal shape, a function exists through which $x$ can be mapped to $y$. In our example of \type{list}, this holds for all lists with distinct elements (given a second list $y$ of same length, one can easily define a function mapping the distinct atoms of $x$ to those of $y$). It does not hold for lists with repeating elements, because no $f$ exists that could map two equal elements at different positions in this list to distinct elements in an arbitrary second list.
+   Based on this, $x$ is a non-repetitive element if for all other elements $y$ with equal shape, a function exists through which $x$ can be mapped to $y$. In our example of \type{list}, this holds for all lists with distinct elements (given a second list $y$ of the same length, one can easily define a function mapping the distinct atoms of $x$ to those of $y$). It does not hold for lists with repeating elements, because no $f$ exists that could map two equal elements at different positions in this list to distinct elements in an arbitrary second list.
 
-    More interesting is the case of \type{($\alpha$, $\beta$) alist} which we only want to be non-repetitive on $\alpha$. For our purpose of defining non-repetitiveness on a subset of the live variables, we fix the other live variables to be equal when defining equivalent shape. For \acp{MRBNF} with more than one live variable, we can give a definitions of \textit{non-repetitiveness} and having \textit{equal shape} on the last $\lin$ live variables. In that case, we consider $x$ and $y$ of type $F$ to have equal shape with respect to the variables $\alpha_{l'+1} \dots \alpha_\lin$, iff they are \textit{equal} in the atoms corresponding to the non linearized lives and are related with $\top$ in on the linearized variables. Consequently for the map in the $\nonrep$ definition, the $\id$ function is applied to the non linearized lives, since they are already required to be equal. 
-    \begin{align*}
-      &\eqshape_F^\lin\; x\; y = \rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\; x\; y \tag{\textsc{eq\_shape}}\label{eq:eqshape}\\
-      &\nonrep_F^\lin\; x = \forall y.\; \eqshape_F^\lin\; x\; y \Longrightarrow (\exists f^\lin.\; y = \map_F\; \langle\id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x) \tag{\textsc{nonrep}}\label{eq:nonrep}
-    \end{align*}
+   More interesting is the case of \type{($\alpha$, $\beta$) alist} which we only want to be non-repetitive on $\alpha$. For our purpose of defining non-repetitiveness on a subset of the live variables, we fix the other live variables to be equal when defining equivalent shape. For \acp{MRBNF} with more than one live variable, we can give a definition of \textit{non-repetitiveness} and having \textit{equal shape} on the last $\lin$ live variables. In that case, we consider $x$ and $y$ of type $F$ to have equal shape with respect to the variables $\alpha_{l'+1} \dots \alpha_\lin$, iff they are \textit{equal} in the atoms corresponding to the non-linearized lives and are related with $\top$ in the linearized variables. Consequently, for the map in the $\nonrep$ definition, the $\id$ function is applied to the non-linearized lives, since they are already required to be equal. 
+   \begin{align*}
+     &\eqshape_F^\lin\; x\; y = \rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\; x\; y \tag{\textsc{eq\_shape}}\label{eq:eqshape}\\
+     &\nonrep_F^\lin\; x = \forall y.\; \eqshape_F^\lin\; x\; y \Longrightarrow (\exists f^\lin.\; y = \map_F\; \langle\id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x) \tag{\textsc{nonrep}}\label{eq:nonrep}
+   \end{align*}
 
-    Note, that we use $\langle \dots \rangle$ to indicate arguments that belong together, e.g., that they are both related to lives in this case. They are just inserted to improve readability. Once again, our arguments hold for any ordering of type variables. The assumption that we linearize on the last $\lin$ variables only serves readability and is not a limitation in the actual implementation, where we allow an arbitrary subset of lives to be chosen for linearization. 
+   Note that we use $\langle \dots \rangle$ to indicate arguments that belong together, e.g., that they are both related to lives in this case. They are just inserted to improve readability. Once again, our arguments hold for any ordering of type variables. The assumption that we linearize on the last $\lin$ variables only serves readability and is not a limitation in the actual implementation, where we allow an arbitrary subset of lives to be chosen for linearization. 
 
-  \subsection{Conditions for linearization}
-  \label{subsec:conditions}
-    Two properties are necessary to linearize a \acp{MRBNF}. First, to ensure that the resulting type constructor is non-empty, it is required, that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \nonrep_F^\lin\; x$.
+ \subsection{Prerequisites for linearization}
+ \label{subsec:prerequisites}
+   Two properties are necessary to linearize a \acp{MRBNF}. First, to ensure that the resulting type constructor is non-empty, it is required that there exists a non-repetitive element (with respect to the linearized variables): $\exists x.\; \nonrep_F^\lin\; x$.
 
-    Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks. as described in \autoref{subsec:bnf_axioms_additional}, for the linearization it is required that they preserve \textit{all} pullbacks. Formalized this means that the existence of $z$ in the \ref{eq:in_rel} axiom (Fig. \ref{fig:bnf_axioms}) has to be fulfilled uniquely, i.e., for each $R$-related $x$ and $y$ there exists \textit{exactly one} $z$ fulfilling this property. For example, strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. We refer to this property as "strong pullback preservation" even though strictly speaking, \ref{eq:rel_compp}
-    \begin{align*}
-      \rel_F\; R^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land \tag{\textsc{in\_rel\_strong}}\label{eq:in_rel_strong}\\
-      &\smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}
-    \end{align*}
+   Furthermore, even though \acp{MRBNF} are already required to preserve weak pullbacks, as described in \autoref{subsec:bnf_axioms_additional}, for the linearization, it is required that they preserve \textit{all} pullbacks. Formalized, this means that the existence of $z$ in the \ref{eq:in_rel} axiom (Fig. \ref{fig:bnf_axioms}) has to be fulfilled uniquely, i.e., for each $R^l$-related $x$ and $y$, there exists \textit{exactly one} $z$ fulfilling this property. For example, strong pullback preservation is fulfilled by the \type{$\alpha$ list} and \type{$\alpha$ $\beta$ prod} functor but not by \type{$\alpha$ fset}, the type constructor for finite sets of $\alpha$s. We refer to this property as "strong pullback preservation" even though strictly speaking, \ref{eq:rel_compp}
+   \begin{align*}
+     \rel_F\; R^l\; x\; y =\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land \tag{\textsc{in\_rel\_strong}}\label{eq:in_rel_strong}\\
+     &\smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}
+   \end{align*}
 
-    We note here that the requirement of strong pullback preservation can be omitted, when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case the \ref{eq:rel_exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
+   We note here that the requirement of strong pullback preservation can be omitted when the \ac{MRBNF} is linearized on all its live variables, i.e., when the linearized \ac{MRBNF} has no live variables. This is because in this case, the \ref{eq:rel_exchange} lemma explained in Subsection~\ref{par:rel_exchange} becomes trivial. In all other cases, that lemma is the sole reason, strong pullback preservation is required.
 
-  \subsection{Intermediate lemmas}
-  \label{subsec:lemmas}
-    We want to prove the \ac{MRBNF} axioms for the linearized \ac{MRBNF}. For this we utilize a few intermediate lemmas which we present in this section.
-    
-    \subsubsection{F is strong}
-      From the pullback preservation with uniqueness we can prove the following lemma. In fact this notion of strength is equivalent to pullback preservation: 
-      \begin{equation*}
-        \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
-      \end{equation*} 
-      Here the infimum $\inf$ of two relations $R_i$ and $Q_i$ relates exactly those elements that are related by both $R_i$ and $Q_i$. 
-      To prove this lemma we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or an \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:in_rel_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words any two $z$ and $z'$ fulfilling this condition must be equal.
-      \begin{align*}
-        &\rel_F\; R^l\; x\; y\\
-        \Longrightarrow\; &\rel_F\; (\top)^l\; x\; y &\text{$\rel_F$ mono}\\
-        \Longrightarrow\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\top)\; a\; b \})\; \land&\text{\ref{eq:in_rel_strong}}\\
-        &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}\\
-        \Longrightarrow\; &\exists!z.\; \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}&\text{$\top \equiv$ True}\\
-        \Longrightarrow\; &\forall z\; z'.\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y\; \land\\
-        &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z' = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z' = y} \Longrightarrow&\text{$\exists!$ alternative}\\
-        &\indent z = z')
-      \end{align*}
-      When we unfold the \ac{MRBNF} axiom \ref{eq:in_rel} on the original formulation of the lemma, we obtain a construct with two existential quantifiers $\exists z$ in the assumptions and one in the goal. With the knowledge we gained above, we can conclude that they must all be equal
+ \subsection{Intermediate lemmas}
+ \label{subsec:lemmas}
+   We want to prove the \ac{MRBNF} axioms for the linearized \ac{MRBNF}. For this, we utilize a few intermediate lemmas, which we present in this section.
+   
+   \subsubsection{F is strong}
+     From the pullback preservation with uniqueness, we can prove the following lemma. In fact, this notion of strength is equivalent to pullback preservation: 
+     \begin{equation*}
+       \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
+     \end{equation*} 
+     Here, the infimum $\inf$ of two relations $R_i$ and $Q_i$ relates exactly those elements that are related by both $R_i$ and $Q_i$. 
+     To prove this lemma, we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or an \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:in_rel_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with the appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words, any two $z$ and $z'$ fulfilling this condition must be equal.
+     \begin{align*}
+       &\rel_F\; R^l\; x\; y\\
+       \Longrightarrow\; &\rel_F\; (\top)^l\; x\; y &\text{$\rel_F$ mono}\\
+       \Longrightarrow\; &\exists!z.\; (\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\top)\; a\; b \})\; \land&\text{\ref{eq:in_rel_strong}}\\
+       &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}\\
+       \Longrightarrow\; &\exists!z.\; \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y}&\text{$(\top) \equiv$ True}\\
+       \Longrightarrow\; &\forall z\; z'.\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z = y\; \land\\
+       &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z' = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z' = y} \Longrightarrow&\text{$\exists!$ alternative}\\
+       &\indent z = z')
+     \end{align*}
+     When we unfold the \ac{MRBNF} axiom \ref{eq:in_rel} on the original formulation of the lemma, we obtain a construct with two existential quantifiers $\exists z$ in the assumptions and one in the goal. With the knowledge we gained above, we can conclude that they must all be equal.
 
-      \begin{align*}
-        &\rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y\\
-        \equiv\; &\exists z_R.\; (\forall i.\; \set_{F,i}\; z_R \subseteq \{(a, b).\; R_i\; a\; b \})\; \land&\text{\ref{eq:in_rel}}\\
-        &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_R = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_R = y}\; \land\\
-        &\exists z_Q.\; (\forall i.\; \set_{F,i}\; z_Q \subseteq \{(a, b).\; Q_i\; a\; b \})\; \land\\
-        &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_Q = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_Q = y}\; \Longrightarrow\\
-        &\exists z_{\inf}.\; (\forall i.\; \set_{F,i}\; z_{\inf} \subseteq \{(a, b).\; (\inf R_i\; Q_i)\; a\; b \})\; \land\\
-        &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_{\inf} = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_{\inf} = y}\\
-        \equiv\; &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land&\text{$z=z'$ (see above)}\\ 
-        &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; Q_i\; a\; b \}) \Longrightarrow\\
-        &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\inf R_i\; Q_i)\; a\; b \})
-      \end{align*}
-      The last step is proven by applying common rules on sets of pairs, subsets and conjunction after $(\inf R_i\; Q_i)\; a\; b$ is unfolded to $R_i\; a\; b \land Q_i\; a\; b$.
+     \begin{align*}
+       &\rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y\\
+       \equiv\; &\exists z_R.\; (\forall i.\; \set_{F,i}\; z_R \subseteq \{(a, b).\; R_i\; a\; b \})\; \land&\text{\ref{eq:in_rel}}\\
+       &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_R = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_R = y}\; \land\\
+       &\exists z_Q.\; (\forall i.\; \set_{F,i}\; z_Q \subseteq \{(a, b).\; Q_i\; a\; b \})\; \land\\
+       &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_Q = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_Q = y}\; \Longrightarrow\\
+       &\exists z_{\inf}.\; (\forall i.\; \set_{F,i}\; z_{\inf} \subseteq \{(a, b).\; (\inf R_i\; Q_i)\; a\; b \})\; \land\\
+       &\indent \smash{\map_F\; \fst^l\; \id^\fr\; \id^b\; z_{\inf} = x \land \map_F\; \snd^l\; \id^\fr\; \id^b\; z_{\inf} = y}\\
+       \equiv\; &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; R_i\; a\; b \})\; \land&\text{$z=z'$ (see above)}\\ 
+       &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; Q_i\; a\; b \}) \Longrightarrow\\
+       &(\forall i.\; \set_{F,i}\; z \subseteq \{(a, b).\; (\inf R_i\; Q_i)\; a\; b \})
+     \end{align*}
+     The last step is proven by applying common rules on sets of pairs, subsets, and conjunction after $(\inf R_i\; Q_i)\; a\; b$ is unfolded to $R_i\; a\; b \land Q_i\; a\; b$.
 
-    \subsubsection{Relation exchange}
-    \label{par:rel_exchange}
-      The \textit{exchange of relations} is a consequence of the previous property, \ref{eq:F_strong}: If two elements $x$ and $y$ are related through the relator with two different lists $R^l = R_1 \dots R_l$ and $Q^l = Q_1 \dots Q_l$ of atom-level relations, then $x$ and $y$ are also related with any index-wise combination of $R^l$ or $Q^l$. For each index $i$ either the relation $R_i$ or $Q_i$ is selected. 
-      
-      For our purpose of linearization, we are specifically interested in the case, where for all live variables that we linearize on the relation from $R^l$ is chosen and for all others the relation from $Q^l$ relation, i.e., $Q^{l'}\; R^\lin$. This results in the following lemma for an \ac{MRBNF} $F$:
-      \begin{equation*}
-        \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; \langle Q^{l'}\; R^\lin \rangle\; x\; y \tag{\textsc{rel\_exchange}}\label{eq:rel_exchange}
-      \end{equation*} 
-      The lemma \ref{eq:F_strong} states that for each type variable the atoms are related with the infimum of $R_i$ and $Q_i$. This means, that the atoms of each type variable can be related with $R_i$ and $Q_i$ at the same time. To prove this lemma we choose the appropriate relation from each of the $l$ infima. This informal idea is the core of this lemma's formal proof.
+   \subsubsection{Relation exchange}
+   \label{par:rel_exchange}
+     The \textit{exchange of relations} is a consequence of the previous property, \ref{eq:F_strong}: If two elements $x$ and $y$ are related through the relator with two different lists $R^l = R_1 \dots R_l$ and $Q^l = Q_1 \dots Q_l$ of atom-level relations, then $x$ and $y$ are also related with any index-wise combination of $R^l$ or $Q^l$. For each index $i$, either the relation $R_i$ or $Q_i$ is selected. 
+     
+     For our purpose of linearization, we are specifically interested in the case where for all live variables that we linearize on the relation from $R^l$ is chosen and for all others the relation from $Q^l$ relation, i.e., $\langle Q^{l'}\; R^\lin \rangle$. This results in the following lemma for an \ac{MRBNF} $F$:
+     \begin{equation*}
+       \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; \langle Q^{l'}\; R^\lin \rangle\; x\; y \tag{\textsc{rel\_exchange}}\label{eq:rel_exchange}
+     \end{equation*} 
+     The lemma \ref{eq:F_strong} states that for each type variable, the atoms are related with the infimum of $R_i$ and $Q_i$. This means that the atoms of each type variable can be related with $R_i$ and $Q_i$ at the same time. To prove this lemma, we choose the appropriate one of the two relations from each of the $l$ infima. This informal idea is the core of this lemma's formal proof.
 
-      In the specific case, that the \ac{MRBNF} is linearized on \textit{all} of it's live variables, $l' = 0$ and $\lin = l$ resulting in $R^l$ as the combination that is chosen. Then the lemma becomes trivial, since its goal is equal to it's first assumption in this case.
+     In the specific case, that the \ac{MRBNF} is linearized on \textit{all} of its live variables, $l' = 0$ and $\lin = l$ resulting in $R^l$ as the combination that is chosen. Then the lemma becomes trivial, since its goal is equal to its first assumption in this case.
 
-      As a consequence of this, the previous lemma \ref{eq:F_strong} is not needed to prove this lemma. Furthermore, this lemma is the sole reason why \ref{eq:F_strong} and strong pullback preservation are needed for the linearization. Thus the requirement of pullback preservation can be lifted, in the case that the linearization is applied to all live variables at the same time.
+     As a consequence of this, the previous lemma \ref{eq:F_strong} is not needed to prove this lemma. Furthermore, this lemma is the sole reason why \ref{eq:F_strong} and strong pullback preservation are needed for the linearization. Thus, the requirement of pullback preservation can be lifted in the case that the linearization is applied to all live variables at the same time.
 
-    \subsubsection{Mapper peresrves non-repetitiveness}
-      An important lemma used frequently in the following proofs is that the mapper preserves non-repetitiveness. It means that given a non-repetitive element $x$, the result of mapping functions over it is also non-repetitive. These functions must fulfill the appropriate restrictions of bijectivity and small-support for the bounds and lives. Additionally the functions $f^\lin$ on the linearized lives need to be bijective.
-      \begin{align*}
-        &\textsf{small\_supp}\; v^\fr\; \land\; \textsf{small\_supp}\; u^b\; \land\; \textsf{bijective}\; u^b\; \land \tag{\textsc{nonrep\_map}}\label{eq:nrp_map}\\
-        &\textsf{bijective}\; f^\lin\; \land\; \nonrep_F^\lin\; x\; \Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle g^{l'}\; f^\lin \rangle\; v^\fr\; u^b\; x)
-      \end{align*} 
-      To give proof sketch for this lemma, we split it into two parts. First, we argue that mapping bijective $f^\lin$ over the linearized variables and $\id$ over all others preserves non-repetitiveness. $\eqshape_F^\lin$ is transitive (both $=$ and $\top$ are transitive) and $x$ and $\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x$ have the same shape. Thus, we have to think about the same $\forall y$ in the \ref{eq:nonrep} definition to show non-repetitiveness for the mapped $x$. This means, we can fix the $y$ and show the following, where we rename the $f^\lin$ in the existential quantifier to $f_{E1}^\lin$ and $f_{E2}^\lin$ to avoid naming clashes and for clarity.
-      \begin{align*}
-        &\exists f_{E1}^\lin.\; y = \map_F\; \langle\id^{l'} f_{E1}^\lin \rangle\; \id^\fr\; \id^b\; x \Longrightarrow\\ 
-        &\exists f_{E2}^\lin.\; y = \map_F\; \langle\id^{l'} f_{E2}^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x)
-      \end{align*}
-      From this we obtain and fix $h^\lin$ from the existential quantifier $\exists f_{E1}^\lin$ in the assumption and instantiate the existential qualifier in the goal with $f_{E2}^\lin = (h \circ (\inv\; f))^\lin$. Since all $f^\lin$ are bijective, we know that the inverse $\inv$ for each of them exist. Using \ref{eq:map_comp}, we can transform the instantiated goal to the assumption with the fixed $h^\lin$ as follows, which proves this part of the lemma:
-      \begin{align*}
-        &y = \map_F\; \langle\id^{l'} (h \circ (\inv\; f))^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x) \\
-        \equiv\; &y = \map_F\; \langle\id^{l'} ((h \circ (\inv\; f)) \circ f)^\lin \rangle\; \id^\fr\; \id^b\; x& \text{\ref{eq:map_comp}}\\
-        \equiv\; &y = \map_F\; \langle\id^{l'} (h \circ ((\inv\; f) \circ f))^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\circ$ assoc}\\
-        \equiv\; &y = \map_F\; \langle\id^{l'} (h \circ \id)^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\inv$ $\circ$}\\
-        \equiv\; &y = \map_F\; \langle\id^{l'} h^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\circ$ $\id$}\\
-      \end{align*}
-      
-      \begin{figure}[!h]
-        \input{figures/nrp_map.tex}
-        \caption{Illustration of lemma \ref{eq:nrp_map}}
-        \label{fig:nrp_map}
-      \end{figure}
+   \subsubsection{Mapper peresrves non-repetitiveness}
+     An important lemma used frequently in the following proofs is that the mapper preserves non-repetitiveness. It means that given a non-repetitive element $x$, the result of mapping functions over it is also non-repetitive. These functions must fulfill the appropriate restrictions of bijectivity and small-support for the bounds and lives. Additionally, the functions $f^\lin$ on the linearized lives need to be bijective.
+     \begin{align*}
+       &\textsf{small\_supp}\; v^\fr\; \land\; \textsf{small\_supp}\; u^b\; \land\; \textsf{bijective}\; u^b\; \land \tag{\textsc{nonrep\_map}}\label{eq:nrp_map}\\
+       &\textsf{bijective}\; f^\lin\; \land\; \nonrep_F^\lin\; x\; \Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle g^{l'}\; f^\lin \rangle\; v^\fr\; u^b\; x)
+     \end{align*} 
+     To give a proof sketch for this lemma, we split it into two parts. First, we argue that mapping bijective $f^\lin$ over the linearized variables and $\id$ over all others preserves non-repetitiveness. $\eqshape_F^\lin$ is transitive (both $=$ and $\top$ are transitive) and $x$ and $\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x$ have the same shape. Thus, we have to think about the same $\forall y$ in the \ref{eq:nonrep} definition to show non-repetitiveness for the mapped $x$. This means we can fix the $y$ and show the following, where we rename the $f^\lin$ in the existential quantifier to $f_{E1}^\lin$ and $f_{E2}^\lin$ to avoid naming clashes and for clarity.
+     \begin{align*}
+       &\exists f_{E1}^\lin.\; y = \map_F\; \langle\id^{l'} f_{E1}^\lin \rangle\; \id^\fr\; \id^b\; x \Longrightarrow\\ 
+       &\exists f_{E2}^\lin.\; y = \map_F\; \langle\id^{l'} f_{E2}^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x)
+     \end{align*}
+     From this, we obtain and fix $h^\lin$ from the existential quantifier $\exists f_{E1}^\lin$ in the assumption and instantiate the existential quantifier in the goal with $f_{E2}^\lin = (h \circ (\inv\; f))^\lin$. Since all $f^\lin$ are bijective, we know that the inverse $\inv$ for each of them exists. Using \ref{eq:map_comp}, we can transform the instantiated goal to the assumption with the fixed $h^\lin$ as follows, which proves this part of the lemma:
+     \begin{align*}
+       &y = \map_F\; \langle\id^{l'} (h \circ (\inv\; f))^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; x) \\
+       \equiv\; &y = \map_F\; \langle\id^{l'} ((h \circ (\inv\; f)) \circ f)^\lin \rangle\; \id^\fr\; \id^b\; x& \text{\ref{eq:map_comp}}\\
+       \equiv\; &y = \map_F\; \langle\id^{l'} (h \circ ((\inv\; f) \circ f))^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\circ$ assoc}\\
+       \equiv\; &y = \map_F\; \langle\id^{l'} (h \circ \id)^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\inv$ $\circ$}\\
+       \equiv\; &y = \map_F\; \langle\id^{l'} h^\lin \rangle\; \id^\fr\; \id^b\; x& \text{$\circ$ $\id$}\\
+     \end{align*}
+     
+     \begin{figure}[!h]
+       \input{figures/nrp_map.tex}
+       \caption{Illustration of lemma \ref{eq:nrp_map}}
+       \label{fig:nrp_map}
+     \end{figure}
 
-      It remains to show that mapping appropriately restricted functions over the other, not linearized type variables also preserves non-repetitiveness. From the definition \ref{eq:nonrep} we know that for any element $y$ of equivalent shape, we can find functions $f^\lin$ acting only on the linearized variables to map to this other element.
-      Next, we consider the mapped $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; x$ and all $y'$ of equivalent shape to it. To proceed we show, that for every fixed $y'$ there exists a $y$ of equivalent shape to the original $x$, such that $y'$ can be expressed as $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; y$. Knowing this, we deduce that the same $f^\lin$ that map $x$ to $y$ from the assumption also map $x'$ to $y'$. Using \ref{eq:map_comp} this proofs non-repetitiveness for $x'$.
-      \autoref{fig:nrp_map} shows an illustration of this lemma. The thick or bolded elements are what we know from the assumption. The dashed arrow stands for the existence of a $y$ with equivalent shape to $x$ for each $y'$ on which this proof depends. This existence can be shown using \ref{eq:in_rel} and other theorems about the relator.
+     It remains to show that mapping appropriately restricted functions over the other, not linearized type variables, also preserves non-repetitiveness. From the definition \ref{eq:nonrep} we know that for any element $y$ of equivalent shape, we can find functions $f^\lin$ acting only on the linearized variables to map to this other element.
+     Next, we consider the mapped $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; x$ and all $y'$ of equivalent shape to it. To proceed we show, that for every fixed $y'$ there exists a $y$ of equivalent shape to the original $x$, such that $y'$ can be expressed as $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; v^\fr\; u^b\; y$. Knowing this, we deduce that the same $f^\lin$ that maps $x$ to $y$ from the assumption also maps $x'$ to $y'$. Using \ref{eq:map_comp}, this proves non-repetitiveness for $x'$.
+     \autoref{fig:nrp_map} shows an illustration of this lemma. The thick or bolded elements are what we know from the assumption. The dashed arrow stands for the existence of a $y$ with equivalent shape to $x$ for each $y'$ on which this proof depends. This existence can be shown using \ref{eq:in_rel} and other theorems about the relator.
 
-      % Diagram? 
+     % Diagram? 
 
-    \subsubsection{Mapper reflects non-repetitiveness}
-      Lastly we need the reflection of non-repetitiveness through map. This lemma can be seen as a partial reverse of \ref{eq:nrp_map}, but only on the non-linearized lives.
-      \begin{equation*}
-        \nonrep_F^\lin\; (\map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x)\Longrightarrow \nonrep_F^\lin\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
-      \end{equation*} 
+   \subsubsection{Mapper reflects non-repetitiveness}
+     Lastly, we need the reflection of non-repetitiveness through the map function. This lemma can be seen as a partial reverse of \ref{eq:nrp_map}, but only on the non-linearized lives.
+     \begin{equation*}
+       \nonrep_F^\lin\; (\map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x)\Longrightarrow \nonrep_F^\lin\; x \tag{\textsc{nonrep\_map\_rev}}\label{eq:nrp_map_rev}
+     \end{equation*} 
 
-      We start of the proof by defining $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x$ and fixing a $y$ with equivalent shape to $x$: $\eqshape_F^\lin\; x\; y$. This time we can easily obtain and fix $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; y$ with $\eqshape_F^\lin\; x'\; y'$ and $y' = \map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; y$ from the assumption. We can express these maps in terms of the relator using graphs $\Grp$ of functions and \textit{converse} graphs $\Grp^{-1}$. For this we use the following properties obtained from the \ac{MRBNF} $F$:
-      \begin{align*}
-        \rel_F\; (Grp\; f)^l\; x\; y \equiv\; &\map_F\; f^l\; \id^\fr\; \id^b\; x = y \tag{\textsc{rel\_map\_1}}\label{eq:rel_map_1}\\
-        \rel_F\; (Grp^{-1}\; f)^l\; x\; y \equiv\; &x = \map_F\; f^l\; \id^\fr\; \id^b\; y \tag{\textsc{rel\_map\_2}}
-      \end{align*}
-      With this we can express the current proof state as shown in \autoref{fig:nrp_map_rev}. The arrows denote a relation from the element at their base to the element at their tip through the given relator. The top relation is obtained from $\eqshape_F^\lin\; x\; y$, the bottom arrow with $f^\lin$ from the non-repetitiveness in the assumption, while the vertical arrows denote the definitions of $'x$ and $'y$ in terms of the relator. 
-      \begin{figure}[!h]
-        \input{figures/nrp_map_rev.tex}
-        \caption{Illustration of lemma \ref{eq:nrp_map_rev}}
-        \label{fig:nrp_map_rev}
-      \end{figure}
+     We start of the proof by defining $x' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; x$ and fixing a $y$ with equivalent shape to $x$: $\eqshape_F^\lin\; x\; y$. This time we can easily obtain and fix $y' = \map_F\; \langle g^{l'}\; \id^\lin \rangle\; \id^\fr\; \id^b\; y$ with $\eqshape_F^\lin\; x'\; y'$ and $y' = \map_F\; \langle \id^{l'} f^\lin \rangle\; \id^\fr\; \id^b\; y$ from the assumption. We can express these maps in terms of the relator using graphs $\Grp$ of functions and \textit{converse} graphs $\Grp^{-1}$. For this, we use the following properties obtained from the \ac{MRBNF} $F$:
+     \begin{align*}
+       \rel_F\; (Grp\; f)^l\; x\; y \equiv\; &\map_F\; f^l\; \id^\fr\; \id^b\; x = y \tag{\textsc{rel\_map\_1}}\label{eq:rel_map_1}\\
+       \rel_F\; (Grp^{-1}\; f)^l\; x\; y \equiv\; &x = \map_F\; f^l\; \id^\fr\; \id^b\; y \tag{\textsc{rel\_map\_2}}
+     \end{align*}
+     With this, we can express the current proof state as shown in \autoref{fig:nrp_map_rev}. The arrows denote a relation from the element at their base to the element at their tip through the given relator. The top relation is obtained from $\eqshape_F^\lin\; x\; y$, the bottom arrow with $f^\lin$ from the non-repetitiveness in the assumption, while the vertical arrows denote the definitions of $'x$ and $'y$ in terms of the relator. 
+     \begin{figure}[!h]
+       \input{figures/nrp_map_rev.tex}
+       \caption{Illustration of lemma \ref{eq:nrp_map_rev}}
+       \label{fig:nrp_map_rev}
+     \end{figure}
 
-      Following the arrows and applying relational composition with the associated axiom \ref{eq:rel_compp} we can express the relationship path between $x$ and $y$ through $x'$ and $y'$ as $\rel_F\; \langle (\Grp\; g\; \bullet\; Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Together with the top relation from the definition of equivalent shape we can apply the \ref{eq:rel_exchange} lemma to receive $\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Unfolding the \ref{eq:rel_map_1} equality, we can show the non-repetitiveness of $x$:
-      \begin{align*}
-        &\rel_F\; \langle (\Grp\; g\; \bullet\; Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y \land \rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\; x\; y\\
-        \equiv\; &\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y & \text{\ref{eq:rel_exchange}}\\
-        \equiv\; &y = \map_F\; \langle \id^{l'}\; f^\lin \rangle\; id^\fr\; \id^b\; x & \text{\ref{eq:rel_map_1}}
-      \end{align*}
+     Following the arrows and applying relational composition with the associated axiom \ref{eq:rel_compp} we can express the relationship path between $x$ and $y$ through $x'$ and $y'$ as $\rel_F\; \langle (\Grp\; g\; \bullet\; Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Together with the top relation from the definition of equivalent shape, we can apply the \ref{eq:rel_exchange} lemma to receive $\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y$. Unfolding the \ref{eq:rel_map_1} equality, we can show the non-repetitiveness of $x$:
+     \begin{align*}
+       &\rel_F\; \langle (\Grp\; g\; \bullet\; Grp^-1\; g)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y \land \rel_F\; \langle (=)^{l'}\; (\top)^\lin \rangle\; x\; y\\
+       \equiv\; &\rel_F\; \langle (=)^{l'}\; (\Grp\; f)^\lin \rangle\; x\; y & \text{\ref{eq:rel_exchange}}\\
+       \equiv\; &y = \map_F\; \langle \id^{l'}\; f^\lin \rangle\; id^\fr\; \id^b\; x & \text{\ref{eq:rel_map_1}}
+     \end{align*}
 
-    \subsection{Defining the subtype and its constants}
-    \label{subsec:consts}
-      Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ --- provided that they are non-repetitive.
+   \subsection{Defining the subtype and its constants}
+   \label{subsec:consts}
+     Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ --- provided that they are non-repetitive.
 
-      In the following we specify the \ac{MRBNF} constants, i.e., the mapper, setters, bound and relator for $F'$. We define these in terms of the base type's constants and apply the morphisms to match the types: For the setters, $\rep_{F'}$ is applied to the argument before applying the appropriate setter of $F$ to it. Since this does not change the set that is outputted, we can use the bound of $F$ for $F'$. For the relator, the relations for the linearized lives are fixed to the equality relation, since in the new \ac{MRBNF} these will be bounds. Lastly, for the mapper we only allow it to map bijective functions on the linearized variables in addition to the restrictions for the existing frees and bounds. This restriction is necessary to ensure that applying the map function to a $F'$ element preserves it non-repetitiveness. If a function that violates any of the restrictions is given to the mapper, it is ignored and not applied.
+     In the following, we specify the \ac{MRBNF} constants, i.e., the mapper, setters, bound, and relator for $F'$. We define these in terms of the base type's constants and apply the morphisms to match the types: For the setters, $\rep_{F'}$ is applied to the argument before applying the appropriate setter of $F$ to it. Since this does not change the set that is outputted, we can use the bound of $F$ for $F'$. For the relator, the relations for the linearized lives are fixed to the equality relation, since in the new \ac{MRBNF} these will be bounds. Lastly, for the mapper, we only allow it to map bijective functions on the linearized variables in addition to the restrictions for the existing frees and bounds. This restriction is necessary to ensure that applying the map function to an $F'$ element preserves its non-repetitiveness. If a function that violates any of the restrictions is given to the mapper, it is ignored and not applied.
 
-      As for the morphisms, concretely, we apply $\rep_{F'}$ to the $F'$ arguments of the new mapper, setters and relator, and $\abs_{F'}$ to the result of the mapper. This leads us to the following definitions:
-      \begin{align*}
-        \bd_{F'} &= \bd_F\\
-        \set_{F',i} &= \set_{F,i} \circ \rep_{F'}\\
-        \map_{F'}\; \langle f^{l'}\; g^\lin\rangle\; u^\fr\; v^b &= \abs_{F'} \circ (\map_{F}\; \langle f^{l'}\; (\asBij\; g)^\lin \rangle\; (\asSS\; v)^\fr\; (\asBij\; (\asSS\; u))^b) \circ \rep_{F'}\\
-        \rel_{F'}\; R^{l'}\; x\; y &= \rel_{F}\; \langle R^{l'}\; (=)^\lin\rangle\; (\rep_{F'}\; x)\; (\rep_{F'}\; y)
-      \end{align*}
-      where we enforce bijectivity of the $g^\lin$ and $u^b$ using $\asBij f = \texttt{if}\; \textsf{bijective}\; f\; \texttt{then}\; f\; \texttt{else}\; \id$. Analogously, both $v^\fr$ and $u^b$ are enforced to be small-support functions using an analogously defined $\asSS$.
-      
-    \subsection{Proving MRBNF axioms}
-    \label{subsec:proving_mrbnf_axioms}
-      To show that $F'$ is an \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. For most of the axioms this is straight-forward, as they only require unfolding the definitions of the new $F'$ constants, applying the axioms of the original $F$ and a few simple transformations. The axioms \ref{eq:map_id}, \ref{eq:map_cong} and \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. 
-      
-      As an example we show \ref{eq:set_map} for $F'$ below. Note that we assume $i$ to be in the range $1 \leq i \leq \vs$ where $\vs$ is the number of all non-dead type variables, i.e., $\vs = l + \fr + b$. The proof works the same for setters of frees and bounds. Furthermore we assume all functions $f^\vs$ fulfilling their respective requirements (bijectivity and small-support) and thus all $\asBij$ and $\asSS$ evaluating to the \texttt{then} case.
-      \begin{align*}
-        &\set_{F',i}\; (\map_{F'}\; f^{\vs}\; x) \\
-        \equiv\; &\set_{F,i} \circ \rep_{F'}\; ((\abs_{F'} \circ (\map_{F}\; f^{\vs}) \circ \rep_{F'})\; x)& \text{unfold defs}\\
-        \equiv\; &\set_{F,i}\; (\rep_{F'}\; (\abs_{F'}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))))& \text{$\circ$ application}\\
-        \equiv\; &\nonrep_F^\lin\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x)) \Longrightarrow\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{$\abs$ inverse}\\
-        \equiv\; &\nonrep_F^\lin\; (\rep_{F'}\; x) \Longrightarrow\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{\ref{eq:nrp_map}}\\
-        \equiv\; &\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{$\nonrep\; \rep_{F'}$}\\
-        \equiv\; &f_i\; \grave{\phantom{\_}}\; \set_{F,i}\; (\rep_{F'}\; x)& \text{\ref{eq:set_map} of $F$}\\
-        \equiv\; &f_i\; \grave{\phantom{\_}}\; \set_{F',i}\; x & \text{fold defs, $\circ$}
-      \end{align*}
-      where "$\abs$ inverse" denotes the theorem that $\rep_{F'}$ is the inverse of $\abs_{F'}$ for arguments that are non-repetitive. Furthermore "$\nonrep\; \rep_{F'}$" states that converting a $F'$ element to $F$ inherently means that the $F$ element is non-repetitive.
-      
-      The validity of the bound \ref{eq:bd} is trivially proven, since the bound is copied from $F$.
+     As for the morphisms, concretely, we apply $\rep_{F'}$ to the $F'$ arguments of the new mapper, setters, and relator, and $\abs_{F'}$ to the result of the mapper. This leads us to the following definitions:
+     \begin{align*}
+       \bd_{F'} &= \bd_F\\
+       \set_{F',i} &= \set_{F,i} \circ \rep_{F'}\\
+       \map_{F'}\; \langle f^{l'}\; g^\lin\rangle\; u^\fr\; v^b &= \abs_{F'} \circ (\map_{F}\; \langle f^{l'}\; (\asBij\; g)^\lin \rangle\; (\asSS\; v)^\fr\; (\asBij\; (\asSS\; u))^b) \circ \rep_{F'}\\
+       \rel_{F'}\; R^{l'}\; x\; y &= \rel_{F}\; \langle R^{l'}\; (=)^\lin\rangle\; (\rep_{F'}\; x)\; (\rep_{F'}\; y)
+     \end{align*}
+     where we enforce bijectivity of the $g^\lin$ and $u^b$ using $\asBij f = \texttt{if}\; \textsf{bijective}\; f\; \texttt{then}\; f\; \texttt{else}\; \id$. Analogously, both $v^\fr$ and $u^b$ are enforced to be small-support functions using an analogously defined $\asSS$.
+     
+   \subsection{Proving MRBNF axioms}
+   \label{subsec:proving_mrbnf_axioms}
+     To show that $F'$ is an \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. For most of the axioms, this is straightforward, as they only require unfolding the definitions of the new $F'$ constants, applying the axioms of the original $F$, and a few simple transformations. The axioms \ref{eq:map_id}, \ref{eq:map_cong} and \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. 
+     
+     As an example, we show \ref{eq:set_map} for $F'$ below. Note that we assume $i$ to be in the range $1 \leq i \leq \vs$ where $\vs$ is the number of all non-dead type variables, i.e., $\vs = l + \fr + b$. The proof works the same for setters of frees and bounds. Furthermore, we assume all functions $f^\vs$ fulfilling their respective requirements (bijectivity and small-support) and thus all $\asBij$ and $\asSS$ evaluating to the \texttt{then} case.
+     \begin{align*}
+       &\set_{F',i}\; (\map_{F'}\; f^{\vs}\; x) \\
+       \equiv\; &\set_{F,i} \circ \rep_{F'}\; ((\abs_{F'} \circ (\map_{F}\; f^{\vs}) \circ \rep_{F'})\; x)& \text{unfold defs}\\
+       \equiv\; &\set_{F,i}\; (\rep_{F'}\; (\abs_{F'}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))))& \text{$\circ$ application}\\
+       \equiv\; &\nonrep_F^\lin\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x)) \Longrightarrow\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{$\abs$ inverse}\\
+       \equiv\; &\nonrep_F^\lin\; (\rep_{F'}\; x) \Longrightarrow\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{\ref{eq:nrp_map}}\\
+       \equiv\; &\set_{F,i}\; (\map_{F}\; f^{\vs}\; (\rep_{F'}\; x))& \text{$\nonrep\; \rep_{F'}$}\\
+       \equiv\; &f_i\; \grave{\phantom{\_}}\; \set_{F,i}\; (\rep_{F'}\; x)& \text{\ref{eq:set_map} of $F$}\\
+       \equiv\; &f_i\; \grave{\phantom{\_}}\; \set_{F',i}\; x & \text{fold defs, $\circ$}
+     \end{align*}
+     where "$\abs$ inverse" denotes the theorem that $\rep_{F'}$ is the inverse of $\abs_{F'}$ for arguments that are non-repetitive. Furthermore "$\nonrep\; \rep_{F'}$" states that converting a $F'$ element to $F$ inherently means that the $F$ element is non-repetitive.
+     
+     The validity of the bound \ref{eq:bd} is trivially proven, since the bound is copied from $F$.
 
-      It remains to show \ref{eq:rel_compp} and \ref{eq:in_rel} for $F'$. While the former is easily proven using the corresponding axiom of $F$ and some simple properties of relational composition, the latter is certainly the most interesting axiom to show. 
-      
-      We do not show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z)$ $\Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle\id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
+     It remains to show \ref{eq:rel_compp} and \ref{eq:in_rel} for $F'$. While the former is easily proven using the corresponding axiom of $F$ and some simple properties of relational composition, the latter is certainly the most interesting axiom to show. 
+     
+     We do not show a full proof of this property here, but investigate an interesting step. In the proof we reach a state, where we need to show that $\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z)$ $\Longrightarrow \nonrep_F^\lin\; (\map_F\; \langle\id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)$. To give an intuition for why this is necessary, we obtain the left side of the implication from the \ref{eq:in_rel} axiom of $F$ and need to show the right side to eliminate a composition $\abs_{F'} \circ \rep_{F'}$ in the goal state. 
 
-      The step is proven as follows:
-      \begin{align*}
-        &\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow\\
-        &\nonrep_F^\lin\; (\map_F\; \langle \fst^{l'} \id^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)) \Longrightarrow\\
-        &\nonrep_F^\lin\; (\map_F\; \langle \id^{l'} \fst^\lin\rangle\; \id^\fr\; \id^b\; z)\\
-      \end{align*}
-      The first step is reached through \ref{eq:map_comp} of $F$, while the second one needs the \ref{eq:nrp_map_rev} lemma. This is the final place, where strong pullback preservation is used and the reason why it is required.
+     The step is proven as follows:
+     \begin{align*}
+       &\nonrep_F^\lin\; (\map_F\; \fst^l\; \id^\fr\; \id^b\; z) \Longrightarrow\\
+       &\nonrep_F^\lin\; (\map_F\; \langle \fst^{l'} \id^\lin \rangle\; \id^\fr\; \id^b\; (\map_F\; \langle \id^{l'} \fst^\lin \rangle\; \id^\fr\; \id^b\; z)) \Longrightarrow\\
+       &\nonrep_F^\lin\; (\map_F\; \langle \id^{l'} \fst^\lin\rangle\; \id^\fr\; \id^b\; z)\\
+     \end{align*}
+     The first step is reached through \ref{eq:map_comp} of $F$, while the second one needs the \ref{eq:nrp_map_rev} lemma. This is the final place where strong pullback preservation is used, and the reason why it is required.
 
-      %Another interesting step in the proof of \ref{eq:in_rel} is the conversion from $\mrrel_{F'}$ to $\mrrel_F$. While $\mrrel_{F'}$ takes functions for the linearized type variables that turned to bounds, the relator of original \ac{MRBNF} $F$ takes relations for these. By explicitly specifying the following:
-      % TODO: maybe
-      %\begin{align*}
-      %  &\mrrel_{F'}\; f^\lin\; v^\fr\; u^b\; R^{l'}\; x\; y =\\
-      %  &\rel_{F'}\; R^{l'}\; (\map_{F'}\; \langle \id^{l'} f^\lin\rangle\; v^\fr\; u^b\; x)\; y =\\
-      %  &\rel_F\; \langle R^{l'}\; (=)^\lin \rangle\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; v^\fr\; u^b\; x)\; y =\\
-      %  &\rel_F\; \langle R^{l'}\; (\Grp f)^\lin \rangle\; (\map_F\; \id^l\; v^\fr\; u^b\; x)\; y =\\
-      %  &\mrrel_F\; v^\fr\; u^b\; \langle R^{l'}\; (\Grp f)^\lin \rangle\; x\; y
-      %\end{align*}
+     %Another interesting step in the proof of \ref{eq:in_rel} is the conversion from $\mrrel_{F'}$ to $\mrrel_F$. While $\mrrel_{F'}$ takes functions for the linearized type variables that turned to bounds, the relator of the original \ac{MRBNF} $F$ takes relations for these. By explicitly specifying the following:
+     % TODO: maybe
+     %\begin{align*}
+     %  &\mrrel_{F'}\; f^\lin\; v^\fr\; u^b\; R^{l'}\; x\; y =\\
+     %  &\rel_{F'}\; R^{l'}\; (\map_{F'}\; \langle \id^{l'} f^\lin\rangle\; v^\fr\; u^b\; x)\; y =\\
+     %  &\rel_F\; \langle R^{l'}\; (=)^\lin \rangle\; (\map_F\; \langle \id^{l'} f^\lin \rangle\; v^\fr\; u^b\; x)\; y =\\
+     %  &\rel_F\; \langle R^{l'}\; (\Grp f)^\lin \rangle\; (\map_F\; \id^l\; v^\fr\; u^b\; x)\; y =\\
+     %  &\mrrel_F\; v^\fr\; u^b\; \langle R^{l'}\; (\Grp f)^\lin \rangle\; x\; y
+     %\end{align*}
 
-    \subsection{Lifting Witnesses}
-    \label{subsec:lin_wits}
-      Existing witnesses of the original \ac{MRBNF} that do not depend on any of the linearized variables can be lifted to be witnesses of the linearized \ac{MRBNF}. 
+   \subsection{Lifting Witnesses}
+   \label{subsec:lin_wits}
+     Existing witnesses of the original \ac{MRBNF} that do not depend on any of the linearized variables can be lifted to be witnesses of the linearized \ac{MRBNF}. 
 
-      For this it is necessary to show that they are non-repetitive on the linearized elements, i.e., that they are part of the new type. From \ref{eq:wits} (\autoref{subsec:bnf_wits}) we know that any witness not depending on the linearized lives does not contain atoms from these lives. Thus, we can show that these witnesses are non-repetitive, since an element with no $\alpha$ atoms is trivially non-repetitive on $\alpha$.
+     For this, it is necessary to show that they are non-repetitive on the linearized elements, i.e., that they are part of the new type. From \ref{eq:wits} (\autoref{subsec:bnf_wits}) we know that any witness not depending on the linearized lives does not contain atoms from these lives. Thus, we can show that these witnesses are non-repetitive, since an element with no $\alpha$ atoms is trivially non-repetitive on $\alpha$.
 
-      Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of an \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
+     Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of an \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
 
-      Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments. Furthermore, it has to be shown that they are part of the type, i.e., that they are non-repetitive.
+     Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these, the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments. Furthermore, it has to be shown that they are part of the type, i.e., that they are non-repetitive.
 
-      When an liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:conditions} is trivially proven.
+     When a liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:prerequisites} is trivially proven.
 
-    \subsection{Preservation of strength}
-      \label{subsec:preserve_strength}
-      Linearizing an \ac{MRBNF} preserves the strength property of it. This means, that for the new $F'$ the following axiom holds, provided that $F$ fulfills \ref{eq:F_strong}:
-      \[
-        \rel_{F'}\; R^{l'}\; x\; y\; \land\; \rel_{F'}\; Q^{l'}\; x\; y \Longrightarrow \rel_{F'}\; (\inf\; R\; Q)^{l'}\; x\; ys
-      \]
-      This is easily proven by unfolding the definition of $\rel_{F'}$, applying \ref{eq:F_strong} and unfolding $(\inf\; (=)\; (=))\; \equiv (=)$ for the linearized variables. Strength of an \ac{MRBNF} is a property that often comes in useful, however in Isabelle it is not tracked in the \ac{MRBNF} construct at the moment. At the very least, this proof allows us to easily linearize a linearized \ac{MRBNF} again on further live variables.
-      
+   \subsection{Preservation of strength}
+     \label{subsec:preserve_strength}
+     Linearizing an \ac{MRBNF} preserves its strength property. This means, that for the new $F'$ the following axiom holds, provided that $F$ fulfills \ref{eq:F_strong}:
+     \[
+       \rel_{F'}\; R^{l'}\; x\; y\; \land\; \rel_{F'}\; Q^{l'}\; x\; y \Longrightarrow \rel_{F'}\; (\inf\; R\; Q)^{l'}\; x\; ys
+     \]
+     This is easily proven by unfolding the definition of $\rel_{F'}$, applying \ref{eq:F_strong} and unfolding $(\inf\; (=)\; (=))\; \equiv (=)$ for the linearized variables. Strength of an \ac{MRBNF} is a property that often comes in useful. However, in Isabelle, it is not tracked in the \ac{MRBNF} construct at the moment. At the very least, this proof allows us to easily linearize a linearized \ac{MRBNF} again on further live variables.
+     
 
-  \section{Implementation of the \textbf{linearize\_mrbnf} command}
-  \label{sec:implementation}
-    In this section we implement a new \textbf{linearize\_mrbnf} command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. Our implementation is written as \texttt{.ML} code.
+ \section{Implementation of the \textbf{linearize\_mrbnf} command}
+ \label{sec:implementation}
+   In this section, we implement a new \textbf{linearize\_mrbnf} command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of its live variables. Our implementation is written as \texttt{ML} code.
 
-    \subsection{Command syntax}
-      We give the syntax of the command in the following rail diagram:
-      \input{figures/linearize_rail.tex}\mbox{}\\
+   \subsection{Command syntax}
+     We give the syntax of the command in the following rail diagram:
+     \input{figures/linearize_rail.tex}\mbox{}\\
 
-      \noindent After the name of the command the new \ac{MRBNF} is specified by a \textit{name} and a specification. The specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}} is a list of type variables (\textit{typefree}s), where it is possible (but optional) to give a \textit{name} for the setter associated to a certain \textit{typefree}. We note here, that it is necessary to annotate the \textit{typefree}s corresponding to free and bound variables with the appropriate type class or \textit{sort} as it is shown in the definition of \hypertarget{syntax.tfree}{\hyperlink{syntax.tfree}{\textit{tfree}}}. This also applies to the linearized variables that turn into bound variables.
+     \noindent After the name of the command, the new \ac{MRBNF} is specified by a \textit{name} and a specification. The specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}} is a list of type variables (\textit{typefree}s), where it is possible (but optional) to give a \textit{name} for the setter associated with a certain \textit{typefree}. We note here that it is necessary to annotate the \textit{typefree}s corresponding to free and bound variables with the appropriate type class or \textit{sort} as it is shown in the definition of \hypertarget{syntax.tfree}{\hyperlink{syntax.tfree}{\textit{tfree}}}. This also applies to the linearized variables that turn into bound variables.
 
-      The specification is followed by the type (\textit{typ} in the diagram) that is to be linearized. This type must a registered \ac{BNF}, \ac{MRBNF} or a construct made of (MR)\acp{BNF}, e.g., \type{($\alpha \times \beta$) list}. Furthermore, the type needs to contain the same type variables that are listed in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}, however the same type variable may occur in multiple positions. Type variables must be annotated with the respective type class as in \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
+     The specification is followed by the type (\textit{typ} in the diagram) that is to be linearized. This type must a registered \ac{BNF}, \ac{MRBNF} or a construct made of (MR)\acp{BNF}, e.g., \type{($\alpha \times \beta$) list}. Furthermore, the type needs to contain the same type variables that are listed in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}. However, the same type variable may occur in multiple positions. Type variables must be annotated with the respective type class as in \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
 
-      Next, the user can optionally add witnesses \hypertarget{syntax.wits}{\hyperlink{syntax.wits}{\textit{wits}}} in a list of correctly typed \textit{term}s before specifying the type variables the type should be linearized on in a list separated by \textbf{and}s. 
-      
-      Lastly, custom names for the mapper, relator and predicator can optionally be specified as well as for the definitions of $\nonrep$ and $\eqshape$ and the morphisms $\abs$ and $\rep$. We did not explain the predicator in this thesis, as it is not relevant in this context. It is used to lift unary predicates on atoms of a type to a predicate on the type itself in a similar fashion as the relator lifts binary predicates.
+     Next, the user can optionally add witnesses \hypertarget{syntax.wits}{\hyperlink{syntax.wits}{\textit{wits}}} in a list of correctly typed \textit{term}s before specifying the type variables the type should be linearized on in a list separated by \textbf{and}s. 
+     
+     Lastly, custom names for the mapper, relator, and predicator can optionally be specified, as well as for the definitions of $\nonrep$ and $\eqshape$ and the morphisms $\abs$ and $\rep$. We did not explain the predicator in this thesis, as it is not relevant in this context. It is used to lift unary predicates on atoms of a type to a predicate on the type itself in a similar fashion to how the relator lifts binary predicates.
 
-      If no names are given, the default names are the base name of the constant (map, rel, pred, nonrep, eq\_shape, Abs, Rel) suffixed with "\_<F'>", where <F'> is replaced by the name of the linearized type. Setters without a specified name are named "set<i>\_<F'>", where <i> is replaced with the 1-based index of the corresponding type variable in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
+     If no names are given, the default names are the base name of the constant (map, rel, pred, nonrep, eq\_shape, Abs, Rel) suffixed with "\_<F'>", where <F'> is replaced by the name of the linearized type. Setters without a specified name are named "set<i>\_<F'>", where <i> is replaced with the 1-based index of the corresponding type variable in the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}.
 
-      By writing the following syntactically correct command in Isabelle, we can linearize our example of the list of pairs on the first type variable:
-      \begin{equation*}
-        \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \textsf{alist} = \text{"}(\alpha :: \text{var} \times \beta)\; \textsf{list}\text{"}\; \textbf{on}\; \alpha
-      \end{equation*}
-      This generates the setters with the names "keys" and "vals" once the linearization is completed, while the other constants, definitions and morphisms follow the default naming scheme, e.g., "map\_alist" for the mapper.
+     By writing the following syntactically correct command in Isabelle, we can linearize our example of the list of pairs on the first type variable:
+     \begin{equation*}
+       \textbf{linearize\_mrbnf}\; (\text{keys:}\; \alpha :: \text{var},\; \text{vals:}\; \beta)\; \textsf{alist} = \text{"}(\alpha :: \text{var} \times \beta)\; \textsf{list}\text{"}\; \textbf{on}\; \alpha
+     \end{equation*}
+     This generates the setters with the names "keys" and "vals" once the linearization is completed, while the other constants, definitions, and morphisms follow the default naming scheme, e.g., "map\_alist" for the mapper.
 
-    \subsection{Proof obligations}
-      After the user has written the command in the syntax we introduced above, a number of goals to be proven or "proof obligations" are presented to them. These are the Conditions for linearization we presented in~\autoref{subsec:conditions}, i.e., the non-emptiness of the linear type, strong pullback preservation \ref{eq:in_rel_strong} and the witness axioms \ref{eq:wits} if applicable. 
+   \subsection{Proof obligations}
+     After the user has written the command in the syntax we introduced above, a number of goals to be proven or "proof obligations" are presented to them. These are the Conditions for linearization we presented in~\autoref{subsec:prerequisites}, i.e., the non-emptiness of the linear type, strong pullback preservation \ref{eq:in_rel_strong}, and the witness axioms \ref{eq:wits} if applicable. 
 
-      These goals are internally constructed as terms and given dynamically to the user. For example, it is only necessary to show strong pullback preservation (i.e., show \ref{eq:in_rel_strong}), when the resulting \ac{MRBNF} has live variables remaining. We explained this in Subsections \ref{subsec:conditions} and \ref{subsec:lemmas}. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is only asked to prove the goals that are actually necessary for a specific linearization.
+     These goals are internally constructed as terms and given dynamically to the user. For example, it is only necessary to show strong pullback preservation (i.e., show \ref{eq:in_rel_strong}) when the resulting \ac{MRBNF} has live variables remaining. We explained this in Subsections \ref{subsec:prerequisites} and \ref{subsec:lemmas}. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is only asked to prove the goals that are actually necessary for a specific linearization.
 
-      Furthermore, we simplified the goal that the user has to prove. Since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property from strong pullback preservation. Strong pullback preservation \ref{eq:in_rel_strong} can be proven from the \ref{eq:in_rel} axiom together with the uniqueness property we specify as follows:
-      \begin{align*}
-        \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
-        &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
-        &x = y
-      \end{align*}
+     Furthermore, we simplified the goal that the user has to prove. Since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property from strong pullback preservation. Strong pullback preservation \ref{eq:in_rel_strong} can be proven from the \ref{eq:in_rel} axiom together with the uniqueness property we specify as follows:
+     \begin{align*}
+       \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
+       &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
+       &x = y
+     \end{align*}
 
-      For \type{$(\alpha \times \beta)$ list} in our example, both type variables are live. Since we only linearize on $\alpha$, it is necessary to prove the uniqueness of for preservation for this \ac{MRBNF}, i.e., \ref{eq:PB_unique}. However, it is not necessary to prove the existence of a non-repetitive element, since the empty list $[\:]$ is a witness of the \type{list} type constructor that does not depend on any type variable.
+     For \type{$(\alpha \times \beta)$ list} in our example, both type variables are live. Since we only linearize on $\alpha$, it is necessary to prove the uniqueness of for preservation for this \ac{MRBNF}, i.e., \ref{eq:PB_unique}. However, it is not necessary to prove the existence of a non-repetitive element, since the empty list $[\:]$ is a witness of the \type{list} type constructor that does not depend on any type variable.
 
-    \subsection{Automatization of the proofs}
-      When the user has proven all goals successfully (or, if there were no goals to be proven), the construction of the linearized \ac{MRBNF} begins. The linear subtype is created through a \texttt{ML} version of the \textbf{typedef} command, where the non-emptiness of the resulting type is shown either through the proof of the user or using a witness --- either a lifted one or one specified by the user (see \autoref{subsec:lin_wits}).
+   \subsection{Automatization of the proofs}
+     When the user has proven all goals successfully (or, if there were no goals to be proven), the construction of the linearized \ac{MRBNF} begins. The linear subtype is created through a \texttt{ML} version of the \textbf{typedef} command, where the non-emptiness of the resulting type is shown either through the proof of the user or using a witness --- either a lifted one or one specified by the user (see \autoref{subsec:lin_wits}).
 
-      Thereafter, the definitions of equivalent shape and non-repetitiveness as well as the constants from \autoref{subsec:consts} are constructed and added to the local context. These definitions and constants --- as well as the theorems describing how they are defined --- are visible to the user after the command completes.
+     Thereafter, the definitions of equivalent shape and non-repetitiveness, as well as the constants from \autoref{subsec:consts}, are constructed and added to the local context. These definitions and constants --- as well as the theorems describing how they are defined --- are visible to the user after the command completes.
 
-      Next, the premises and goals of the intermediate lemmas from \autoref{subsec:lemmas} are constructed as terms and are consequently proven through \texttt{ML} tactics. These intermediate lemmas are not visible to the user afterwards. 
+     Next, the premises and goals of the intermediate lemmas from \autoref{subsec:lemmas} are constructed as terms and are consequently proven through \texttt{ML} tactics. These intermediate lemmas are not visible to the user afterwards. 
 
-      As a last step, the linearized \ac{MRBNF} is registered according to the given specifications and the defined constants using an \texttt{ML} version of the \textbf{mrbnf} command. We give a record of \texttt{.ML} tactics to this command so that the \ac{MRBNF} axioms can be shown.
-      
-      The \texttt{ML} tactics automate the proofs we described in Subsections \ref{subsec:lemmas} and \ref{subsec:proving_mrbnf_axioms}. To construct these tactics, we converted the existing high-level apply-style and Isar proofs to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions and deterministic repetitions. In certain cases it is necessary to instantiate free variables in existing theorems and lemmas, for example when an explicit term is introduced to replace an existential quantifier in the goal. This can be challenging in certain cases because the term has to be constructed in a type-correct manner.
+     As a last step, the linearized \ac{MRBNF} is registered according to the given specifications and the defined constants using an \texttt{ML} version of the \textbf{mrbnf} command. We give a record of \texttt{ML} tactics to this command so that the \ac{MRBNF} axioms can be shown.
+     
+     The \texttt{ML} tactics automate the proofs we described in Subsections \ref{subsec:lemmas} and \ref{subsec:proving_mrbnf_axioms}. To construct these tactics, we converted the existing high-level apply-style and Isar proofs to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce}, and even \texttt{simp}. Instead, they rely on explicit rule applications, substitutions, and deterministic repetitions. In certain cases, it is necessary to instantiate free variables in existing theorems and lemmas, for example, when an explicit term is introduced to replace an existential quantifier in the goal. This can be challenging in certain cases because the term has to be constructed in a type-correct manner.
 
-    \subsection{Implementation challenges}
-      In the theoretical part of this thesis we always assumed that the type variables are ordered according to their variable type (lives, frees, bounds, deads). However, for our implementation we have to consider an arbitrary ordering. Furthermore, the subset of lives that are linearized can be an arbitrary one, i.e., they are not necessarily the last $\lin$ of the lives. For constructing lemmas and \texttt{ML} tactics it is easier think of the variables grouped by their variable type, e.g., when defining the map-function, the functions for the frees need to be wrapped by the $\asSS$ function. This is made even more complicated, when considering that the order of type variables in the goal type (defined by the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}) does not necessarily agree with the ordering in the base type. Thus, careful interlacing is required at every step.
+   \subsection{Implementation challenges}
+     In the theoretical part of this thesis, we always assumed that the type variables are ordered according to their variable type (lives, frees, bounds, deads). However, for our implementation, we have to consider an arbitrary ordering. Furthermore, the subset of lives that are linearized can be an arbitrary one, i.e., they are not necessarily the last $\lin$ of the lives. For constructing lemmas and \texttt{ML} tactics, it is easier to think of the variables grouped by their variable type, e.g., when defining the map-function, the functions for the frees need to be wrapped by the $\asSS$ function. This is made even more complicated when considering that the order of type variables in the goal type (defined by the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}) does not necessarily agree with the ordering in the base type. Thus, careful interlacing is required at every step.
 
-      Another challenge is related to the possible complexity of the base type. For the standard substitution tactic in Isabelle it is required to specify the number of occurrences to be substituted. However, for a more complex base type, the sub-term that we want to substitute might occur more often than expected for a simple type. For example, the sub-term $\rep_{F'} \circ \abs_{F'}$ can occur more often than expected if the base type has a complex map function. This could be solved by repeatedly substituting a single occurrence. However, this is inconvenient since it generates multiple versions of the same subgoal, and we want to avoid unbounded repetitions. Thus, we employ a custom tactic that replaces all occurrences of a subgoal. Internally it collects a list of all occurrences of the sub-term, applies a single substitution for each of them and then removes duplicate subgoals. This allows us to conveniently substitute all occurrences of a sub-term without knowing their exact count.
-  
+     Another challenge is related to the possible complexity of the base type. For the standard substitution tactic in Isabelle, it is required to specify the number of occurrences to be substituted. However, for a more complex base type, the sub-term that we want to substitute might occur more often than expected for a simple type. For example, the sub-term $\rep_{F'} \circ \abs_{F'}$ can occur more often than expected if the base type has a complex map function. This could be solved by repeatedly substituting a single occurrence. However, this is inconvenient since it generates multiple versions of the same subgoal, and we want to avoid unbounded repetitions. Thus, we employ a custom tactic that replaces all occurrences of a subgoal. Internally, it collects a list of all occurrences of the sub-term, applies a single substitution for each of them, and then removes duplicate subgoals. This allows us to conveniently substitute all occurrences of a sub-term without knowing its exact count.
+ 
