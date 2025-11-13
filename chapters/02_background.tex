@@ -92,7 +92,7 @@
 
     \subsection{Additional BNF-axioms}
     \label{subsec:bnf_axioms_additional}
-      Additionally to the axioms we already motivated in the previeous subsections (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} and \ref{eq:map_cong} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have three additional ones.
+      Additionally to the axioms we already motivated in the previous Subsections (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} and \ref{eq:map_cong} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have three additional ones.
 
       The axiom \ref{eq:bd} (Fig. \ref{fig:bnf_axioms}) just ensures that the bound $\bd_F$ is a suitable cardinal, i.e., a regular and infinite one.
 
@@ -171,11 +171,11 @@
         &\smash{\map_F\; \fst^{l}\; \id^{\fr}\; \id^b\; z = x \land \map_F\; \snd^{l}\; v^{\fr}\; u^b\; z = y}
       \end{align*}
 
+      The type variables of an \ac{MRBNF} are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least the bound of $F$ $\bd_F$ for datatypes or the cardinal successor $\textsf{cardSuc} \bd_F$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes. For the cases where $\bd_F = \aleph_0$, predefined \texttt{var} and \texttt{covar} implement the appropriate requirements.
+
     \subsection{Datatypes with bindings}
     \label{subsec:binders}
-      \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a datatype with bindings. 
-
-      In the resulting \ac{MRBNF} the free and bound type variables are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least the bound of $F$ $\bd_F$ for datatypes or the cardinal successor $\textsf{cardSuc} \bd_F$ for codatatypes. In Isabelle the requirements of largeness and regularity are combined in dedicated type classes. For the cases where $\bd_F = \aleph_0$, predefined \texttt{var} and \texttt{covar} implement the appropriate requirements.
+      \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a binding aware datatype. 
 
       We call \acp{MRBNF} declared through this command \textit{binder-datatypes}
 

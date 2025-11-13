@@ -154,6 +154,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
       \end{align*}
 
     \subsection{Defining the subtype and its constants}
+    \label{subsec:consts}
       Using our definition of non-repetitiveness, we carve out a subtype of $F$ using Isabelle's \textbf{typedef} command. This subtype $F'$ contains exactly those elements from $F$ that are non-repetitive on the linearized variables $\alpha_{l'+1} \dots \alpha_\lin$. It furthermore provides us with the morphisms $\rep_{F'}$ to convert $F'$ elements to the type $F$ and $\abs_{F'}$ to convert $F$ elements to $F'$ --- provided that they are non-repetitive.
 
       In the following we specify the \ac{MRBNF} constants, i.e., the mapper, setters, bound and relator for $F'$. We define these in terms of the base type's constants and apply the morphisms to match the types: For the setters, $\rep_{F'}$ is applied to the argument before applying the appropriate setter of $F$ to it. Since this does not change the set that is outputted, we can use the bound of $F$ for $F'$. For the relator, the relations for the linearized lives are fixed to the equality relation, since in the new \ac{MRBNF} these will be bounds. Lastly, for the mapper we only allow it to map bijective functions on the linearized variables in addition to the restrictions for the existing frees and bounds. This restriction is necessary to ensure that applying the map function to a $F'$ element preserves it non-repetitiveness. If a function that violates any of the restrictions is given to the mapper, it is ignored and not applied.
@@ -167,7 +168,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
       \end{align*}
       where we enforce bijectivity of the $g^\lin$ and $u^b$ using $\asBij f = \texttt{if}\; \textsf{bijective}\; f\; \texttt{then}\; f\; \texttt{else}\; \id$. Analogously, both $v^\fr$ and $u^b$ are enforced to be small-support functions using an analogously defined $\asSS$.
       
-    \subsection{Proving the MRBNF axioms}
+    \subsection{Proving MRBNF axioms}
     \label{subsec:proving_mrbnf_axioms}
       To show that $F'$ is a \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. For most of the axioms this is straight-forward, as they only require unfolding the definitions of the new $F'$ constants, applying the axioms of the original $F$ and a few simple transformations. The axioms \ref{eq:map_id}, \ref{eq:map_cong} and \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. 
       
@@ -230,7 +231,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
 
   \section{Implementation of the \textbf{linearize\_mrbnf} command}
   \label{sec:implementation}
-    In this section we implement a new \textbf{linearize\_mrbnf} command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables.
+    In this section we implement a new \textbf{linearize\_mrbnf} command that allows the user to linearize an existing \ac{MRBNF} or \ac{BNF} on one or multiple of it's live variables. Our implementation is written as \texttt{.ML} code.
 
     \subsection{Command syntax}
       We give the syntax of the command in the following rail diagram:
@@ -255,9 +256,9 @@ This chapter explains the theoretical definitions and steps for linearizing an a
     \subsection{Proof obligations}
       After the user has written the command in the syntax we introduced above, a number of goals to be proven or "proof obligations" are presented to them. These are the Conditions for linearization we presented in~\autoref{subsec:conditions}, i.e., the non-emptiness of the linear type, strong pullback preservation \ref{eq:in_rel_strong} and the witness axioms \ref{eq:wits} if applicable. 
 
-      These goals are dynamically generated for the user. For example, it is only necessary to show strong pullback preservation \ref{eq:in_rel_strong}, when the resulting \ac{MRBNF} has live variables remaining. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is not asked to show the goals that are actually necessary for a specific linearization.
+      These goals are internally constructed as terms and given dynamically to the user. For example, it is only necessary to show strong pullback preservation (i.e., show \ref{eq:in_rel_strong}), when the resulting \ac{MRBNF} has live variables remaining. We explained this in Subsections \ref{subsec:conditions} and \ref{subsec:lemmas}. Furthermore, as mentioned in \autoref{subsec:lin_wits}, the non-emptiness of the non-repetitive type is easily proven when the user specified a non-emptiness witness, or a liftable witness of the original type exists. The user is only asked to prove the goals that are actually necessary for a specific linearization.
 
-      Furthermore, we simplified the goal the user has to prove. Since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property from strong pullback preservation. Strong pullback preservation \ref{eq:in_rel_strong} can be proven from the \ref{eq:in_rel} axiom together with the uniqueness property we specify as follows:
+      Furthermore, we simplified the goal that the user has to prove. Since the original \ac{MRBNF} already fulfills weak pullback preservation, we extract the uniqueness property from strong pullback preservation. Strong pullback preservation \ref{eq:in_rel_strong} can be proven from the \ref{eq:in_rel} axiom together with the uniqueness property we specify as follows:
       \begin{align*}
         \forall x\; y.\; (&\map_F\; \fst^l\; \id^\fr\; \id^b\; x = \map_F\; \fst^l\; \id^\fr\; \id^b\; y\; \land \tag{\textsc{PB\_unique}}\label{eq:PB_unique}\\
         &\map_F\; \snd^l\; \id^\fr\; \id^b\; x = \map_F\; \snd^l\; \id^\fr\; \id^b\; y)\Longrightarrow\\ 
@@ -267,9 +268,18 @@ This chapter explains the theoretical definitions and steps for linearizing an a
       For \type{$(\alpha \times \beta)$ list} in our example, both type variables are live. Since we only linearize on $\alpha$, it is necessary to prove the uniqueness of for preservation for this \ac{MRBNF}, i.e., \ref{eq:PB_unique}. However, it is not necessary to prove the existence of a non-repetitive element, since the empty list $[\:]$ is a witness of the \type{list} type constructor that does not depend on any type variable.
 
     \subsection{Automatization of the proofs}
-      The proofs of the intermediate lemmas from \autoref{subsec:lemmas} and \ac{MRBNF} axioms are automated through \texttt{ML}-tactics. For this the existing high-level apply-style and Isar proofs were converted to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions and deterministic repetitions. In certain cases it is necessary to instantiate free variables in existing theorems and lemmas, for example when an explicit term is introduced to replace an existential quantifier in the goal. This can be challenging in certain cases because the term has to be constructed in a type-correct manner.
+      When the user has proven all goals successfully (or, if there were no goals to be proven), the construction of the linearized \ac{MRBNF} begins. The linear subtype is created through a \texttt{ML} version of the \textbf{typedef} command, where the non-emptiness of the resulting type is shown either through the proof of the user or using a witness --- either a lifted one or one specified by the user (see \autoref{subsec:lin_wits}).
 
-    % Order of vars? Other challenges? (instantiations, complexity of the base type => custom proof tactic subst)
-    % Notifications?
+      Thereafter, the definitions of equivalent shape and non-repetitiveness as well as the constants from \autoref{subsec:consts} are constructed and added to the local context. These definitions and constants --- as well as the theorems describing how they are defined --- are visible to the user after the command completes.
 
+      Next, the premises and goals of the intermediate lemmas from \autoref{subsec:lemmas} are constructed as terms and are consequently proven through \texttt{ML} tactics. These intermediate lemmas are not visible to the user afterwards. 
+
+      As a last step, the linearized \ac{MRBNF} is registered according to the given specifications and the defined constants using an \texttt{ML} version of the \textbf{mrbnf} command. We give a record of \texttt{.ML} tactics to this command so that the \ac{MRBNF} axioms can be shown.
+      
+      The \texttt{ML} tactics automate the proofs we described in Subsections \ref{subsec:lemmas} and \ref{subsec:proving_mrbnf_axioms}. To construct these tactics, we converted the existing high-level apply-style and Isar proofs to single-step apply proofs. These proofs avoid using the automatic proof tactics of Isabelle like \texttt{metis}, \texttt{auto}, \texttt{fastforce} and even \texttt{simp}. Instead they rely on explicit rule applications, substitutions and deterministic repetitions. In certain cases it is necessary to instantiate free variables in existing theorems and lemmas, for example when an explicit term is introduced to replace an existential quantifier in the goal. This can be challenging in certain cases because the term has to be constructed in a type-correct manner.
+
+    \subsection{Implementation challenges}
+      In the theoretical part of this thesis we always assumed that the type variables are ordered according to their variable type (lives, frees, bounds, deads). However, for our implementation we have to consider an arbitrary ordering. Furthermore, the subset of lives that are linearized can be an arbitrary one, i.e., they are not necessarily the last $\lin$ of the lives. For constructing lemmas and \texttt{ML} tactics it is easier think of the variables grouped by their variable type, e.g., when defining the map-function, the functions for the frees need to be wrapped by the $\asSS$ function. This is made even more complicated, when considering that the order of type variables in the goal type (defined by the specification \hypertarget{syntax.spec}{\hyperlink{syntax.spec}{\textit{spec}}}) does not necessarily agree with the ordering in the base type. Thus, careful interlacing is required at every step.
+
+      Another challenge is related to the possible complexity of the base type. For the standard substitution tactic in Isabelle it is required to specify the number of occurrences to be substituted. However, for a more complex base type, the sub-term that we want to substitute might occur more often than expected for a simple type. For example, the sub-term $\rep_{F'} \circ \abs_{F'}$ can occur more often than expected if the base type has a complex map function. This could be solved by repeatedly substituting a single occurrence. However, this is inconvenient since it generates multiple versions of the same subgoal, and we want to avoid unbounded repetitions. Thus, we employ a custom tactic that replaces all occurrences of a subgoal. Internally it collects a list of all occurrences of the sub-term, applies a single substitution for each of them and then removes duplicate subgoals. This allows us to conveniently substitute all occurrences of a sub-term without knowing their exact count.
   
