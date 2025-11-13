@@ -5,10 +5,9 @@
 \label{chapter:background}
 % TODO cite Isabelle datatype pdf
 
-% NOTATION, Vocabulary? 
-
   This Chapter serves to introduce \acfp{BNF} and their generalization to \acfp{MRBNF}. Note, that when we use the notion "element" of a $n$-ary type constructor $F$, we are always talking about a term of type $(\alpha^n)\; F$. In contrast to that, we call the $\alpha_i$ elements that make up a $F$ element "atoms". The structure of the $F$ element dictates how and where the atoms occur in it.
   \section{Bounded Natural Functors (BNFs)}
+    \label{sec:BNF}
     As described in \autoref{chapter:introduction}, \acp{BNF} are essential for constructing datatypes and codatatypes in Isabelle/HOL. Especially for defining a datatype with recursion it is required that the type constructor used in that recursion is registered as a \ac{BNF}, i.e., it fulfills the \ac{BNF} axioms. For example the following \textbf{datatype} command only succeeds if \type{$\alpha$ list} and $(\alpha \times \beta)$, are \acp{BNF}.
     \begin{equation*}
       \textbf{datatype}\; \alpha\; \textsf{ex} = \text{A}\; \text{"}((\alpha \times \alpha)\; \textsf{ex})\; \textsf{list}\text{"}
@@ -17,14 +16,14 @@
     
     We write type variables as greek letters ($\alpha$, $\beta$, \dots) in this thesis. However, in the Isabelle proof assistant type variables are written with a "'" in front of a name, e.g., 'a~\textsf{list}. To copy our examples to Isabelle, one has to replace these greek letters with "'" variables. Alternatively, a "'" can be prepended to the greek letters, since for example '$\alpha$ is a valid type variable in Isabelle.
 
-    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Recursive occurences may appear only in positions corresponding to live variables when defining a new datatype. Dead variables do not allow for this. We take the function type $\alpha \Rightarrow \beta$ as an example. It's first type argument $\alpha$ is dead, while the second one $\beta$ is live. Thus, of the following the first command succeeds while the second one fails:
+    The type variables of a \ac{BNF} are divided into two groups: \textit{live} and \textit{dead} variables or \textit{lives} and \textit{deads}. Recursive occurrences may appear only in positions corresponding to live variables when defining a new datatype. Dead variables do not allow for this. We take the function type $\alpha \Rightarrow \beta$ as an example. It's first type argument $\alpha$ is dead, while the second one $\beta$ is live. Thus, of the following the first command succeeds while the second one fails:
     \begin{align*}
       &\textbf{datatype}\; \alpha\; \textsf{success} = \text{S1}\; |\; \text{S2 "}\alpha \Rightarrow \alpha\; \textsf{success}\text{"}\\
       &\textbf{datatype}\; \alpha\; \textsf{fail} = \text{F1}\; |\; \text{F2 "}\alpha\; \textsf{fail} \Rightarrow \alpha\text{"}
     \end{align*}
     The reason for this failure is, that certain properties have to hold for a \ac{BNF} with regard to its live variables. These properties are necessary for the internal construction of a newly specified type. A variable is dead when it has to be omitted such that these axioms hold, which is the case for the first type variable of the function type.
 
-    These properties --- or "\ac{BNF} axioms" as we call them --- are formalized in terms of constnts that characterize a \ac{BNF}. For a \ac{BNF} $F$ with $l$ live variables these are one $l+1$-ary map function, $l$ set functions, a bound and a $l+2$-ary relator. In the following Subsections \ref{subsec:map} to \ref{subsec:rel} we define these constants and motivate the \ac{BNF} axioms that we formalize in \autoref{fig:bnf_axioms}. We use the notation $f^l = f_1 \dots f_l$ for the arguments of the mapper and similarly $R^l = R_1 \dots R_l$ for the relator. Note that we extend this notation to binary (infix and prefix) operations $\op$ on functions and relations as follows: $(R^l \op Q^l) = (R_1 \op Q_1)\dots (R_l \op Q_l)$ and $(\op\; R^l\; Q^l) = (\op\; R_1\; Q_1) \dots (\op\; R_l\; Q_l)$.
+    These properties --- or "\ac{BNF} axioms" as we call them --- are formalized in terms of constants that characterize a \ac{BNF}. For a \ac{BNF} $F$ with $l$ live variables these are one $l+1$-ary map function, $l$ set functions, a bound and a $l+2$-ary relator. In the following Subsections \ref{subsec:map} to \ref{subsec:rel} we define these constants and motivate the \ac{BNF} axioms that we formalize in \autoref{fig:bnf_axioms}. We use the notation $f^l = f_1 \dots f_l$ for the arguments of the mapper and similarly $R^l = R_1 \dots R_l$ for the relator. Note that we extend this notation to binary (infix and prefix) operations $\op$ on functions and relations as follows: $(R^l \op Q^l) = (R_1 \op Q_1)\dots (R_l \op Q_l)$ and $(\op\; R^l\; Q^l) = (\op\; R_1\; Q_1) \dots (\op\; R_l\; Q_l)$.
 
     \begin{figure}[!hb]
       \centering
@@ -90,7 +89,7 @@
       Considering the list type again, we make an interesting observation: There are some \type{$\alpha$ list}s $x$ and $y$ that the relator cannot relate, no matter which $\alpha$ relation is chosen. The relator on lists is defined index-wise, i.e., the $\alpha$ relation must relate the elements of both lists for each index. Consequently lists of different length cannot be positively related. We think of the length of a list as its \textit{shape}. We can generalize this idea of shape to an arbitrary type constructor $F$. The shape of an $F$ element is defined by the way it is constructed and the relator can only ever relate those that have the same or equivalent shape, i.e., it will always evaluate to $\mathit{false}$, when two elements of different shape are given, regardless of the relations given to the relator. We can think of an element of type $F$ as a container that has a certain \textit{shape} with slots for \textit{atoms}. These atoms are elements of the type constructor's type arguments.
       % TODO Explain how F elements are constructed
 
-    \subsection{Additional BNF-axioms}
+    \subsection{Additional BNF axioms}
     \label{subsec:bnf_axioms_additional}
       Additionally to the axioms we already motivated in the previous Subsections (\ref{eq:map_id} and \ref{eq:map_comp} for the functoriality of $F$, \ref{eq:set_map} and \ref{eq:map_cong} to ensure that the setters are natural transformations and the boundedness of the setters \ref{eq:set_bd}), we have three additional ones.
 
@@ -98,7 +97,7 @@
 
       The relator is required to be distributive, i.e., it should fulfill $(\rel_F\; R^l\; \bullet\; \rel_F\; Q^l)\; x\; y = \rel_F\; (R\; \bullet\; Q)^l\; x\; y$. We note here, that for showing that a type constructor is a \ac{BNF}, it is only necessary to prove the implication stated in \ref{eq:rel_compp} (Fig. \ref{fig:bnf_axioms}). The other direction of the implication follows automatically.
 
-      Lastly, \ref{eq:in_rel} (Fig. \ref{fig:bnf_axioms}) characterizes the relator. It is the most abstract and complex axiom but we want to give an intuition about it here: The idea is that two elements $x$ and $y$ of the type $(\alpha^l)\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are $R_i$-related pairs of the atoms of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$. This axiom (\ref{eq:in_rel}) together with the previeous one (\ref{eq:in_rel}) ammounts to \textit{weak pullback preservation} of the \ac{BNF}.
+      Lastly, \ref{eq:in_rel} (Fig. \ref{fig:bnf_axioms}) characterizes the relator. It is the most abstract and complex axiom but we want to give an intuition about it here: The idea is that two elements $x$ and $y$ of the type $(\alpha^l)\; F$ are related through a relation $R$ iff there exists a $z$ that acts as a "zipped" version of $x$ and $y$. The atoms of this $z$ are $R_i$-related pairs of the atoms of $x$ and $y$, where the first position in the pair corresponds to $x$ and the second one to $y$. This axiom (\ref{eq:in_rel}) together with the previous one (\ref{eq:in_rel}) amounts to \textit{weak pullback preservation} of the \ac{BNF}.
 
     \subsection{Non-emptiness witnesses}
       \label{subsec:bnf_wits}
@@ -123,17 +122,23 @@
         \end{align*}
       To show that \type{($\alpha$, $\beta$) plist} is a \ac{BNF}, we have to prove the \ac{BNF} axioms for it. Besides the definitions above, we give $\aleph_0$ as the bound $\bd_\textsf{plist}$.
 
-  \section{Syntaxes with bindings}
-    WIP: Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
+%  \section{Syntaxes with bindings}
+%    We recall the example of lambda calculus terms with parallel let bindings from the introduction (\autoref{chapter:introduction}) and state their syntax again:
+%    \[
+%      \mathtt{t} := \mathtt{x}\; |\; (\lambda x.\; t)\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; \texttt{let } \mathtt{x}_1 = \mathtt{t}_1 \texttt{ and } \dots \texttt{ and } \mathtt{x}_n = \mathtt{t}_n \texttt{ in } \mathtt{t}_{n+1}
+%    \]
+    
+%    WIP: Considering a polymorphic type that is meant to represent simple $\lambda$-terms, where $\alpha$ is the space of variable names. If we want to substitute a free variable $x$ in a term $T$ by a term $N$, we may run into the following problem: If $T = \lambda y. T'$, we need to ensure that there are no name clashes with $y$ in the new term $N$ before we substitute $x$ by $N$ in $T'$. This is done by choosing a fresh $y'$ and renaming $y$ to $y'$ in $T'$. 
 
   \section{Map-Restricted Bounded Natural Functors (MRBNFs)}
+    \label{sec:MRBNF}
     Type constructors that involve names or bindings often violate the requirements of \ac{BNF}s. An example of this is the type of key-value lists \type{$\alpha$ $\beta$ alist} with $\alpha$ as the type of keys. This is a subtype of the previously defined \type{$\alpha$ $\beta$ plist} that describes only lists of pairs that are pairwise distinct on the first elements, i.e., the $\alpha$ atoms. We call it key-value list since one can think of the first atom of each pair as a distinct key that identifies a value, i.e., the second atom.
 
     The main issue with this type is that the map function we defined in \autoref{subsec:BNF_examples} for \type{plist} cannot be used for \type{alist} right away. The reason is, that it cannot guarantee that the list that results from the map is still distinct on $\alpha$, i.e., that it is still a member of the type. Thus, in \ac{BNF} terms the type variable $\alpha$ of \type{($\alpha$, $\beta$) alist} is dead, which is a huge drawback for the versatility of the type. For example, using \type{($\alpha$, $\beta$) alist} in a \textbf{datatype} command would kill $\alpha$ also in the resulting datatype effectively disabling any map functions on that type variable. However, by enforcing that only \textit{bijections} are mapped over $\alpha$, we can ensure that the result of a map on an \type{alist} still fulfills the distinctness property of the type. We note here, that there might exist a map function with which \type{alist} could be proven to be a \ac{BNF} with two live variables. However, is is not obvious how this map function should be defined.
 
     \acp{MRBNF} are a generalization of \acp{BNF}. Restricting the map function of a functor to \textit{small-support} functions or \textit{small-support bijections} for certain type variables allows us to reason about type constructors in terms of \ac{BNF} properties, even in cases where this would not be possible otherwise. Concretely, it allows us to include type variables in the mapper that would be considered \textit{dead} from a \ac{BNF} point of view. We can reason about these variables in terms of the \ac{BNF} axioms (Fig. \ref{fig:bnf_axioms}) with a few restrictions and consequently use them in recursive definitions of binder-datatypes under certain conditions. This is explained in more detail in \autoref{subsec:binders}.
     
-    We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is a \ac{MRBNF} with $\alpha$ as a bound variable.
+    We call type variables that that are restricted to small-support functions \textit{free} variables or \textit{frees} and those restricted to small-support bijections \textit{bound} variables or \textit{bounds}. This allows us to define \acp{MRBNF} with four types of variables (lives, frees, bounds and deads) as opposed to \acp{BNF} which only distinguish between lives and deads. Our example from the beginning of this section, the distinct list \type{$\alpha$ dlist} is an \ac{MRBNF} with $\alpha$ as a bound variable.
 
     A small-support function leaves most arguments unchanged, meaning it acts as the identity function on them. Concretely defined, the cardinality of the set of arguments the function changes must be smaller than the cardinality of the argument type itself: 
     \begin{align*}
@@ -141,9 +146,9 @@
       \text{\footnotesize where $\Omega_\alpha$ is the universe of type $\alpha$.}
     \end{align*}
 
-    For a \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. We note here, that any small-support function acts as the identity function at least for "some" (actually for "most") inputs and thus its domain type and range type are the same. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the live type variables may be changed through a map.
+    For an \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees and $b$ bounds we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. We note here, that any small-support function acts as the identity function at least for "some" (actually for "most") inputs and thus its domain type and range type are the same. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the live type variables may be changed through a map.
 
-    As before, we use the notation $f^l = f_1 \dots f_l$ for functons and $R^l = R_1 \dots R_l$ for ralations on the live variables. Analogously we write $v^\fr$ and $u^b$ for functions on frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. As an example, the mapper of the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free and $\gamma$ is bound has the following type:
+    As before, we use the notation $f^l = f_1 \dots f_l$ for functions and $R^l = R_1 \dots R_l$ for relations on the live variables. Analogously we write $v^\fr$ and $u^b$ for functions on frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. As an example, the mapper of the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free and $\gamma$ is bound has the following type:
     \[
       \map_F ::\; (\alpha \Rightarrow \alpha) \Rightarrow (\beta \Rightarrow \beta) \Rightarrow (\gamma \Rightarrow \gamma) \Rightarrow (\alpha,\; \beta,\; \gamma)\; F \Rightarrow (\alpha,\; \beta,\; \gamma)\; F
     \]
@@ -175,12 +180,14 @@
 
     \subsection{Datatypes with bindings}
     \label{subsec:binders}
-      \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a binding aware datatype. 
+      \acp{MRBNF} can be used in a \textbf{binder\_datatype} command to produce a binding aware datatype. We consider the example from the introduction (\autoref{chapter:introduction}) again, where we defined a binder datatype to represent lambda terms with parallel let bindings:
+      \begin{align*}
+        &\textbf{binder\_datatype}\; \alpha\; \textsf{ltrm} = \text{Var}\; \alpha\; | \;\text{App}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\; \text{"}\alpha\; \textsf{ltrm}\text{"}\\
+        &\indent | \;\text{Abs}\; \text{\texttt{x}::}\alpha\; \text{\texttt{t}::"}\alpha\; \textsf{ltrm}\text{"}\; \textbf{binds}\; \texttt{x}\; \textbf{in}\; \texttt{t}\\
+        &\indent | \;\text{Let}\; \text{"}(\text{\texttt{fs}::}\alpha, \text{\texttt{t}::}\alpha\; \textsf{ltrm})\; \textsf{alist}\text{"}\; \text{"\texttt{u}::}\alpha\; \textsf{ltrm}\text{"}\; \textbf{binds}\; \texttt{fs}\; \textbf{in}\; \texttt{t}\; \texttt{u}
+      \end{align*}
+      The core difference we notice compared to to a regular datatype definition, are the names given to certain components (e.g., \texttt{x}::$\alpha$) and the usage of these names to declare bindings (e.g., \textbf{binds} \texttt{x} \textbf{in} \texttt{t}). For the abstraction case Abs, this declaration means that for a term $\text{Abs}\; x\; t$, the variable $x$ is considered bound in $t$. 
+      
+      In general, any name occurring between \textbf{binds} and \textbf{in} corresponds to a type variable that is to be bound. In contrast to that, a name that occurs after the \textbf{in} corresponds to a recursive occurrence of the datatype in which the variables are being bound. Most importantly, the \textbf{binder\_datatype} command allows us to use a \ac{MRBNF} with bound variables in the definition of a datatype, if the bound variables correspond to type variables that are to be bound.
 
-      We call \acp{MRBNF} declared through this command \textit{binder-datatypes}
-
-      % TODO maybe explain more? induction
-
-      TODO: more + cite \cite{blanchette2019bindings}
-    % binder_datatype command
-
+      The result of this command is a binding aware datatype. This datatype considers $\alpha$-equivalent terms equal, i.e., it is quotiented by alpha equivalence, supports capture free variable substitution and features relevant for reasoning about lambda terms or other syntaxes with bindings. More details about the details on how these are given by Blanchette et al.~\mbox{\cite[§5]{blanchette2019bindings}}.

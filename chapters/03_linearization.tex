@@ -3,10 +3,11 @@
 
 \chapter{Linearizing MRBNFs}
 \label{chapter:linearizing}
-This chapter explains the theoretical definitions and steps for linearizing an arbitrary \ac{MRBNF}. We state necessary conditions for the linearization and sketch out proofs for a few intermediate lemmas that help us to to construct the new linearized \ac{MRBNF}. Afterwards we describe the command syntax and details about its implementation in \autoref{sec:implementation}.
+This chapter explains the theoretical definitions and steps for linearizing an arbitrary \ac{MRBNF}. We state necessary conditions for the linearization and sketch out proofs for a few intermediate lemmas that help us to to construct the new linearized \ac{MRBNF}. We note here, that the theory we present in \autoref{sec:theory} is a generalization of a example by Blanchette et al.~\cite{blanchette2019bindings}. This example is the linearization of an \ac{MRBNF} in Isabelle/HOL. After the theory we describe the syntax of our new \textbf{linearize\_mrbnf} command and details about its implementation in \autoref{sec:implementation}.
 
-\section{Theory}
-  In this section we define the linearization of a \ac{MRBNF} $F$ on a subset of it's \textit{live} variables. Linearization means, that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also a \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
+\section{Theory of linearization}
+  \label{sec:theory}
+  In this section we define the linearization of an \ac{MRBNF} $F$ on a subset of it's \textit{live} variables. Linearization means, that the resulting type only contains elements for which all atoms of the linearized variables are distinct. We say $F$ is \textit{non-repetitive} on these variables. This type is also an \ac{MRBNF} with the same variable types (\textit{live}, \textit{free}, \textit{bound}, \textit{dead}), except for the linearized variables that change their type from \textit{live} to \textit{bound}. This means that the new map function is restricted to only allow bijective and small-support functions on these variables. 
 
   We formalize the idea of distinctness of atoms as \textit{non-repetitiveness} on the linearized variables. In our notation we use $\lin \leq l$ to refer to the number of linearized variables. Furthermore, we assume the variables that we linearize on to be the the \textit{last} $\lin$ of the live variables. Consequently, the first $l' = l - \lin$ lives of $F$ are not linearized.
 
@@ -55,7 +56,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
         \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; (\inf\; R\; Q)^l\; x\; y \tag{\textsc{F\_strong}}\label{eq:F_strong}
       \end{equation*} 
       Here the infimum $\inf$ of two relations $R_i$ and $Q_i$ relates exactly those elements that are related by both $R_i$ and $Q_i$. 
-      To prove this lemma we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or a \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:in_rel_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words any two $z$ and $z'$ fulfilling this condition must be equal.
+      To prove this lemma we first conclude that since $x$ and $y$ are related through some relations, they are also related with the $\top$-relation on all lives. This is the case since the relator or an \ac{MRBNF} is monotonic and $\top$ relates all atoms with each other. Unfolding \ref{eq:in_rel_strong} on that, we can eliminate the subset conditions for the setters, since the right sides of the subsets are just the universe of pairs with appropriate type. The reason for this is the $\top$-relation that is fulfilled by every pair in this set. This now gives us the knowledge that there exists exactly one $z$ that is the "zipped" version of $x$ and $y$, or in other words any two $z$ and $z'$ fulfilling this condition must be equal.
       \begin{align*}
         &\rel_F\; R^l\; x\; y\\
         \Longrightarrow\; &\rel_F\; (\top)^l\; x\; y &\text{$\rel_F$ mono}\\
@@ -86,7 +87,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
     \label{par:rel_exchange}
       The \textit{exchange of relations} is a consequence of the previous property, \ref{eq:F_strong}: If two elements $x$ and $y$ are related through the relator with two different lists $R^l = R_1 \dots R_l$ and $Q^l = Q_1 \dots Q_l$ of atom-level relations, then $x$ and $y$ are also related with any index-wise combination of $R^l$ or $Q^l$. For each index $i$ either the relation $R_i$ or $Q_i$ is selected. 
       
-      For our purpose of linearization, we are specifically interested in the case, where for all live variables that we linearize on the relation from $R^l$ is chosen and for all others the relation from $Q^l$ relation, i.e., $Q^{l'}\; R^\lin$. This results in the following lemma for a \ac{MRBNF} $F$:
+      For our purpose of linearization, we are specifically interested in the case, where for all live variables that we linearize on the relation from $R^l$ is chosen and for all others the relation from $Q^l$ relation, i.e., $Q^{l'}\; R^\lin$. This results in the following lemma for an \ac{MRBNF} $F$:
       \begin{equation*}
         \rel_F\; R^l\; x\; y\; \land\; \rel_F\; Q^l\; x\; y \Longrightarrow \rel_F\; \langle Q^{l'}\; R^\lin \rangle\; x\; y \tag{\textsc{rel\_exchange}}\label{eq:rel_exchange}
       \end{equation*} 
@@ -170,7 +171,7 @@ This chapter explains the theoretical definitions and steps for linearizing an a
       
     \subsection{Proving MRBNF axioms}
     \label{subsec:proving_mrbnf_axioms}
-      To show that $F'$ is a \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. For most of the axioms this is straight-forward, as they only require unfolding the definitions of the new $F'$ constants, applying the axioms of the original $F$ and a few simple transformations. The axioms \ref{eq:map_id}, \ref{eq:map_cong} and \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. 
+      To show that $F'$ is an \ac{MRBNF}, we have to prove the axioms from \autoref{fig:bnf_axioms} for it. For most of the axioms this is straight-forward, as they only require unfolding the definitions of the new $F'$ constants, applying the axioms of the original $F$ and a few simple transformations. The axioms \ref{eq:map_id}, \ref{eq:map_cong} and \ref{eq:set_bd} are proven this way, while \ref{eq:map_comp} and \ref{eq:set_map} require just a little more effort. Both contain the composition of $\map_{F'}$ or $\set_{F'}$ with $\map_{F'}$, respectively. 
       
       As an example we show \ref{eq:set_map} for $F'$ below. Note that we assume $i$ to be in the range $1 \leq i \leq \vs$ where $\vs$ is the number of all non-dead type variables, i.e., $\vs = l + \fr + b$. The proof works the same for setters of frees and bounds. Furthermore we assume all functions $f^\vs$ fulfilling their respective requirements (bijectivity and small-support) and thus all $\asBij$ and $\asSS$ evaluating to the \texttt{then} case.
       \begin{align*}
@@ -215,13 +216,14 @@ This chapter explains the theoretical definitions and steps for linearizing an a
 
       For this it is necessary to show that they are non-repetitive on the linearized elements, i.e., that they are part of the new type. From \ref{eq:wits} (\autoref{subsec:bnf_wits}) we know that any witness not depending on the linearized lives does not contain atoms from these lives. Thus, we can show that these witnesses are non-repetitive, since an element with no $\alpha$ atoms is trivially non-repetitive on $\alpha$.
 
-      Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of a \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
+      Other witnesses that depend on the linearized variables cannot be lifted and have to be discarded. Even if they are non-repetitive, witnesses of an \ac{MRBNF} may only depend on lives and not on bounds, which the linearized lives turn into. 
 
       Additionally, new witnesses may be specified for the resulting \ac{MRBNF}. For these the property \ref{eq:wits} defined in \autoref{subsec:bnf_wits} has to be proven, i.e., that they only consist of the atoms given to them as arguments. Furthermore, it has to be shown that they are part of the type, i.e., that they are non-repetitive.
 
       When an liftable witness of the original \ac{MRBNF} exists or a new witness fulfilling \ref{eq:wits} is specified, the existence of a non-repetitive element we motivated in \autoref{subsec:conditions} is trivially proven.
 
     \subsection{Preservation of strength}
+      \label{subsec:preserve_strength}
       Linearizing an \ac{MRBNF} preserves the strength property of it. This means, that for the new $F'$ the following axiom holds, provided that $F$ fulfills \ref{eq:F_strong}:
       \[
         \rel_{F'}\; R^{l'}\; x\; y\; \land\; \rel_{F'}\; Q^{l'}\; x\; y \Longrightarrow \rel_{F'}\; (\inf\; R\; Q)^{l'}\; x\; ys

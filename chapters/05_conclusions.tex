@@ -3,7 +3,17 @@
 
 \chapter{Conclusions and future Work}
 \label{chapter:conclusions}
+  In this thesis we introduced theoretical steps for \textit{linearizing} \acfp{MRBNF} in Isabelle/HOL. Based on the existing theory of \ac{BNF} and \ac{MRBNF} we formalized the notion of linearization as defining the subtype of a \ac{MRBNF} that contains only \textit{non-repetitive} elements, i.e., elements without repeating atoms. Furthermore, We proved that the resulting type again satisfies the \ac{MRBNF} axioms.
+  We implemented this process in the new \textbf{linearize\_mrbnf} command, which automates the creation of linear types and the associated proofs.
+  Furthermore, we demonstrated an application of the command to the POPLmark Challenge. Thereby, we showed how the command simplifies the construction of a linear type and how it integrates with the \textbf{binder\_datatype} package.
 
-  \paragraph{}\mbox{}\\
-  For future work we will note \dots
-  % TODO: Future Work: Don't require proof of MRBNF!
+  \paragraph{Future work}\mbox{}\\
+  We want to motivate two additions to the datatype and binder datatype packages that will streamline the integration of our new \textbf{linearize\_mrbnf} command in the definition of new binding aware datatypes. 
+
+  For our first proposal we consider the preliminary, non-linearized type \type{($\alpha$, $\beta$) prepat} from \autoref{chapter:examples} again. While we talk about this type only in terms of an \ac{MRBNF}, it is not registered as one right away in the current state of the Isabelle/HOL packages. We define \type{prepat} with the \textbf{datatype} command that only considers \acp{BNF}. As we stated in \autoref{chapter:examples}, \type{$\alpha$ typ} is a \ac{MRBNF} with $\alpha$ as a free variable. However, in the view of \acp{BNF}, free and bound variables are considered dead. Thus, $\alpha$ is dead for \type{($\alpha$, $\beta$) prepat} as well, since it uses \type{$\alpha$ typ} in its definition. Thus, for now it is necessary to register \type{($\alpha$, $\beta$) prepat} with appropriately defined map and set functions as an \ac{MRBNF}. This requires calling the \textbf{mrbnf} command and proving the \ac{MRBNF} axioms manually.
+  
+  We propose an integration of \acp{MRBNF} into the \textbf{datatype} command to allow users to recursively build complex \acp{MRBNF} from simpler ones without killing free and bound variables in the process. This would solve the issue mentioned above, since \type{prepat} could be constructed from \type{typ} without having to manually prove the \ac{MRBNF} axioms for it. Alternatively we can think of an modification to the \textbf{binder\_datatype} command that already works on \acp{MRBNF}. The modified command would allow the construction of \acp{MRBNF} without the need to introduce a new binding in the process.\\
+  \\
+  Secondly, we propose the implementation of a way to mark (MR)\acp{BNF} as \textit{strong} (MR)\acp{BNF} when they fulfill strong pullback preservation, i.e., the \ref{eq:in_rel_strong} property defined in \autoref{subsec:conditions}. This would remove the necessity to prove the strength of a strong (MR)\ac{BNF} when it is linearized on a proper subset of its live variables. 
+  
+  Furthermore, if strength of \acp{BNF} is closed under composition and fixpoints, complex strong \acp{BNF} can be constructed using the \textbf{datatype} command from simpler strong \acp{BNF}. A strong \ac{BNF} constructed this was could be linearized without the need to manually prove its strength. Although we have not proven this closure, it appears plausible based on our intuition. However, we have shown in \autoref{subsec:preserve_strength} that strength is closed under the linearization of \acp{MRBNF} and thus a linearized \ac{MRBNF} can be linearized again --- provided it still has live variables to be linearized.

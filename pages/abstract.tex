@@ -1,3 +1,4 @@
 \chapter{\abstractname}
-
-%TODO: Abstract
+In this thesis we address the problem of constructing linear \acp{MRBNF} in the Isabelle/HOL proof assistant. We formalize the process of linearization as taking a linear subtype from a non-linear \ac{MRBNF} and show that the resulting type is also a \ac{MRBNF}. Furthermore, we automate this process in a new \textbf{linearize\_mrbnf} command, which generates the linearized type, derives the typical \ac{MRBNF} constants, and proves the necessary properties.
+We demonstrate the utility of our approach with an example based on the POPLmark Challenge, showing how a manual linearization can be streamlined with our new command.
+Our work provides an extension to Isabelle/HOL that simplifies the generation of complex, non-repetitive datatypes, supporting further reasoning about syntaxes with bindings.
