@@ -145,7 +145,9 @@
      \text{\footnotesize where $\Omega_\alpha$ is the universe of type $\alpha$.}
    \end{align*}
 
-   For an \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees, and $b$ bounds, we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. We note here that any small-support function acts as the identity function at least for "some" (actually for "most") inputs and thus its domain type and range type are the same. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the live type variables may be changed through a map.
+   To motivate the restrictions to small-support functions for frees and small-support bijections for bounds, we need to think about lambda calculus again. Consider as an example, that we want to apply a capture avoiding substitution of $y$ for $x$ in the term $(\lambda y.\; (y\; x)\; \mathtt{t})$, where $\mathtt{t}$ is an arbitrary term that can contain further occurrences of $x$ or $y$. This substitution is only capture-free if we rename the bound variable $y$ to a fresh variable (e.g., $y'$ if it does not occur as a free variable in $\mathtt{t}$) before applying the substitution. Mapping a function $v$ over the free variables is like applying multiple capture-free substitutions at the same time. The restriction to small-support is necessary to ensure that when we encounter such a situation, where we need to rename a bound variable first, we can always find a fresh variable that is not in the support of $v$, i.e., a variable that is not changed by $v$. The restriction to bijections for bounds comes into play when renaming bounds. Here, we additionally need to avoid collapsing two bound variables to the same, which could alter the semantics of a term.
+
+   For an \ac{MRBNF} $F$ with $l$ lives, $\fr$ frees, and $b$ bounds, we define $\vs = l + \fr + b$ as the number of all non-dead type variables. With this, the mapper and setters are expanded to work for the frees and bounds just as they do for lives. Thus, $F$ has $\vs$ setters and a mapper with arity $\vs + 1$. We note here that any small-support function acts as the identity function at least for "some" (actually for "most") inputs and thus its domain and co-domain are the same, i.e., it is a \textit{endofunction}. This means that the type variables for frees and bounds are the same for the $F$ argument of the mapper and the result, while the live type variables may be changed through a map.
 
    As before, we use the notation $f^l = f_1 \dots f_l$ for functions and $R^l = R_1 \dots R_l$ for relations on the live variables. Analogously, we write $v^\fr$ and $u^b$ for functions on frees and bounds. Furthermore, we write the arguments of the map function as $f^{l}\; v^{\fr}\; u^b$. As an example, the mapper of the type $(\alpha,\; \beta,\; \gamma)\; F$ where $\alpha$ and $\beta$ are free and $\gamma$ is bound has the following type:
    \[
@@ -160,9 +162,6 @@
    \[
      \mrrel_F\; u^{b}\; v^{\fr}\; R^l\; x\; y = \rel_F\; R^l\; (\map_F\; \id^{l}\; v^{\fr}\; u^b\; x)\; y
    \]
-   
-   % Why small-support?
-   % Why bijection?
 
    \subsection{MRBNF axioms}
      \acp{MRBNF} require the same axioms as \acp{BNF} with slight modifications. We take the formalized axioms from \autoref{fig:bnf_axioms} as a base and explain the differences.
@@ -175,7 +174,7 @@
        &\smash{\map_F\; \fst^{l}\; \id^{\fr}\; \id^b\; z = x \land \map_F\; \snd^{l}\; v^{\fr}\; u^b\; z = y}
      \end{align*}
 
-     The type variables of an \ac{MRBNF} are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh elements available for renaming. It is defined as the cardinality of the type being at least the bound of $F$ $\bd_F$ for datatypes or the cardinal successor $\textsf{cardSuc} \bd_F$ for codatatypes. In Isabelle, the requirements of largeness and regularity are combined in dedicated type classes. For the cases where $\bd_F = \aleph_0$, predefined \texttt{var} and \texttt{covar} implement the appropriate requirements.
+     The type variables of an \ac{MRBNF} are required to be \textit{large} and \textit{regular}. Largeness is necessary to ensure that there are always fresh atoms available for renaming. It is defined as the cardinality of the type being at least the bound of $F$ $\bd_F$ for datatypes or the cardinal successor $\textsf{cardSuc} \bd_F$ for codatatypes. In Isabelle, the requirements of largeness and regularity are combined in dedicated type classes. For the cases where $\bd_F = \aleph_0$, predefined \texttt{var} and \texttt{covar} implement the appropriate requirements.
 
    \subsection{Datatypes with bindings}
    \label{subsec:binders}
@@ -187,6 +186,6 @@
      \end{align*}
      The core differences we notice compared to a regular datatype definition are the names given to certain components (e.g., \texttt{x}::$\alpha$) and the usage of these names to declare bindings (e.g., \textbf{binds} \texttt{x} \textbf{in} \texttt{t}). For the abstraction case Abs, this declaration means that for a term $\text{Abs}\; x\; t$, the variable $x$ is considered bound in $t$. 
      
-     In general, any name occurring between \textbf{binds} and \textbf{in} corresponds to a type variable that is to be bound. In contrast to that, a name that occurs after the \textbf{in} corresponds to a recursive occurrence of the datatype in which the variables are being bound. Most importantly, the \textbf{binder\_datatype} command allows us to use an \ac{MRBNF} with bound variables in the definition of a datatype, if the bound variables correspond to type variables that are to be bound.
+     In general, any name occurring between \textbf{binds} and \textbf{in} corresponds to a type variable that is to be bound. In contrast to that, a name that occurs after the \textbf{in} corresponds to a recursive occurrence of the datatype in which the variables are being bound. These \textit{binds-in} clauses define a \textit{binding dispatcher} between the inputs of binding variables and the term inputs. Most importantly, the \textbf{binder\_datatype} command allows us to use an \ac{MRBNF} with bound variables in the definition of a datatype, if the bound variables correspond to type variables that are to be bound.
 
-     The result of this command is a binding-aware datatype. This datatype considers $\alpha$-equivalent terms equal, i.e., it is quotiented by alpha equivalence, supports capture-free variable substitution, and features relevant for reasoning about lambda terms or other syntaxes with bindings. More details about the details on how these are given by Blanchette et al.~\mbox{\cite[§5]{blanchette2019bindings}}.
+     The result of this command is a binding-aware datatype. This datatype considers $\alpha$-equivalent terms equal, i.e., it is quotiented by alpha equivalence, supports capture-avoiding variable substitution, and other features relevant for reasoning about lambda terms or other syntaxes with bindings. More details about the details on how these are given by Blanchette et al.~\mbox{\cite[§5]{blanchette2019bindings}}.

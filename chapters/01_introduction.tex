@@ -5,7 +5,7 @@
 \label{chapter:introduction}
  Isabelle/HOL provides a fleshed-out system for defining datatypes and codatatypes built on the theory of \acfp{BNF} developed by Traytel et al.~\cite{traytel2012foundational}. The \textbf{datatype} command developed by Blanchette et al.~\cite{blanchette2014truly}, based on this theory, allows Isabelle users to construct possibly recursive datatypes from primitive, built-in datatypes like the list, product, or function type. The resulting datatype is equipped with several predicates that allow for reasoning about the datatype, for example, through case distinction and structural induction.
 
- However, these regular datatypes are not well-suited to express and reason about lambda calculus terms. As an example, we consider lambda terms with parallel let bindings, where a term is either a variable, an application, a lambda abstraction, or a parallel let binding. Concretely, we want to represent the following syntax, where $\mathtt{x}$ are variable names.
+ However, these regular datatypes are not well-suited to express and reason about syntaxes with bindings, like, for example, lambda calculus terms. As an example, we consider lambda terms with parallel let bindings, where a term is either a variable, an application, a lambda abstraction, or a parallel let binding. Concretely, we want to represent the following syntax, where $\mathtt{x}$ are variable names.
  \[
    \mathtt{t} := \mathtt{x}\; |\; \mathtt{t}_1\; \mathtt{t}_2\; |\; (\lambda x.\; t)\; |\; \texttt{let } \mathtt{x}_1 = \mathtt{t}_1 \texttt{ and } \dots \texttt{ and } \mathtt{x}_n = \mathtt{t}_n \texttt{ in } \mathtt{t}_{n+1}
  \]
