@@ -1,19 +1,14 @@
-# LaTeX template for TUM theses
+# Constructing Linear Types in Isabelle/HOL
+## Konstruktion linearer Typen in Isabelle/HOL
+### Abstract
+In this thesis, we address the problem of constructing linear Map-Restricted Bounded Natural Functors (MRBNFs) in the Isabelle/HOL proof assistant. We formalize the process of linearization as taking a linear subtype from a non-linear MRBNF and show that the resulting type is also a MRBNF. Furthermore, we automate this process in a new **linearize_mrbnf** command, which generates the linearized type, derives the typical MRBNF constants, and proves the necessary properties.
 
-This is a LaTeX template created according to the guidelines for TUM informatics theses in WS 2022. **Always check the [current formatting guidelines][thesis-guidelines] before you hand in.** See [`build/main.pdf`][sample-pdf] for an example PDF created with this template.
+We demonstrate the utility of our approach with an example based on the POPLmark Challenge, showing how a manual linearization can be streamlined with our new command.
 
-Comments & contributions are welcome!
+Our work extends Isabelle/HOL to simplify the generation of complex, non-repetitive datatypes, supporting further reasoning about syntaxes with bindings.
 
-## Quickstart
 
- * [Download][template-download] and extract the template, or upload it to an online editor such as [Overleaf][overleaf] or [TUM ShareLaTeX][tum-sharelatex]. If you prefer to use Git, just clone/fork the repository.
-If your editor supports compiling LaTeX, set it up to use `pdflatex` and `biber`. Set the master document to `main.tex`. Alternatively, you can use the provided Makefile to generate a PDF in the `build` directory (requires `latexmk`).
- * To use Visual Studio Code install the [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop) extension. Then as soon as you click on "Save" it automatically compiles your thesis for you without having to configure anything.
- * Look for `TODO` comments in the provided files. Start at `main.tex`.
-
-If you are new to LaTeX, the [Overleaf Documentation][overleaf-learn] or the [LaTeX Wikibook][latex-wikibook] might help.
-
-If you still have problems with the template, feel free to [create an issue][issue]. For general LaTeX questions, use [TeX StackExchange][tex-se].
+[full document](https://github.com/FelixKrayer/masters-thesis-Isabelle/blob/main/Thesis_2025_11_13.pdf)
 
 ## License
 
@@ -27,18 +22,8 @@ This template is licensed under a [Creative Commons Attribution-ShareAlike 4.0 I
 
 The license **applies only to the template**; there are no restrictions on the resulting PDF file or the contents of your thesis.
 
-[issue]: https://github.com/TUM-Dev/tum-thesis-latex/issues
-[latex-wikibook]: https://en.wikibooks.org/wiki/LaTeX
 [license-compatible]: https://creativecommons.org/compatiblelicenses
 [license-image]: https://i.creativecommons.org/l/by-sa/4.0/88x31.png
 [license]: https://creativecommons.org/licenses/by-sa/4.0/
-[overleaf]: https://www.overleaf.com/
-[sample-pdf]: https://raw.github.com/TUM-Dev/tum-thesis-latex/master/build/main.pdf
-[overleaf-learn]: https://www.overleaf.com/learn
-[tum-sharelatex]: https://sharelatex.tum.de/ldap/login
 [template-authors]: https://github.com/TUM-Dev/tum-thesis-latex/graphs/contributors
-[template-download]: https://github.com/TUM-Dev/tum-thesis-latex/archive/master.zip
 [template-url]: https://github.com/TUM-Dev/tum-thesis-latex
-[tex-se]: https://tex.stackexchange.com/
-[thesis-guidelines]: https://www.cit.tum.de/en/cit/studies/students/thesis-completing-your-studies/informatics/
-[wiki]: https://github.com/TUM-Dev/tum-thesis-latex/wiki/
